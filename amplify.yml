@@ -1,0 +1,14 @@
+version: 1
+applications:
+  - appRoot: launch
+    frontend:
+      phases:
+        build:
+          commands:
+            - echo "Deploying ArtemisSignals launch site"
+      artifacts:
+        baseDirectory: .
+        files:
+          - '**/*'
+      cache:
+        paths: []
