@@ -1,0 +1,138 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ArtemisSignals early access interest capture - HTTP API, Lambda, DynamoDB
+Parameters:
+  DomainOrigin:
+    Type: String
+    Default: https://artemissignals.ai
+    Description: The exact origin of your production launch website, including https
+Resources:
+  WaitlistTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: emailHash
+          AttributeType: S
+      KeySchema:
+        - AttributeName: emailHash
+          KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+  WaitlistRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: {Service: lambda.amazonaws.com}
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: WaitlistWritesAndLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: [dynamodb:PutItem]
+                Resource: !GetAtt WaitlistTable.Arn
+              - Effect: Allow
+                Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                Resource: '*'
+  WaitlistFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.12
+      Handler: index.handler
+      Role: !GetAtt WaitlistRole.Arn
+      Timeout: 8
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref WaitlistTable
+          ALLOWED_ORIGIN: !Ref DomainOrigin
+      Code:
+        ZipFile: |
+          import os, json, re, hashlib, datetime
+          import boto3
+          from botocore.exceptions import ClientError
+          db = boto3.resource('dynamodb').Table(os.environ['TABLE_NAME'])
+          origin = os.environ['ALLOWED_ORIGIN']
+          def response(code, data):
+              return {'statusCode': code, 'headers': {'Content-Type':'application/json','Cache-Control':'no-store'}, 'body':json.dumps(data)}
+          def handler(event, context):
+              if event.get('requestContext',{}).get('http',{}).get('method') != 'POST':
+                  return response(405, {'message':'Method not allowed'})
+              try:
+                  raw = event.get('body') or '{}'
+                  if len(raw) > 6000: return response(413, {'message':'Request too large'})
+                  data = json.loads(raw)
+                  if not isinstance(data,dict): return response(400, {'message':'Invalid submission'})
+                  if data.get('website'): return response(200, {'message':'Thank you for your interest.'})
+                  email = str(data.get('email','')).strip().lower()
+                  name = str(data.get('name','')).strip()
+                  market = str(data.get('market','')).strip()
+                  consent = data.get('consent') is True
+                  if not re.fullmatch(r'[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}',email) or len(email)>254:
+                      return response(400, {'message':'Enter a valid email address.'})
+                  if len(name)>80 or market not in ('Forex','Gold','Indices','Crypto','All',''):
+                      return response(400, {'message':'Please check your details.'})
+                  if not consent: return response(400, {'message':'Please agree to receiving launch updates.'})
+                  now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+                  item = {'emailHash':hashlib.sha256(email.encode()).hexdigest(),'email':email,'createdAt':now,'consentAt':now,'consentVersion':'2026-10-09-v1','market':market or 'All','source':'launch-website'}
+                  if name: item['name']=name
+                  try:
+                      db.put_item(Item=item,ConditionExpression='attribute_not_exists(emailHash)')
+                  except ClientError as err:
+                      if err.response.get('Error',{}).get('Code')!='ConditionalCheckFailedException': raise
+                  return response(200, {'message':'Thanks! You’re on the early-access list.'})
+              except (ValueError,TypeError,json.JSONDecodeError):
+                  return response(400, {'message':'Please check your submission.'})
+              except Exception:
+                  return response(500, {'message':'Unable to register right now. Please try later.'})
+  WaitlistApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: ArtemisSignalsWaitlist
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowOrigins: [!Ref DomainOrigin]
+        AllowMethods: [POST, OPTIONS]
+        AllowHeaders: [content-type]
+        MaxAge: 600
+  WaitlistIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WaitlistApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt WaitlistFunction.Arn
+      PayloadFormatVersion: '2.0'
+  WaitlistRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WaitlistApi
+      RouteKey: 'POST /interest'
+      Target: !Join ['/', ['integrations', !Ref WaitlistIntegration]]
+  WaitlistStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref WaitlistApi
+      StageName: '$default'
+      AutoDeploy: true
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 10
+        ThrottlingRateLimit: 5
+  WaitlistPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref WaitlistFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WaitlistApi}/*/POST/interest'
+Outputs:
+  InterestEndpoint:
+    Description: Paste this URL into launch/config.js
+    Value: !Sub 'https://${WaitlistApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/interest'
+  TableName:
+    Value: !Ref WaitlistTable
