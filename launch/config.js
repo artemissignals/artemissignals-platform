@@ -1,2 +1,1 @@
-window.ARTEMIS_WAITLIST_ENDPOINT =
-  "https://d1azq3m2f3.execute-api.us-east-1.amazonaws.com/interest";
+https://k9k2llavp8.execute-api.eu-west-2.amazonaws.com/interest
