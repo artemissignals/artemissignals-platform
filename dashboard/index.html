@@ -3,7 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Artemis Signals — Secure Subscriber App</title>
+<title>Artemis Signals | Secure Live Trading Signal Dashboard</title>
+<meta name="description" content="Secure Artemis Signals subscriber dashboard for authenticated access to FX, gold, indices and crypto market alerts, signal history and risk levels.">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#08111e">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Artemis Signals | Subscriber Dashboard">
+<meta property="og:description" content="Your secure live signals dashboard, powered by Artemis Signals.">
+<meta property="og:url" content="https://app.artemissignals.ai/">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://app.artemissignals.ai/">
 <script>
   (function(){
     const saved=localStorage.getItem("artemis_theme");
@@ -113,6 +122,65 @@ html:not([data-theme="light"]) .opportunity:hover,
 html:not([data-theme="light"]) .card:hover{border-color:rgba(244,162,103,.42)}
 html:not([data-theme="light"]) .notice{background:rgba(244,162,103,.08);border-color:rgba(244,162,103,.22)}
 @media(prefers-reduced-motion:reduce){.card,.opportunity{transition:none}}
+
+/* v0.9.3: a genuinely denser trading-terminal layout */
+.nav-symbol,.heading-icon{display:inline-block;color:var(--brand);margin-right:6px;font-size:1.15em;vertical-align:-1px}
+.symbol-emblem{width:30px;height:30px;border-radius:10px;display:inline-grid;place-items:center;font-size:17px;font-weight:850;background:var(--blue-bg);color:var(--blue);border:1px solid var(--line)}
+.symbol-emblem.metal{background:var(--amber-bg);color:var(--brand)}.symbol-emblem.crypto{background:var(--amber-bg);color:var(--amber)}.symbol-emblem.indices{background:var(--green-bg);color:var(--green)}
+.rr-chip{color:var(--green);background:var(--green-bg)}
+.densitybtn[aria-pressed="true"]{border-color:var(--brand);background:var(--amber-bg);color:var(--brand)}
+html[data-density="compact"] .wrap{max-width:1490px;padding-top:12px}
+html[data-density="compact"] .topbar{margin-bottom:9px}
+html[data-density="compact"] .nav{margin-bottom:10px;padding:4px}
+html[data-density="compact"] .navbtn{padding:7px 10px;font-size:11px}
+html[data-density="compact"] .market-strip{margin-bottom:9px}
+html[data-density="compact"] .market-cell{padding:6px 10px}
+html[data-density="compact"] .activity-ticker{padding:5px 9px;margin:0 0 8px}
+html[data-density="compact"] .hero{padding:10px 14px;margin-bottom:9px}
+html[data-density="compact"] .hero-title{font-size:15px}
+html[data-density="compact"] .hero-copy{font-size:11px;margin-top:3px}
+html[data-density="compact"] .quick .box{padding:6px 9px}
+html[data-density="compact"] .quick .v{font-size:15px}
+html[data-density="compact"] .metrics{gap:7px;margin:8px 0 10px}
+html[data-density="compact"] .metric{padding:9px 12px;border-radius:10px}
+html[data-density="compact"] .metric .v{font-size:23px;margin-top:1px}
+html[data-density="compact"] .asset-overview{gap:7px;margin-bottom:9px}
+html[data-density="compact"] .asset-card{padding:8px 11px}
+html[data-density="compact"] .asset-count{font-size:19px;margin-top:5px}
+html[data-density="compact"] .market-status{margin-top:5px}
+html[data-density="compact"] .heartbeat{margin-bottom:9px}
+html[data-density="compact"] .heartbeat-cell{padding:7px 10px}
+html[data-density="compact"] .sectionhead{margin:11px 0 7px}
+html[data-density="compact"] .sectionhead h2{font-size:14px}
+html[data-density="compact"] .opportunity-board{gap:7px;margin-bottom:10px}
+html[data-density="compact"] .opportunity{padding:9px 10px}
+html[data-density="compact"] .opp-state{margin-top:7px}
+html[data-density="compact"] .opp-meta{margin-top:5px}
+html[data-density="compact"] .intel-grid{gap:9px;margin-bottom:10px}
+html[data-density="compact"] .scanner-row{padding:6px 9px}
+html[data-density="compact"] .insight-card{padding:10px}
+html[data-density="compact"] .filters{margin:6px 0 9px}
+html[data-density="compact"] .filterbtn{padding:6px 10px;font-size:11px}
+html[data-density="compact"] .layout{grid-template-columns:2.3fr .7fr;gap:9px}
+html[data-density="compact"] .signals{gap:7px}
+html[data-density="compact"] .card{padding:10px 13px;border-radius:10px}
+html[data-density="compact"] .card:hover{transform:none}
+html[data-density="compact"] .market{font-size:16px}
+html[data-density="compact"] .symbol-emblem{width:24px;height:24px;border-radius:7px;font-size:13px}
+html[data-density="compact"] .meta{margin-top:3px}
+html[data-density="compact"] .status-label{display:none}
+html[data-density="compact"] .status-badge{padding:4px 8px;font-size:10px}
+html[data-density="compact"] .levels{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:7px}
+html[data-density="compact"] .level{padding:6px 8px;border-radius:8px}
+html[data-density="compact"] .level .v{font-size:12px;margin-top:2px}
+html[data-density="compact"] .target-path{display:none}
+html[data-density="compact"] .chips{margin-top:6px;gap:5px}
+html[data-density="compact"] .chip{padding:3px 7px;font-size:9px}
+html[data-density="compact"] .footerline{padding-top:5px;margin-top:7px;font-size:10px}
+html[data-density="compact"] .card-open{right:12px;bottom:9px}
+html[data-density="compact"] .panel{padding:11px}
+@media(max-width:980px){html[data-density="compact"] .layout{grid-template-columns:1fr}}
+@media(max-width:600px){html[data-density="compact"] .hero-copy{display:none}html[data-density="compact"] .symbol-emblem{display:none}html[data-density="compact"] .chip{font-size:9px}}
 </style>
 </head>
 <body>
@@ -130,12 +198,12 @@ html:not([data-theme="light"]) .notice{background:rgba(244,162,103,.08);border-c
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><div class="logo">A</div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.8.4</div></div></div>
+  <div class="brandwrap"><div class="logo">A</div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3</div></div></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <div class="user-meta"><div id="userEmail" class="user-email">Signed in</div><div class="user-plan">PRO subscriber</div></div>
   <div class="avatar">AS</div>
-  <button id="densityButton" class="densitybtn" type="button" aria-label="Change dashboard density">Compact</button>
+  <button id="densityButton" class="densitybtn" type="button" aria-label="Switch to compact dashboard view" aria-pressed="false">▤ Compact</button>
   <button class="themebtn" type="button" aria-label="Switch colour theme">☀ Light</button>
   <button id="logoutButton" class="logoutbtn" type="button">Log Out</button>
 </div>
@@ -155,12 +223,12 @@ html:not([data-theme="light"]) .notice{background:rgba(244,162,103,.08);border-c
 </div>
 
 <nav class="nav">
-  <button class="navbtn active" data-page="dashboard">Dashboard</button>
-  <button class="navbtn" data-page="history">History</button>
-  <button class="navbtn" data-page="performance">Performance</button>
-  <button class="navbtn" data-page="profile">My Profile</button>
-  <button class="navbtn" data-page="settings">Account Settings</button>
-  <button class="navbtn" data-page="support">Support</button>
+  <button class="navbtn active" data-page="dashboard"><span class="nav-symbol" aria-hidden="true">◈</span> Dashboard</button>
+  <button class="navbtn" data-page="history"><span class="nav-symbol" aria-hidden="true">◷</span> History</button>
+  <button class="navbtn" data-page="performance"><span class="nav-symbol" aria-hidden="true">▥</span> Performance</button>
+  <button class="navbtn" data-page="profile"><span class="nav-symbol" aria-hidden="true">♙</span> My Profile</button>
+  <button class="navbtn" data-page="settings"><span class="nav-symbol" aria-hidden="true">⚙</span> Account Settings</button>
+  <button class="navbtn" data-page="support"><span class="nav-symbol" aria-hidden="true">✧</span> Support</button>
 </nav>
 
 <section class="hero">
@@ -192,7 +260,7 @@ html:not([data-theme="light"]) .notice{background:rgba(244,162,103,.08);border-c
   <div class="heartbeat-cell"><div class="k">Latest signal event</div><div class="v" id="latestEventTime">No event loaded</div></div>
 </section>
 
-<div class="sectionhead"><h2>Opportunity board</h2><div class="r">Live MT5 scanner state · click for evidence</div></div>
+<div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">◎</span> Opportunity board</h2><div class="r">Live MT5 scanner state · click for evidence</div></div>
 <div class="scanner-toolbar" aria-label="Opportunity filters">
   <select id="scannerAssetFilter"><option value="All">All markets</option><option value="FX">FX</option><option value="Gold / Metals">Metals</option><option value="Indices">Indices</option><option value="Crypto">Crypto</option></select>
   <select id="scannerStateFilter"><option value="All">All states</option><option>Early interest</option><option>Developing</option><option>Ready</option><option>Confirmed</option><option>Scanning</option><option>No setup</option><option>Market closed</option><option>Scanner offline</option></select>
@@ -202,11 +270,11 @@ html:not([data-theme="light"]) .notice{background:rgba(244,162,103,.08);border-c
 
 <section class="intel-grid">
   <div>
-    <div class="sectionhead"><h2>Market scanner</h2><div class="r">Latest state by instrument</div></div>
+    <div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">⌁</span> Market scanner</h2><div class="r">Latest state by instrument</div></div>
     <div id="scannerMatrix" class="scanner"><div class="scanner-empty">Scanner data will appear when signals load.</div></div>
   </div>
   <div>
-    <div class="sectionhead"><h2>Visual insights</h2><div class="r">Real feed data</div></div>
+    <div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">▤</span> Visual insights</h2><div class="r">Real feed data</div></div>
     <div class="insights">
       <div class="insight-card"><div class="insight-title">Outcome mix</div><div id="outcomeDonut"></div></div>
       <div class="insight-card"><div class="insight-title">Session activity</div><div id="sessionHeatmap" class="heat-list"></div></div>
@@ -214,7 +282,7 @@ html:not([data-theme="light"]) .notice{background:rgba(244,162,103,.08);border-c
   </div>
 </section>
 
-<div class="sectionhead"><h2>Live signals</h2><div class="r" id="updatedAt">Waiting for data</div></div>
+<div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">✦</span> Live signals</h2><div class="r" id="updatedAt">Waiting for data</div></div>
 
 <div class="filters" aria-label="Signal filters">
   <button class="filterbtn active" data-filter="All">All</button>
@@ -383,7 +451,7 @@ function renderSignal(s){
     <div class="signal-top">
       <div>
         <div class="marketline">
-          <span class="market">${esc(s.symbol)}</span>
+          <span class="symbol-emblem ${asset==="Gold / Metals"?"metal":asset==="Crypto"?"crypto":asset==="Indices"?"indices":"fx"}" aria-hidden="true">${asset==="Gold / Metals"?"✦":asset==="Crypto"?"₿":asset==="Indices"?"▥":"↗"}</span><span class="market">${esc(s.symbol)}</span>
           <span class="badge ${dir==="BUY"?"buy":"sell"}">${esc(dir)}</span>
           <span class="badge grade">${esc(grade)}</span>
           <span class="tiny asset">${esc(asset)}</span>
@@ -408,6 +476,8 @@ function renderSignal(s){
       <span class="chip">${esc(s.market_state||"Market state pending")}</span>
       <span class="chip">${esc(s.product||"Artemis Signal Engine")}</span>
       <span class="chip">Max target: ${esc(maxTarget(s))}</span>
+       ${rr?`<span class="chip rr-chip">⚖ Risk/reward 1:${esc(rr)}</span>`:""}
+       <span class="chip">◷ ${esc(signalAge)}</span>
     </div>
     <div class="footerline"><span>${esc(s.timestamp_utc||"")}</span>${s.final_outcome?`<span>•</span><span>${esc(s.final_outcome)}</span>`:""}</div>
     <button class="card-open" type="button" onclick="openSignalDetail(${signalIndex})">View signal →</button>
@@ -567,9 +637,9 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSignalDetail()}
 
 function renderVisualIntelligence(signals){
   const assets=[
-    {name:"FX",icon:"FX",key:"FX"},
-    {name:"Metals",icon:"Au",key:"Gold / Metals"},
-    {name:"Indices",icon:"IX",key:"Indices"},
+    {name:"FX",icon:"↗",key:"FX"},
+    {name:"Metals",icon:"✦",key:"Gold / Metals"},
+    {name:"Indices",icon:"▥",key:"Indices"},
     {name:"Crypto",icon:"₿",key:"Crypto"}
   ];
   document.getElementById("assetOverview").innerHTML=assets.map(a=>{
@@ -644,7 +714,13 @@ updateThemeButtons();
 
 const savedDensity=localStorage.getItem("artemis_density")||"comfortable";
 document.documentElement.dataset.density=savedDensity;
-function updateDensityButton(){document.getElementById("densityButton").textContent=document.documentElement.dataset.density==="compact"?"Comfortable":"Compact"}
+function updateDensityButton(){
+  const button=document.getElementById("densityButton");
+  const compact=document.documentElement.dataset.density==="compact";
+  button.textContent=compact?"▦ Comfortable":"▤ Compact";
+  button.setAttribute("aria-pressed",String(compact));
+  button.setAttribute("aria-label",compact?"Switch to comfortable dashboard view":"Switch to compact dashboard view");
+}
 document.getElementById("densityButton").addEventListener("click",()=>{
   const next=document.documentElement.dataset.density==="compact"?"comfortable":"compact";
   document.documentElement.dataset.density=next;
