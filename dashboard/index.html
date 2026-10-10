@@ -130,7 +130,7 @@ html:not([data-theme="light"]) .notice{background:rgba(244,162,103,.08);border-c
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><div class="logo">A</div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.8.4</div></div></div>
+  <div class="brandwrap"><div class="logo">A</div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.8.5</div></div></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <div class="user-meta"><div id="userEmail" class="user-email">Signed in</div><div class="user-plan">PRO subscriber</div></div>
@@ -748,7 +748,7 @@ async function loadScannerStates(idToken){
 
 const COGNITO_DOMAIN='https://eu-west-2ptwnbug4q.auth.eu-west-2.amazoncognito.com';
 const COGNITO_CLIENT_ID='63u0rb0dvvtln29jf2bui3n085';
-const COGNITO_REDIRECT_URI='https://staging.d25slvada984cq.amplifyapp.com';
+const COGNITO_REDIRECT_URI='https://app.artemissignals.ai/';
 const COGNITO_SCOPES="openid email profile";
 
 function base64UrlEncode(bytes){
@@ -863,8 +863,9 @@ async function initAuth(){
 
   if(code){
     const expectedState=sessionStorage.getItem("artemis_oauth_state");
-    if(expectedState && returnedState!==expectedState){
+    if(!expectedState || !returnedState || returnedState!==expectedState){
       setAuthState("Login validation failed. Please try again.");
+      history.replaceState({},"",window.location.pathname);
       clearLocalAuth();
       return;
     }
