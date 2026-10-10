@@ -123,6 +123,9 @@ html:not([data-theme="light"]) .card:hover{border-color:rgba(244,162,103,.42)}
 html:not([data-theme="light"]) .notice{background:rgba(244,162,103,.08);border-color:rgba(244,162,103,.22)}
 @media(prefers-reduced-motion:reduce){.card,.opportunity{transition:none}}
 
+/* v0.9.3.1 refined Artemis mark */
+.logo{background:linear-gradient(145deg,#132a41,#091525);border:1px solid rgba(244,162,103,.38);box-shadow:0 0 0 1px rgba(91,213,188,.10),0 10px 28px rgba(0,0,0,.24);padding:5px}
+.logo svg{width:100%;height:100%;display:block}
 /* v0.9.3: a genuinely denser trading-terminal layout */
 .nav-symbol,.heading-icon{display:inline-block;color:var(--brand);margin-right:6px;font-size:1.15em;vertical-align:-1px}
 .symbol-emblem{width:30px;height:30px;border-radius:10px;display:inline-grid;place-items:center;font-size:17px;font-weight:850;background:var(--blue-bg);color:var(--blue);border:1px solid var(--line)}
@@ -185,7 +188,7 @@ html[data-density="compact"] .panel{padding:11px}
 </head>
 <body>
 <section id="authGate" class="auth-gate">
-  <div class="logo" style="margin:0 auto">A</div>
+  <div class="logo" style="margin:0 auto"><svg viewBox="0 0 48 48" role="img" aria-label="Artemis Signals emblem" xmlns="http://www.w3.org/2000/svg"><path d="M24 5 42 39H6L24 5Z" fill="none" stroke="#f4a267" stroke-width="3.5" stroke-linejoin="round"/><path d="M14 34 24 15 34 34" fill="none" stroke="#ffd6ae" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 28h14" stroke="#5bd5bc" stroke-width="3.3" stroke-linecap="round"/><circle cx="24" cy="7" r="2.6" fill="#5bd5bc"/></svg></div>
   <h1>Artemis Signals</h1>
   <p id="authMessage">Sign in to access your subscriber dashboard, live signals, history and account settings.</p>
   <div class="auth-actions">
@@ -198,7 +201,7 @@ html[data-density="compact"] .panel{padding:11px}
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><div class="logo">A</div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3</div></div></div>
+  <div class="brandwrap"><div class="logo"><svg viewBox="0 0 48 48" role="img" aria-label="Artemis Signals emblem" xmlns="http://www.w3.org/2000/svg"><path d="M24 5 42 39H6L24 5Z" fill="none" stroke="#f4a267" stroke-width="3.5" stroke-linejoin="round"/><path d="M14 34 24 15 34 34" fill="none" stroke="#ffd6ae" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 28h14" stroke="#5bd5bc" stroke-width="3.3" stroke-linecap="round"/><circle cx="24" cy="7" r="2.6" fill="#5bd5bc"/></svg></div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3.1</div></div></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <div class="user-meta"><div id="userEmail" class="user-email">Signed in</div><div class="user-plan">PRO subscriber</div></div>
@@ -446,6 +449,14 @@ function renderSignal(s){
   const reached1=Boolean(s.tp1_hit)||["TP1","TP2","TP3"].includes(maxTarget(s));
   const reached2=Boolean(s.tp2_hit)||["TP2","TP3"].includes(maxTarget(s));
   const reached3=Boolean(s.tp3_hit)||maxTarget(s)==="TP3";
+  // Only calculate risk/reward when numeric entry, stop and target are available.
+  const entry=Number(s.entry), stop=Number(s.sl), target=Number(s.tp1??s.tp??s.tp2);
+  const risk=Math.abs(entry-stop), reward=Math.abs(target-entry);
+  const rr=Number.isFinite(entry)&&Number.isFinite(stop)&&Number.isFinite(target)&&risk>0&&reward>0
+    ?(reward/risk).toFixed(2):null;
+  const created=s.timestamp_utc||s.createdAt||s.created_at||s.timestamp;
+  const parsedTime=created?new Date(created).getTime():NaN;
+  const signalAge=Number.isFinite(parsedTime)?relativeAge(Math.max(0,(Date.now()-parsedTime)/1000)):"Time unavailable";
   const signalIndex=allSignals.indexOf(s);
   return `<article class="card ${dir==="BUY"?"signal-buy":"signal-sell"}">
     <div class="signal-top">
