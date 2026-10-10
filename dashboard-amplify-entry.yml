@@ -1,0 +1,13 @@
+# Add this application under applications: in the existing root amplify.yml
+  - appRoot: dashboard
+    frontend:
+      phases:
+        build:
+          commands:
+            - echo "Deploying ArtemisSignals customer dashboard"
+      artifacts:
+        baseDirectory: .
+        files:
+          - '**/*'
+      cache:
+        paths: []
