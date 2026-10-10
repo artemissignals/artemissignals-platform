@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /verify.html
+Sitemap: https://artemissignals.ai/sitemap.xml

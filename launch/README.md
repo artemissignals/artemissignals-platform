@@ -1,11 +1,10 @@
-# ArtemisSignals Launch — Waitlist-enabled
+# ArtemisSignals Coming Soon — v1.2
 
-Static launch website deployed by AWS Amplify from `launch/`.
+Static site hosted on Amplify (`launch/` monorepo appRoot), with a London API Gateway/DynamoDB waitlist.
 
-## Connect backend
-1. CloudFormation → Create stack → Upload `backend/waitlist.yaml`. Stack name `artemissignals-waitlist`. DomainOrigin `https://artemissignals.ai`. Acknowledge IAM resource creation.
-2. Once deployed, open stack **Outputs**, copy `InterestEndpoint`.
-3. In `launch/config.js`, paste the URL between quotes. Commit and push in GitHub Desktop; Amplify redeploys.
-4. On **https://artemissignals.ai**, submit a test email, verify in DynamoDB table (CloudFormation `TableName` output), then test duplicate submission and invalid email.
+- `index.html`: responsive landing page, illustrative signal tabs, plans, MT5→AWS process, waitlist form and referral field.
+- `config.js`: existing London API URL.
+- `verify.html`: email verification and referral link after SES is enabled.
+- `privacy.html`, `social-card.png`, `robots.txt`, `sitemap.xml`: legal/SEO assets.
 
-**Important:** This captures opt-in requests but does NOT send a verification or welcome email, and does not yet provide a self-service unsubscribe flow. Before sending bulk marketing emails, integrate an ESP/SES with unsubscribe handling and ideally confirmed double opt-in. The privacy notice assumes `hello@artemissignals.ai` is monitored for data requests; edit the notice if that is not true. Do not put secrets in config.js. API Gateway endpoint is public by design, protected by basic throttling and a bot honeypot, not a CAPTCHA/WAF. Consider additional anti-abuse controls before advertising broadly.
+See the repository-root `README.md` included in the release archive for deployment instructions.
