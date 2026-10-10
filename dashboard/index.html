@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ArtemisSignals — Subscriber Dashboard</title>
+<title>ArtemisSignals — Intelligence Dashboard v0.9.0</title>
 <meta name="theme-color" content="#08111e">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script>
@@ -14,7 +14,7 @@
   })();
 </script>
 <style>
-/* ArtemisSignals Launch visual system — customer dashboard v0.8.4 */
+/* ArtemisSignals Launch visual system — customer dashboard v0.9.0 */
 :root{
   color-scheme:dark;
   --bg:#08111e;--panel:#102137;--card:#111f31;--card2:#0d1b2b;--line:#294057;--text:#f3f5f9;--muted:#a5b6ca;
@@ -133,6 +133,14 @@ html[data-theme="light"] .auth-gate .cta{color:#fff}
 button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
 html[data-theme="light"] .brand-symbol{background:#fff2e8!important;color:#a85c2e!important;border-color:#d79b65!important}
 @media(max-width:760px){.brand-symbol{width:42px;height:42px;font-size:34px!important}.title{font-size:19px}}
+
+/* v0.9.0: Intelligence Dashboard */
+.intel-intro{position:relative;overflow:hidden;padding:23px;border:1px solid rgba(244,162,103,.32);border-radius:18px;background:radial-gradient(ellipse at 85% -10%,rgba(244,162,103,.14),transparent 52%),linear-gradient(120deg,var(--card),var(--panel));margin:0 0 18px;box-shadow:var(--shadow)}
+.briefing-title{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}.briefing-title h2{font-size:clamp(20px,2.4vw,27px);letter-spacing:-.7px;margin:5px 0 8px}.briefing-title p{max-width:720px;font-size:13px;color:var(--muted);line-height:1.55;margin:0}.eyebrow{font-size:10px;font-weight:850;letter-spacing:1.5px;color:var(--brand)}.briefing-refresh{border:1px solid rgba(244,162,103,.42);background:var(--amber-bg);color:var(--text);border-radius:10px;padding:10px 15px;cursor:pointer;font-weight:750;white-space:nowrap}.briefing-refresh:hover{border-color:var(--brand)}
+.briefing-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}.briefing-stats>div{background:var(--card2);border:1px solid var(--line);padding:14px;border-radius:12px;min-width:0}.briefing-stats span{display:block;font-size:10px;color:var(--muted);margin-bottom:7px}.briefing-stats strong{font-size:22px;line-height:1.2;letter-spacing:-.4px}.briefing-stats>div:last-child strong{font-size:14px}.briefing-disclaimer{font-size:10px;color:var(--muted);margin:12px 0 0}
+.why-banner{display:flex;align-items:center;justify-content:space-between;gap:15px;background:var(--panel);border:1px dashed rgba(244,162,103,.38);padding:13px 17px;border-radius:14px;margin:-4px 0 21px}.why-banner strong{font-size:13px}.why-banner p{margin:5px 0 0;color:var(--muted);line-height:1.45;font-size:11px}.why-icon{display:grid;place-items:center;width:33px;height:33px;border:1px solid var(--brand);border-radius:50%;flex:0 0 auto;color:var(--brand);font-weight:850}
+.freshness-tag{font-weight:650} .opportunity:focus-visible,.briefing-refresh:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+@media(max-width:760px){.briefing-title{flex-direction:column}.briefing-stats{grid-template-columns:repeat(2,1fr)}.intel-intro{padding:17px}}
 </style>
 </head>
 <body>
@@ -150,7 +158,7 @@ html[data-theme="light"] .brand-symbol{background:#fff2e8!important;color:#a85c2
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><div class="logo brand-symbol" aria-hidden="true">⌁</div><div><div class="title">ARTEMIS<span class="brand-accent">SIGNALS</span></div><div class="sub">Live scanner terminal · v0.8.6</div></div></div>
+  <div class="brandwrap"><div class="logo brand-symbol" aria-hidden="true">⌁</div><div><div class="title">ARTEMIS<span class="brand-accent">SIGNALS</span></div><div class="sub">Intelligence Terminal · v0.9.0</div></div></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <div class="user-meta"><div id="userEmail" class="user-email">Signed in</div><div class="user-plan">PRO subscriber</div></div>
@@ -186,17 +194,22 @@ html[data-theme="light"] .brand-symbol{background:#fff2e8!important;color:#a85c2
 <section class="hero">
 <div class="hero-grid">
 <div>
-  <div class="hero-title">Live multi-market signals</div>
-  <div class="hero-copy">Filter the dashboard by market, manage your alert preferences, review your plan and upgrade to Elite for Crypto access.</div>
+  <div class="hero-title">Your market intelligence, at a glance</div>
+  <div class="hero-copy">Track fresh signals, inspect scanner evidence and understand why setups are—or are not—ready. Data is sourced from your connected Artemis feeds.</div>
 </div>
 <div class="quick">
-  <div class="box"><div class="k">Subscription</div><div class="v">PRO</div></div>
+  <div class="box"><div class="k">Interface tier</div><div class="v">PRO*</div></div>
   <div class="box"><div class="k">Feed</div><div class="v" id="heroFeed">Live</div></div>
-  <div class="box"><div class="k">Included markets</div><div class="v">3</div></div>
+  <div class="box"><div class="k">Scanners reporting</div><div class="v" id="heroScanners">—</div></div>
   <div class="box"><div class="k">Refresh</div><div class="v">15 sec</div></div>
 </div></div></section>
 
 <section id="dashboard" class="page active">
+<section class="intel-intro" aria-label="Daily intelligence briefing">
+  <div class="briefing-title"><div><div class="eyebrow">ARTEMIS / LIVE INTELLIGENCE</div><h2>Your market briefing</h2><p id="briefingSummary">Waiting for authenticated signal and scanner data…</p></div><button type="button" class="briefing-refresh" id="refreshNow">↻ Refresh now</button></div>
+  <div class="briefing-stats"><div><span>Scanner ready</span><strong id="briefReady">—</strong></div><div><span>Developing</span><strong id="briefDeveloping">—</strong></div><div><span>Watching</span><strong id="briefWatching">—</strong></div><div><span>Scanner freshness</span><strong id="briefFreshness">Awaiting feed</strong></div></div>
+  <p class="briefing-disclaimer">Scanner states are observations, not trade instructions. A stale scanner is never treated as ready.</p>
+</section>
 <section class="metrics">
   <div class="metric"><div class="k">Total signals</div><div class="v" id="mTotal">–</div><div class="s">Tracked in database</div></div>
   <div class="metric"><div class="k">Active signals</div><div class="v good" id="mActive">–</div><div class="s">Currently live</div></div>
@@ -212,13 +225,14 @@ html[data-theme="light"] .brand-symbol{background:#fff2e8!important;color:#a85c2
   <div class="heartbeat-cell"><div class="k">Latest signal event</div><div class="v" id="latestEventTime">No event loaded</div></div>
 </section>
 
-<div class="sectionhead"><h2>Opportunity board</h2><div class="r">Live MT5 scanner state · click for evidence</div></div>
+<div class="sectionhead"><h2>Opportunity Radar</h2><div class="r">Evidence-led MT5 scanner state · select a card to see why</div></div>
 <div class="scanner-toolbar" aria-label="Opportunity filters">
   <select id="scannerAssetFilter"><option value="All">All markets</option><option value="FX">FX</option><option value="Gold / Metals">Metals</option><option value="Indices">Indices</option><option value="Crypto">Crypto</option></select>
   <select id="scannerStateFilter"><option value="All">All states</option><option>Early interest</option><option>Developing</option><option>Ready</option><option>Confirmed</option><option>Scanning</option><option>No setup</option><option>Market closed</option><option>Scanner offline</option></select>
   <button id="watchlistToggle" class="watch-toggle" type="button">☆ Watchlist only</button>
 </div>
 <section id="opportunityBoard" class="opportunity-board"><div class="scanner-empty">Waiting for tracked opportunities…</div></section>
+<section class="why-banner" aria-label="Why no signal explainer"><div><strong>Why no signal?</strong><p>Tap any Opportunity Radar card to inspect the real scanner state, missing conditions, freshness and confluence evidence. Missing values are shown as unavailable—never invented.</p></div><span class="why-icon" aria-hidden="true">?</span></section>
 
 <section class="intel-grid">
   <div>
@@ -234,7 +248,7 @@ html[data-theme="light"] .brand-symbol{background:#fff2e8!important;color:#a85c2
   </div>
 </section>
 
-<div class="sectionhead"><h2>Live signals</h2><div class="r" id="updatedAt">Waiting for data</div></div>
+<div class="sectionhead"><h2>Signal Command Centre</h2><div class="r" id="updatedAt">Waiting for data</div></div>
 
 <div class="filters" aria-label="Signal filters">
   <button class="filterbtn active" data-filter="All">All</button>
@@ -399,6 +413,11 @@ function renderSignal(s){
   const reached2=Boolean(s.tp2_hit)||["TP2","TP3"].includes(maxTarget(s));
   const reached3=Boolean(s.tp3_hit)||maxTarget(s)==="TP3";
   const signalIndex=allSignals.indexOf(s);
+  const risk=Number(s.entry)-Number(s.sl);
+  const reward=Number(s.tp1)-Number(s.entry);
+  const rr=Number.isFinite(risk)&&Number.isFinite(reward)&&Math.abs(risk)>0&&Number.isFinite(Number(s.tp1))&&s.tp1!==null&&s.tp1!==""&&s.sl!==null&&s.sl!==""? Math.abs(reward/risk):null;
+  const published=Date.parse(s.timestamp_utc||"");
+  const age=Number.isFinite(published)?relativeAge(Math.max(0,(Date.now()-published)/1000)):"Time unavailable";
   return `<article class="card ${dir==="BUY"?"signal-buy":"signal-sell"}">
     <div class="signal-top">
       <div>
@@ -406,7 +425,7 @@ function renderSignal(s){
           <span class="market">${esc(s.symbol)}</span>
           <span class="badge ${dir==="BUY"?"buy":"sell"}">${esc(dir)}</span>
           <span class="badge grade">${esc(grade)}</span>
-          <span class="tiny asset">${esc(asset)}</span>
+          <span class="tiny asset">${esc(asset)}</span><span class="tiny freshness-tag">${esc(age)}</span>
         </div>
         <div class="meta">${esc(s.timeframe||"—")} · ${esc(setup)} · ${esc(s.session||"Live feed")}</div>
       </div>
@@ -427,7 +446,7 @@ function renderSignal(s){
     <div class="chips">
       <span class="chip">${esc(s.market_state||"Market state pending")}</span>
       <span class="chip">${esc(s.product||"Artemis Signal Engine")}</span>
-      <span class="chip">Max target: ${esc(maxTarget(s))}</span>
+      <span class="chip">Max target: ${esc(maxTarget(s))}</span><span class="chip">TP1 R:R ${rr!==null?"1:"+rr.toFixed(2):"Unavailable"}</span>
     </div>
     <div class="footerline"><span>${esc(s.timestamp_utc||"")}</span>${s.final_outcome?`<span>•</span><span>${esc(s.final_outcome)}</span>`:""}</div>
     <button class="card-open" type="button" onclick="openSignalDetail(${signalIndex})">View signal →</button>
@@ -484,8 +503,9 @@ function opportunityState(s){
 }
 
 function scannerDisplayState(s){
-  const age=Math.max(0,(Date.now()-new Date(s.updated_at||s.timestamp_utc||0).getTime())/1000);
-  if(s.online===false||age>Number(s.offline_after_seconds||180)) return {label:"Scanner offline",cls:"status-red",offline:true,age};
+  const parsed=Date.parse(s.updated_at||s.timestamp_utc||"");
+  const age=Number.isFinite(parsed)?Math.max(0,(Date.now()-parsed)/1000):Infinity;
+  if(s.online===false||!Number.isFinite(age)||age>Number(s.offline_after_seconds||180)) return {label:"Scanner offline",cls:"status-red",offline:true,age};
   if(!assetMarketOpen(assetClass(s.symbol))) return {label:"Market closed",cls:"status-grey",offline:false,age};
   const label=String(s.state||"Scanning").toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase());
   const cls=label==="Confirmed"||label==="Active"?"status-active":label==="Ready"||label==="Developing"?"status-amber":label.includes("TP")?"status-blue":"status-grey";
@@ -499,14 +519,14 @@ function relativeAge(seconds){
 }
 function scannerStateCopy(s,state){
   if(state.offline)return "Heartbeat overdue. Signals remain available; scanner telemetry is stale.";
-  if(state.label==="Ready")return s.missing_condition||"All core conditions aligned; awaiting confirmation.";
-  if(state.label==="Developing")return s.missing_condition||"Most conditions aligned; setup is still forming.";
-  if(state.label==="Early Interest")return "Initial confluence detected. Continue monitoring.";
+  if(state.label==="Ready")return s.missing_condition||s.reason||"Scanner reports ready; confirmation details were not supplied.";
+  if(state.label==="Developing")return s.missing_condition||s.reason||"Scanner reports developing; missing conditions were not supplied.";
+  if(state.label==="Early Interest")return s.reason||"Scanner reports early interest; supporting evidence may be incomplete.";
   if(state.label==="No Setup")return s.reason||"No qualifying setup currently present.";
-  return s.reason||"Scanner is monitoring current market conditions.";
+  return s.reason||"No detailed reasoning supplied by this scanner.";
 }
 function saveWatchlist(){localStorage.setItem("artemis_watchlist",JSON.stringify([...watchedSymbols]))}
-function toggleWatch(symbol,event){event?.stopPropagation();watchedSymbols.has(symbol)?watchedSymbols.delete(symbol):watchedSymbols.add(symbol);saveWatchlist();renderOpportunityBoard()}
+function toggleWatch(symbol,event){event?.stopPropagation();watchedSymbols.has(symbol)?watchedSymbols.delete(symbol):watchedSymbols.add(symbol);saveWatchlist();renderOpportunityBoard();renderBriefing()}
 
 function renderOpportunityBoard(){
   let rows=[...scannerStates].sort((a,b)=>String(b.updated_at||"").localeCompare(String(a.updated_at||"")));
@@ -520,8 +540,8 @@ function renderOpportunityBoard(){
     return;
   }
   board.innerHTML=rows.map(s=>{
-    const idx=scannerStates.indexOf(s),state=scannerDisplayState(s),dir=(s.bias||s.direction||"NEUTRAL").toUpperCase(),score=Math.max(0,Math.min(100,Number(s.confluence_score||0)));
-    return `<article class="opportunity ${state.offline?"offline":""}" role="button" tabindex="0" onclick="openScannerDetail(${idx})"><button class="watch-star ${watchedSymbols.has(s.symbol)?"on":""}" onclick="toggleWatch('${esc(s.symbol)}',event)" title="Add to watchlist">${watchedSymbols.has(s.symbol)?"★":"☆"}</button><div class="opp-top"><span class="opp-symbol">${esc(s.symbol)}</span><span class="badge ${dir==="BUY"?"buy":dir==="SELL"?"sell":"grade"}">${esc(dir)}</span></div><div class="opp-state"><strong>${esc(state.label)}</strong>${esc(scannerStateCopy(s,state))}</div><div class="state-progress"><i style="width:${score}%"></i></div><div class="opp-meta"><span class="tiny asset">${esc(s.timeframe||"—")}</span><span class="tiny plan">${score}% confluence</span><span class="tiny locked">${esc(assetClass(s.symbol))}</span></div><div class="freshness ${state.offline?"offline":""}">${esc(relativeAge(state.age))} · ${esc(s.scanner_id||"MT5")}</div></article>`;
+    const idx=scannerStates.indexOf(s),state=scannerDisplayState(s),dir=(s.bias||s.direction||"NEUTRAL").toUpperCase(),rawScore=Number(s.confluence_score),score=Number.isFinite(rawScore)?Math.max(0,Math.min(100,rawScore)):null;
+    return `<article class="opportunity ${state.offline?"offline":""}" role="button" tabindex="0" onclick="openScannerDetail(${idx})"><button class="watch-star ${watchedSymbols.has(s.symbol)?"on":""}" onclick="toggleWatch('${esc(s.symbol)}',event)" title="Add to watchlist">${watchedSymbols.has(s.symbol)?"★":"☆"}</button><div class="opp-top"><span class="opp-symbol">${esc(s.symbol)}</span><span class="badge ${dir==="BUY"?"buy":dir==="SELL"?"sell":"grade"}">${esc(dir)}</span></div><div class="opp-state"><strong>${esc(state.label)}</strong>${esc(scannerStateCopy(s,state))}</div><div class="state-progress"><i style="width:${score??0}%"></i></div><div class="opp-meta"><span class="tiny asset">${esc(s.timeframe||"—")}</span><span class="tiny plan">${score===null?"Score unavailable":score+"% confluence"}</span><span class="tiny locked">${esc(assetClass(s.symbol))}</span></div><div class="freshness ${state.offline?"offline":""}">${esc(relativeAge(state.age))} · ${esc(s.scanner_id||"MT5")}</div></article>`;
   }).join("");
 }
 
@@ -532,8 +552,8 @@ function openScannerDetail(index){
   document.getElementById("drawerContent").innerHTML=`
     <div class="detail-grid"><div class="detail-box"><div class="k">Bias</div><div class="v">${esc(dir)}</div></div><div class="detail-box"><div class="k">Confluence</div><div class="v">${esc(s.confluence_score??0)}%</div></div><div class="detail-box"><div class="k">Timeframe</div><div class="v">${esc(s.timeframe||"—")}</div></div><div class="detail-box"><div class="k">Heartbeat</div><div class="v">${esc(relativeAge(state.age))}</div></div></div>
     <section class="drawer-section"><h3>Scanner state</h3><div class="why-copy"><strong>${esc(state.label)}</strong><br>${esc(scannerStateCopy(s,state))}</div></section>
-    <section class="drawer-section"><h3>Confluence evidence</h3><div class="why-copy">Trend: ${esc(s.trend||"Unknown")}<br>Momentum: ${esc(s.momentum||"Unknown")}<br>Structure: ${esc(s.structure||"Unknown")}<br>Volatility: ${esc(s.volatility||"Unknown")}<br>Trigger: ${esc(s.trigger||"Pending")}</div></section>
-    <section class="drawer-section"><h3>Service health</h3><div class="why-copy">Scanner: ${esc(s.scanner_id||"Unknown")}<br>Terminal: ${esc(s.terminal||"MT5")}<br>Last update: ${esc(s.updated_at||"Unavailable")}<br>Status: ${state.offline?"Offline / stale":"Online"}</div></section>`;
+    <section class="drawer-section"><h3>Why no signal? · Scanner evidence</h3><div class="why-copy">Trend: ${esc(s.trend||"Unknown")}<br>Momentum: ${esc(s.momentum||"Unknown")}<br>Structure: ${esc(s.structure||"Unknown")}<br>Volatility: ${esc(s.volatility||"Unknown")}<br>Trigger: ${esc(s.trigger||"Not reported")}</div></section>
+    <section class="drawer-section"><h3>Service health</h3><div class="why-copy">Scanner: ${esc(s.scanner_id||"Unknown")}<br>Terminal: ${esc(s.terminal||"MT5")}<br>Last update: ${esc(s.updated_at||"Unavailable")}<br>Status: ${state.offline?"Offline / stale":"Reported recently"}</div></section>`;
   document.getElementById("signalDrawer").classList.remove("hidden");document.body.classList.add("drawer-open");
 }
 
@@ -642,6 +662,7 @@ document.querySelectorAll(".filterbtn").forEach(btn=>btn.addEventListener("click
 }));
 
 document.querySelectorAll(".setting-switch").forEach(sw=>sw.addEventListener("click",()=>sw.classList.toggle("on")));
+document.getElementById("refreshNow").addEventListener("click",()=>{loadSignals()});
 document.getElementById("scannerAssetFilter").addEventListener("change",e=>{scannerAssetFilter=e.target.value;renderOpportunityBoard()});
 document.getElementById("scannerStateFilter").addEventListener("change",e=>{scannerStateFilter=e.target.value;renderOpportunityBoard()});
 document.getElementById("watchlistToggle").addEventListener("click",e=>{watchlistOnly=!watchlistOnly;e.currentTarget.classList.toggle("active",watchlistOnly);e.currentTarget.textContent=watchlistOnly?"★ Watchlist only":"☆ Watchlist only";renderOpportunityBoard()});
@@ -698,6 +719,24 @@ function updateMarketClocks(){
 updateMarketClocks();
 setInterval(updateMarketClocks,1000);
 
+function renderBriefing(scannerError=false){
+  const rows=scannerStates;
+  const fresh=rows.filter(s=>!scannerDisplayState(s).offline);
+  const ready=fresh.filter(s=>["Ready","Confirmed"].includes(scannerDisplayState(s).label));
+  const developing=fresh.filter(s=>["Developing","Early Interest"].includes(scannerDisplayState(s).label));
+  const live=allSignals.filter(isActive);
+  document.getElementById("briefReady").textContent=scannerError?"—":String(ready.length);
+  document.getElementById("briefDeveloping").textContent=scannerError?"—":String(developing.length);
+  document.getElementById("briefWatching").textContent=String(watchedSymbols.size);
+  document.getElementById("briefFreshness").textContent=scannerError?"Unavailable":rows.length?`${fresh.length}/${rows.length} recent`:"No telemetry";
+  document.getElementById("heroScanners").textContent=scannerError?"—":rows.length?`${fresh.length}/${rows.length}`:"—";
+  const parts=[`${live.length} active signal${live.length===1?"":"s"} on record`];
+  if(scannerError)parts.push("scanner feed unavailable; opportunity status cannot be verified");
+  else if(!rows.length)parts.push("waiting for MT5 scanner telemetry");
+  else parts.push(`${ready.length} ready/confirmed and ${developing.length} developing setups from ${fresh.length} recently updated scanners`);
+  document.getElementById("briefingSummary").textContent=parts.join(" · ")+".";
+}
+
 async function loadSignals(){
   try{
     const idToken=sessionStorage.getItem("artemis_id_token");
@@ -735,12 +774,14 @@ async function loadSignals(){
     document.getElementById("latestEventTime").textContent=latestSignal?.timestamp_utc||"No event recorded";
 
     renderDashboard();
+    renderBriefing();
     renderHistory(allSignals);
     renderVisualIntelligence(allSignals);
     await loadScannerStates(idToken);
   }catch(err){
     document.getElementById("feedStatus").textContent="Feed unavailable";
     document.getElementById("heroFeed").textContent="Unavailable";
+    renderBriefing(true);
     document.getElementById("heartbeatStatus").textContent="Connection interrupted";
     document.getElementById("heartbeatTime").textContent="Retrying automatically";
     const authIssue=/401|403|Authentication/.test(err.message);
@@ -756,11 +797,13 @@ async function loadScannerStates(idToken){
     scannerStates=Array.isArray(data.scanners)?data.scanners:[];
     renderOpportunityBoard();
     const online=scannerStates.filter(s=>!scannerDisplayState(s).offline).length;
-    document.getElementById("heartbeatStatus").textContent=scannerStates.length?`${online}/${scannerStates.length} scanners online`:"Connected · waiting for scanners";
+    document.getElementById("heartbeatStatus").textContent=scannerStates.length?`${online}/${scannerStates.length} scanners recently updated`:"Connected · waiting for scanners";
+    renderBriefing();
   }catch(err){
     scannerStates=[];
     renderOpportunityBoard();
-    document.getElementById("heartbeatStatus").textContent="Signals healthy · scanner route pending";
+    document.getElementById("heartbeatStatus").textContent="Signals connected · scanner unavailable";
+    renderBriefing(true);
   }
 }
 

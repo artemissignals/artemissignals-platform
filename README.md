@@ -1,29 +1,25 @@
-# ArtemisSignals platform — Brand Sync v0.8.6
+# ArtemisSignals v0.9.0 — Intelligence Dashboard
 
-Drop-in GitHub repository contents, preserving the London waitlist v1.2.1 files and the existing customer dashboard v0.8.5 functionality.
+GitHub/Amplify monorepo deploy package. Copy the **contents** of this ZIP into your existing `artemissignals-platform` repository root, preserving `.git` and any newer local modifications. Review before overwriting `launch/` or `backend/`; these are inherited unchanged from the v0.8.6 package and may be older than your working branch.
 
-## What changed
-- `dashboard/index.html`: shared midnight navy / slate / peach / teal visual palette, brand text and `⌁` icon in header and Cognito sign-in gate; v0.8.6 identifier; favicon.
-- `dashboard/favicon.svg`: same simple `⌁` brand mark as the waitlist.
-- `launch/index.html`: only adds a favicon link. Existing signup logic unchanged.
-- `launch/favicon.svg`: favicon matching its existing `⌁` mark.
-- Root `amplify.yml`: preserves `launch` static app and includes `dashboard` static app so both Git-backed Amplify apps build from `main`.
-- `backend/`: copied intact from the provided v1.2.1 launch package; DO NOT redeploy CloudFormation for this visual release.
+## Dashboard v0.9.0
+- Branded market briefing with honest authenticated signal and scanner counts; manual Refresh Now button
+- Opportunity Radar and evidence-based "Why no signal?" explanation (scanner's actual reason/missing condition, when available)
+- Scanner stale/offline detection, including missing/invalid timestamps; no fake ready states
+- Clearer signal cards: age and TP1 entry-to-stop risk/reward (only when input prices exist)
+- Responsive briefing, richer hierarchy, preserved watchlist filtering and detail drawers
+- No changes to existing Cognito PKCE authentication, redirect, API endpoints, data storage or plan enforcement
 
-## Deployment
-1. Make a backup of your local repository. Extract this ZIP, and copy its contents **into the root of `artemissignals-platform/`** (NOT into `dashboard/`). Keep your `.git` directory.
-2. Verify `launch/config.js` matches your currently working London API. This bundle contains the last packaged launch config, which might differ from your current live repository; if it differs, KEEP YOUR WORKING VERSION. Likewise preserve newer modifications in `backend/` and `launch/` if they've been made since the earlier ZIP.
-3. Confirm `dashboard/index.html` still contains the existing Cognito app client and the redirect `https://app.artemissignals.ai/`.
-4. Commit and push `main` using GitHub Desktop. Both Amplify apps may build automatically.
-5. Verify `artemissignals.ai` and `app.artemissignals.ai` load, Cognito login/logout, dashboard API and waitlist POST all work.
+## Deploy
+1. Back up/commit your working GitHub branch first.
+2. Compare this ZIP to your checked-out repository; copy `dashboard/index.html` and `dashboard/favicon.svg` first. `amplify.yml` in the ZIP has `appRoot: launch` and `appRoot: dashboard`; only replace if your live build spec does not have later customisations.
+3. Preserve any newer live `launch` files and `backend` infrastructure; **do not redeploy backend** for this frontend release.
+4. Commit and push `main` via GitHub Desktop, then check both Amplify builds.
+5. Test login/logout, live signals, scanner response, watchlist, dark/light theme and mobile.
 
-## Amplify app settings
-- Launch app environment: `AMPLIFY_MONOREPO_APP_ROOT=launch`
-- Customer app environment: `AMPLIFY_MONOREPO_APP_ROOT=dashboard`
-- Both apps: branch `main`.
-- Each app uses its matching entry in root `amplify.yml`.
-
-## Scope and safety
-- No changes to Cognito IDs, OAuth/PKCE login, signal/scanner API URLs, subscription logic, Lambda, DynamoDB, SES or SNS.
-- Version and brand elements changed in frontend only.
-- This is a visual update, not proof of end-to-end production testing.
+## Limitations
+- Counts and radar need a functioning scanner-state API: `https://0wudrtkh3b.execute-api.eu-west-2.amazonaws.com/v1/scanner-state`.
+- "Why no signal?" uses scanner evidence; cannot infer conditions that were never published.
+- `USER_PLAN=PRO` remains a display-side placeholder, not a security entitlement control.
+- Waitlist/launch files are preserved from earlier package, not verified against current live main.
+- No live AWS end-to-end test performed here.
