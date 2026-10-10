@@ -1,47 +1,29 @@
-# ArtemisSignals Launch v1.2
+# ArtemisSignals platform — Brand Sync v0.8.6
 
-AWS Amplify static monorepo app (`appRoot: launch`) + existing `artemissignals-waitlist` CloudFormation stack in **eu-west-2 (London)**.
+Drop-in GitHub repository contents, preserving the London waitlist v1.2.1 files and the existing customer dashboard v0.8.5 functionality.
 
-## Copy / deploy
+## What changed
+- `dashboard/index.html`: shared midnight navy / slate / peach / teal visual palette, brand text and `⌁` icon in header and Cognito sign-in gate; v0.8.6 identifier; favicon.
+- `dashboard/favicon.svg`: same simple `⌁` brand mark as the waitlist.
+- `launch/index.html`: only adds a favicon link. Existing signup logic unchanged.
+- `launch/favicon.svg`: favicon matching its existing `⌁` mark.
+- Root `amplify.yml`: preserves `launch` static app and includes `dashboard` static app so both Git-backed Amplify apps build from `main`.
+- `backend/`: copied intact from the provided v1.2.1 launch package; DO NOT redeploy CloudFormation for this visual release.
 
-Copy `launch/`, `backend/waitlist.yaml`, and root `amplify.yml` into the existing **artemissignals-platform** repository. Do **not** replace any other projects or Lambda stacks.
+## Deployment
+1. Make a backup of your local repository. Extract this ZIP, and copy its contents **into the root of `artemissignals-platform/`** (NOT into `dashboard/`). Keep your `.git` directory.
+2. Verify `launch/config.js` matches your currently working London API. This bundle contains the last packaged launch config, which might differ from your current live repository; if it differs, KEEP YOUR WORKING VERSION. Likewise preserve newer modifications in `backend/` and `launch/` if they've been made since the earlier ZIP.
+3. Confirm `dashboard/index.html` still contains the existing Cognito app client and the redirect `https://app.artemissignals.ai/`.
+4. Commit and push `main` using GitHub Desktop. Both Amplify apps may build automatically.
+5. Verify `artemissignals.ai` and `app.artemissignals.ai` load, Cognito login/logout, dashboard API and waitlist POST all work.
 
-`launch/config.js` already targets the existing London endpoint: `https://k9k2llavp8.execute-api.eu-west-2.amazonaws.com/interest`. Keep it unless CloudFormation Outputs provides a different endpoint. Commit + push `main` to deploy the static site automatically through Amplify.
+## Amplify app settings
+- Launch app environment: `AMPLIFY_MONOREPO_APP_ROOT=launch`
+- Customer app environment: `AMPLIFY_MONOREPO_APP_ROOT=dashboard`
+- Both apps: branch `main`.
+- Each app uses its matching entry in root `amplify.yml`.
 
-The current landing page continues to collect addresses even before email verification is activated. It will explicitly describe these as unverified. The referral counter only increments for verified signups after SES has been enabled.
-
-## Update existing CloudFormation stack (important)
-
-1. AWS console -> London `eu-west-2` -> CloudFormation -> existing **artemissignals-waitlist** stack -> **Update** -> Replace existing template -> upload `backend/waitlist.yaml`.
-2. Confirm change set. **The table logical ID `WaitlistTable`, API `WaitlistApi`, Lambda `WaitlistFunction` and other original logical IDs are intentionally preserved.** Double-check that CloudFormation isn't proposing to replace or delete the DynamoDB table. Stop if replacement is shown.
-3. Parameters: `DomainOrigin=https://artemissignals.ai`, `PreviewOrigin=https://main.d1pj4l274bgn2q.amplifyapp.com`, `VerificationBaseUrl=https://main.d1pj4l274bgn2q.amplifyapp.com` for initial testing, and `SenderEmail` blank until SES is ready.
-4. Deploy; confirm status UPDATE_COMPLETE and verify that your London `InterestEndpoint` is still in `launch/config.js`.
-5. Test the signup form. It should continue to accept records in DynamoDB.
-
-## Enable verified email and welcome messages with SES
-
-1. In London SES, verify a sending identity such as `hello@artemissignals.ai` or a verified domain and configure DKIM/SPF as SES recommends **without replacing existing MX/SPF**. Multiple services usually require one combined SPF TXT value for the root, not duplicate SPF records. SES domain verification may use additional CNAME records; preserve the existing domain's DKIM records.
-2. If the AWS SES account is in sandbox, recipient addresses must also be verified for testing; request production access before opening public email verification to everyone.
-3. CloudFormation -> Update stack -> Use current template -> set `SenderEmail` to the verified sender. Preserve existing parameters.
-4. Register an address you own from the temporary Amplify URL. A verification email should arrive with a 24-hour link. Click it, then expect a welcome email containing the personal referral URL; new referred signups count only once when they verify their email.
-5. After `artemissignals.ai` is serving this site with working HTTPS, update `VerificationBaseUrl` to `https://artemissignals.ai` in CloudFormation. You can keep the temporary origin in CORS for QA.
-
-## Safeguards / limitations
-
-- Source files do not contain AWS secrets. No schema migration or table replacement is intended. DynamoDB PITR remains enabled.
-- Existing v1.1 records aren't automatically marked VERIFIED. If their owners register again with SES enabled, they can complete verification.
-- SES sending may fail due to sandbox, verification or quotas; in that case the API returns an error rather than claiming that verification mail was sent. A signup remains pending, and the visitor can retry.
-- Basic honeypot and API throttling are **not** a substitute for WAF/anti-abuse, rate limits per identity, SES bounce management or consent/unsubscribe automation. Build these before paid acquisition campaigns.
-- Adding `ReferralCodeIndex` creates a DynamoDB GSI in place. Watch index creation progress and test referral attribution only when the index becomes ACTIVE. Referrals count only when new visitors verify. The initial release does not include self-service ranking or rewards.
-- The sample signal preview is explicitly fictional, not a live data feed or trading recommendation.
-- Update the privacy notice with the operator's full identity, contact, legal basis and data-retention period before public marketing. Review financial promotions and UK GDPR applicability with appropriate advisers.
-- Social card currently uses `social-card.png` as its OG image and `robots.txt`/`sitemap.xml` for discovery.
-
-
-## v1.2.1 — Realistic signal preview
-- Interactive fictional signal previews for XAUUSD, US30, EURUSD and BTCUSD.
-- Entry, Stop Loss, TP1/TP2/TP3, Active/TP1 Hit/TP2 Hit badges and target progress.
-- Explicit notices that examples and outcomes are fictional, not live signals or track records.
-- No changes to the SES/waitlist Lambda, CloudFormation, API endpoint, GitHub Amplify monorepo or privacy form.
-
-Deploy: copy this package into the repository root, commit and push. **Do not redeploy `backend/waitlist.yaml` solely for this UI change.**
+## Scope and safety
+- No changes to Cognito IDs, OAuth/PKCE login, signal/scanner API URLs, subscription logic, Lambda, DynamoDB, SES or SNS.
+- Version and brand elements changed in frontend only.
+- This is a visual update, not proof of end-to-end production testing.
