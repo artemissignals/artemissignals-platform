@@ -36,3 +36,12 @@ The current landing page continues to collect addresses even before email verifi
 - The sample signal preview is explicitly fictional, not a live data feed or trading recommendation.
 - Update the privacy notice with the operator's full identity, contact, legal basis and data-retention period before public marketing. Review financial promotions and UK GDPR applicability with appropriate advisers.
 - Social card currently uses `social-card.png` as its OG image and `robots.txt`/`sitemap.xml` for discovery.
+
+
+## v1.2.1 — Realistic signal preview
+- Interactive fictional signal previews for XAUUSD, US30, EURUSD and BTCUSD.
+- Entry, Stop Loss, TP1/TP2/TP3, Active/TP1 Hit/TP2 Hit badges and target progress.
+- Explicit notices that examples and outcomes are fictional, not live signals or track records.
+- No changes to the SES/waitlist Lambda, CloudFormation, API endpoint, GitHub Amplify monorepo or privacy form.
+
+Deploy: copy this package into the repository root, commit and push. **Do not redeploy `backend/waitlist.yaml` solely for this UI change.**
