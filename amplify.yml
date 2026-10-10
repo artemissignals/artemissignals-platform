@@ -5,10 +5,19 @@ applications:
       phases:
         build:
           commands:
-            - echo "Deploying ArtemisSignals launch site"
+            - echo "Building launch"
       artifacts:
         baseDirectory: .
         files:
           - '**/*'
-      cache:
-        paths: []
+
+  - appRoot: dashboard
+    frontend:
+      phases:
+        build:
+          commands:
+            - echo "Building dashboard"
+      artifacts:
+        baseDirectory: .
+        files:
+          - '**/*'
