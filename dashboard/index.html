@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ArtemisSignals — Intelligence Dashboard v0.9.0 (Login Fix)</title>
-<!-- Production auth hotfix: 2026-10-16; Cognito callback pinned to app.artemissignals.ai/ -->
+<!-- Production dashboard API fix: 2026-10-16; signals use qbktk0du23; staging scanner disabled until configured. -->
 <meta name="theme-color" content="#08111e">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script>
@@ -364,8 +364,8 @@ html[data-theme="light"] .brand-symbol{background:#fff2e8!important;color:#a85c2
 
 <script>
 
-const API_URL="https://0wudrtkh3b.execute-api.eu-west-2.amazonaws.com/v1/signals";
-const SCANNER_API_URL="https://0wudrtkh3b.execute-api.eu-west-2.amazonaws.com/v1/scanner-state";
+const API_URL="https://qbktk0du23.execute-api.eu-west-2.amazonaws.com/v1/signals";
+const SCANNER_API_URL=null; // No production scanner route confirmed: do not mix test telemetry into production.
 const USER_PLAN="PRO";
 let allSignals=[];
 let scannerStates=[];
@@ -437,6 +437,7 @@ function renderSignal(s){
       <div class="level"><div class="k">STOP</div><div class="v">${esc(s.sl??"—")}</div></div>
       <div class="level ${reached1?"hit":""}"><div class="k">TP1</div><div class="v">${esc(s.tp1??"—")}${reached1?" ✓":""}</div></div>
       <div class="level ${reached2?"hit":""}"><div class="k">TP2</div><div class="v">${esc(s.tp2??"—")}${reached2?" ✓":""}</div></div>
+      <div class="level ${reached3?"hit":""}"><div class="k">TP3</div><div class="v">${esc(s.tp3??"—")}${reached3?" ✓":""}</div></div>
     </div>
     <div class="target-path" aria-label="Signal target progress">
       <div class="target-step done">Entry</div>
@@ -745,7 +746,13 @@ async function loadSignals(){
     const res=await fetch(API_URL,{headers:{"Accept":"application/json","Authorization":idToken}});
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const data=await res.json();
-    allSignals=Array.isArray(data.signals)?data.signals:[];
+    allSignals=(Array.isArray(data)?data:(Array.isArray(data.signals)?data.signals:(Array.isArray(data.items)?data.items:[]))).map(s=>({
+      ...s,
+      timestamp_utc:s.timestamp_utc||s.createdAt||s.timestamp||"",
+      tp1:s.tp1??s.tp??null,
+      tp2:s.tp2??null,
+      tp3:s.tp3??null
+    }));
     const active=allSignals.filter(isActive);
     const tp1=allSignals.filter(s=>s.tp1_hit||["TP1","TP2","TP3"].includes(maxTarget(s))).length;
     const tp2=allSignals.filter(s=>s.tp2_hit||["TP2","TP3"].includes(maxTarget(s))).length;
@@ -791,6 +798,13 @@ async function loadSignals(){
 }
 
 async function loadScannerStates(idToken){
+  if(!SCANNER_API_URL){
+    scannerStates=[];
+    renderOpportunityBoard();
+    document.getElementById("heartbeatStatus").textContent="Signals connected · scanner feed not configured";
+    renderBriefing(true);
+    return;
+  }
   try{
     const res=await fetch(SCANNER_API_URL,{headers:{"Accept":"application/json","Authorization":idToken}});
     if(!res.ok)throw new Error(`HTTP ${res.status}`);
