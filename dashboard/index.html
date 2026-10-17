@@ -201,10 +201,10 @@ html[data-density="compact"] .panel{padding:11px}
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><div class="logo"><svg viewBox="0 0 48 48" role="img" aria-label="Artemis Signals emblem" xmlns="http://www.w3.org/2000/svg"><path d="M24 5 42 39H6L24 5Z" fill="none" stroke="#f4a267" stroke-width="3.5" stroke-linejoin="round"/><path d="M14 34 24 15 34 34" fill="none" stroke="#ffd6ae" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 28h14" stroke="#5bd5bc" stroke-width="3.3" stroke-linecap="round"/><circle cx="24" cy="7" r="2.6" fill="#5bd5bc"/></svg></div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3.1</div></div></div>
+  <div class="brandwrap"><div class="logo"><svg viewBox="0 0 48 48" role="img" aria-label="Artemis Signals emblem" xmlns="http://www.w3.org/2000/svg"><path d="M24 5 42 39H6L24 5Z" fill="none" stroke="#f4a267" stroke-width="3.5" stroke-linejoin="round"/><path d="M14 34 24 15 34 34" fill="none" stroke="#ffd6ae" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 28h14" stroke="#5bd5bc" stroke-width="3.3" stroke-linecap="round"/><circle cx="24" cy="7" r="2.6" fill="#5bd5bc"/></svg></div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3.2</div></div></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
-  <div class="user-meta"><div id="userEmail" class="user-email">Signed in</div><div class="user-plan">PRO subscriber</div></div>
+  <div class="user-meta"><div id="userEmail" class="user-email">Signed in</div><div class="user-plan" id="headerPlan">Checking plan…</div></div>
   <div class="avatar">AS</div>
   <button id="densityButton" class="densitybtn" type="button" aria-label="Switch to compact dashboard view" aria-pressed="false">▤ Compact</button>
   <button class="themebtn" type="button" aria-label="Switch colour theme">☀ Light</button>
@@ -304,7 +304,7 @@ html[data-density="compact"] .panel{padding:11px}
     <div class="kv"><span class="label">Best outcome seen</span><span id="sumBest">—</span></div>
     <div class="kv"><span class="label">Stopped signals</span><span id="sumStopped">—</span></div>
   </div>
-  <div class="panel" style="margin-top:14px"><h3>Current access</h3>
+  <div class="panel" id="currentAccessPanel" style="margin-top:14px"><h3>Current access</h3>
     <div class="kv"><span class="label">FX</span><span class="good">Included</span></div>
     <div class="kv"><span class="label">Gold / Metals</span><span class="good">Included</span></div>
     <div class="kv"><span class="label">Indices</span><span class="good">Included</span></div>
@@ -336,12 +336,12 @@ html[data-density="compact"] .panel{padding:11px}
 <div class="panel"><h3>Profile</h3>
   <div class="field"><div class="label">Account</div><div class="value">Artemis Subscriber</div></div>
   <div class="field"><div class="label">Email</div><div class="value" id="profileEmail">Signed-in account</div></div>
-  <div class="field"><div class="label">Plan</div><div class="value"><span class="tiny plan">PRO</span></div></div>
+  <div class="field"><div class="label">Plan</div><div class="value"><span class="tiny plan" id="profilePlan">FREE</span></div></div>
   <div class="field"><div class="label">Authentication</div><div class="value"><span class="status-badge status-active">Cognito verified</span></div></div>
 </div>
-<div class="panel"><h3>Subscription</h3>
+<div class="panel" id="subscriptionPanel"><h3>Subscription</h3>
   <div class="field"><div class="label">Status</div><div class="value"><span class="status-badge status-active">Active</span></div></div>
-  <div class="field"><div class="label">Entitlements</div><div class="value">PRO preview access</div></div>
+  <div class="field"><div class="label">Entitlements</div><div class="value" id="profileEntitlements">Checking subscription…</div></div>
   <div class="field"><div class="label">Billing</div><div class="value">Connection coming in v0.9</div></div>
   <div class="field"><div class="label">Included markets</div><div class="value"><span class="tiny asset">FX</span> <span class="tiny asset">Gold / Metals</span> <span class="tiny asset">Indices</span> <span class="tiny locked">Crypto locked</span></div></div>
   <div style="margin-top:14px"><span class="cta">Manage Subscription</span></div>
@@ -358,7 +358,7 @@ html[data-density="compact"] .panel{padding:11px}
   <div class="pref"><div class="pref-left"><div class="pref-title">Indices</div><div class="pref-sub">Indices signal alerts</div></div><span class="switch on setting-switch" data-setting="indices"></span></div>
   <div class="pref"><div class="pref-left"><div class="pref-title">Crypto <span class="tiny locked">Elite only</span></div><div class="pref-sub">Upgrade to Elite to unlock crypto signals</div></div><span class="switch disabled"></span></div>
 </div>
-<div class="panel"><h3>Notifications & billing</h3>
+<div class="panel" id="notificationsBillingPanel"><h3>Notifications & billing</h3>
   <div class="pref"><div class="pref-left"><div class="pref-title">Email notifications</div><div class="pref-sub">Receive signal alerts by email</div></div><span class="switch on setting-switch" data-setting="email"></span></div>
   <div class="pref"><div class="pref-left"><div class="pref-title">Browser notifications</div><div class="pref-sub">Enable browser alerts when supported</div></div><span class="switch setting-switch" data-setting="browser"></span></div>
   <div class="field"><div class="label">Current plan</div><div class="value">PRO</div></div>
@@ -402,7 +402,7 @@ html[data-density="compact"] .panel{padding:11px}
 
 const API_URL="https://qbktk0du23.execute-api.eu-west-2.amazonaws.com/v1/signals";
 const SCANNER_API_URL="https://qbktk0du23.execute-api.eu-west-2.amazonaws.com/v1/scanner-state";
-const USER_PLAN="PRO";
+let USER_PLAN="FREE";
 let allSignals=[];
 let scannerStates=[];
 let activeFilter="All";
@@ -858,6 +858,55 @@ function decodeJwt(token){
     return JSON.parse(decodeURIComponent(Array.from(atob(padded)).map(c=>"%"+c.charCodeAt(0).toString(16).padStart(2,"0")).join("")));
   }catch(e){ return {}; }
 }
+function derivePlanFromClaims(claims){
+  // UI display only; the Signals API independently enforces entitlements.
+  let groups=claims?.["cognito:groups"] || [];
+  if(typeof groups==="string"){
+    try { groups=JSON.parse(groups); }
+    catch { groups=groups.split(",").map(x=>x.trim()); }
+  }
+  if(!Array.isArray(groups)) groups=[];
+  const set=new Set(groups.map(g=>String(g).toUpperCase()));
+  return set.has("ELITE")?"ELITE":set.has("PRO")?"PRO":"FREE";
+}
+function renderSubscriptionPlan(claims){
+  USER_PLAN=derivePlanFromClaims(claims);
+  const tier=USER_PLAN;
+  const markets=tier==="ELITE"?"Forex, metals, indices and crypto":tier==="PRO"?"Forex and metals":"Preview access only";
+  document.getElementById("headerPlan").textContent=tier+" subscriber";
+  document.getElementById("profilePlan").textContent=tier;
+  document.getElementById("settingsPlan").textContent=tier;
+  document.getElementById("profileEntitlements").textContent=markets;
+  const access=document.getElementById("currentAccessPanel");
+  if(access){
+    const allowed=tier==="ELITE"?["FX","Gold / Metals","Indices","Crypto"]:tier==="PRO"?["FX","Gold / Metals"]:[];
+    access.innerHTML="<h3>Current access · "+tier+"</h3>"+
+      ["FX","Gold / Metals","Indices","Crypto"].map(m=>
+      '<div class="kv"><span class="label">'+m+'</span><span class="'+(allowed.includes(m)?"good":"warn")+'">'+
+      (allowed.includes(m)?"Included":"Not included")+'</span></div>').join("")+
+      '<div style="margin-top:12px"><span class="tiny plan">Your Plan: '+tier+'</span></div>';
+  }
+  const sub=document.getElementById("subscriptionPanel");
+  if(sub){
+    const action=sub.querySelector(".cta");
+    if(action)action.textContent=tier==="ELITE"?"Your Plan: ELITE":"Manage Subscription";
+    const values=[...sub.querySelectorAll(".field")];
+    const marketsRow=values.find(e=>e.querySelector(".label")?.textContent==="Included markets");
+    if(marketsRow)marketsRow.querySelector(".value").textContent=markets;
+  }
+  const billing=document.getElementById("notificationsBillingPanel");
+  if(billing){const action=billing.querySelector(".cta");if(action)action.textContent=tier==="ELITE"?"Your Plan: ELITE":"View Plans";}
+  document.querySelectorAll('.filterbtn[data-filter="Crypto"]').forEach(b=>{
+    b.classList.toggle("locked",tier!=="ELITE");
+    const lock=b.querySelector(".lock");if(lock)lock.style.display=tier==="ELITE"?"none":"";
+  });
+  const cryptoPreference=[...document.querySelectorAll('#settings .pref')].find(el=>el.querySelector('.pref-title')?.textContent.includes('Crypto'));
+  if(cryptoPreference){
+    cryptoPreference.querySelector('.pref-title').textContent=tier==="ELITE"?"Crypto":"Crypto · Elite only";
+    cryptoPreference.querySelector('.pref-sub').textContent=tier==="ELITE"?"Crypto signals included in your plan":"Upgrade to Elite to unlock crypto signals";
+  }
+  if(typeof renderDashboard==="function") renderDashboard();
+}
 function setAuthState(msg){ document.getElementById("authState").textContent=msg||""; }
 
 async function beginAuth(mode="login"){
@@ -918,6 +967,7 @@ function showDashboard(){
   const accountName=claims.email||claims.name||"Signed in";
   document.getElementById("userEmail").textContent=accountName;
   document.getElementById("profileEmail").textContent=accountName;
+  renderSubscriptionPlan(claims);
   return true;
 }
 function clearLocalAuth(){
