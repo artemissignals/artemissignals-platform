@@ -273,7 +273,8 @@ html[data-density="compact"] .panel{padding:11px}
   <div class="metric"><div class="k">Total signals</div><div class="v" id="mTotal">–</div><div class="s">Tracked in database</div></div>
   <div class="metric"><div class="k">Active signals</div><div class="v good" id="mActive">–</div><div class="s">Currently live</div></div>
   <div class="metric"><div class="k">TP1 reached</div><div class="v warn" id="mTp1">–</div><div class="s">First target achieved</div></div>
-  <div class="metric"><div class="k">TP2 reached</div><div class="v" style="color:var(--blue)" id="mTp2">–</div><div class="s">Final target achieved</div></div>
+  <div class="metric"><div class="k">TP2 reached</div><div class="v" style="color:var(--blue)" id="mTp2">–</div><div class="s">Second target achieved</div></div>
+  <div class="metric"><div class="k">TP3 reached</div><div class="v good" id="mTp3">–</div><div class="s">Third target achieved</div></div>
 </section>
 
 <section id="assetOverview" class="asset-overview" aria-label="Market overview"></section>
@@ -363,7 +364,8 @@ html[data-density="compact"] .panel{padding:11px}
 <section class="metrics">
   <div class="metric"><div class="k">Signals tracked</div><div class="v" id="pTotal">–</div><div class="s">All stored signals</div></div>
   <div class="metric"><div class="k">TP1 hit rate</div><div class="v" id="pRate1">–</div><div class="s">First target success</div></div>
-  <div class="metric"><div class="k">TP2 hit rate</div><div class="v" id="pRate2">–</div><div class="s">Final target success</div></div>
+  <div class="metric"><div class="k">TP2 hit rate</div><div class="v" id="pRate2">–</div><div class="s">Second target success</div></div>
+  <div class="metric"><div class="k">TP3 hit rate</div><div class="v" id="pRate3">–</div><div class="s">Third target success</div></div>
   <div class="metric"><div class="k">Stopped rate</div><div class="v" id="pStopped">–</div><div class="s">Signals stopped out</div></div>
 </section>
 <div class="panel"><h3>Performance</h3><div class="notice">As signal history grows, this page can expand into market-by-market analytics, timeframe breakdowns, session performance and rolling performance windows.</div></div>
@@ -597,25 +599,36 @@ function assetClass(symbol){
   if(["NAS100","US500","SPX500","US30","GER40","UK100","DE40"].some(x=>s.includes(x))) return "Indices";
   return "FX";
 }
+function signalLifecycleStatus(s){return String(s.status||s.event_type||"ACTIVE").toUpperCase()}
+function reachedTarget(s,level){
+  const status=signalLifecycleStatus(s);
+  const flags=[s[`tp${level}HitAt`],s[`tp${level}_hit_at`],s[`tp${level}_hit`],s[`tp${level}Hit`]];
+  if(flags.some(v=>v!==null&&v!==undefined&&v!==false&&v!==0&&v!==""&&v!=="false"&&v!=="0"))return true;
+  const max=String(s.max_target||s.maxTarget||s.final_outcome||"").toUpperCase();
+  if(/^TP[123]$/.test(max)&&Number(max.slice(2))>=level)return true;
+  const hit=/^(?:CLOSED_)?TP([123])(?:_HIT)?$/.exec(status);
+  return Boolean(hit&&Number(hit[1])>=level);
+}
 function normaliseStatus(s){
-  const raw=(s.status||s.event_type||"ACTIVE").toUpperCase();
-  if(raw==="SIGNAL_OPEN"||raw==="ACTIVE") return {label:"Active",cls:"status-active"};
-  if(raw==="TP1_HIT") return {label:"TP1 Hit",cls:"status-blue"};
-  if(raw==="CLOSED_TP2"||raw==="TP2_HIT") return {label:"Closed TP2",cls:"status-blue"};
-  if(raw==="CLOSED_SL"||raw==="SL_HIT") return {label:"Stopped",cls:"status-red"};
-  if(raw==="SIGNAL_EXPIRED"||raw==="EXPIRED") return {label:"Expired",cls:"status-grey"};
-  if(raw==="SIGNAL_CANCELLED"||raw==="CANCELLED") return {label:"Cancelled",cls:"status-grey"};
+  const raw=signalLifecycleStatus(s);
+  if(raw==="SIGNAL_OPEN"||raw==="ACTIVE")return {label:"Active",cls:"status-active"};
+  if(raw==="TP1_HIT"||raw==="CLOSED_TP1")return {label:"TP1 Hit",cls:"status-blue"};
+  if(raw==="TP2_HIT"||raw==="CLOSED_TP2")return {label:"TP2 Hit",cls:"status-blue"};
+  if(raw==="TP3_HIT"||raw==="CLOSED_TP3")return {label:"TP3 Hit",cls:"status-blue"};
+  if(raw==="CLOSED_SL"||raw==="SL_HIT"||raw==="STOPPED")return {label:"Stopped",cls:"status-red"};
+  if(raw==="SUPERSEDED"||raw==="SIGNAL_SUPERSEDED")return {label:"Superseded",cls:"status-grey"};
+  if(raw==="SIGNAL_EXPIRED"||raw==="EXPIRED")return {label:"Expired",cls:"status-grey"};
+  if(raw==="SIGNAL_CANCELLED"||raw==="CANCELLED")return {label:"Cancelled",cls:"status-grey"};
   return {label:raw.replaceAll("_"," "),cls:"status-amber"};
 }
 function maxTarget(s){
-  if(s.max_target) return s.max_target;
-  if(s.tp3_hit) return "TP3";
-  if(s.tp2_hit) return "TP2";
-  if(s.tp1_hit) return "TP1";
-  return "—";
+  if(reachedTarget(s,3))return "TP3";
+  if(reachedTarget(s,2))return "TP2";
+  if(reachedTarget(s,1))return "TP1";
+  return s.max_target||s.maxTarget||"—";
 }
-function finalOutcome(s){return s.final_outcome||(s.status==="CLOSED_TP2"?"TP2":"—");}
-function isActive(s){const st=normaliseStatus(s).label;return st==="Active"||st==="TP1 Hit";}
+function finalOutcome(s){return s.final_outcome||maxTarget(s)}
+function isActive(s){const raw=signalLifecycleStatus(s);return raw==="ACTIVE"||raw==="SIGNAL_OPEN"||raw==="TP1_HIT"||raw==="TP2_HIT"}
 
 function renderSignal(s){
   const dir=(s.direction||"").toUpperCase();
@@ -623,9 +636,9 @@ function renderSignal(s){
   const grade=s.quality_grade||s.quality||"—";
   const setup=s.setup||s.strategy_profile||"Trend Engine";
   const asset=assetClass(s.symbol);
-  const reached1=Boolean(s.tp1_hit)||["TP1","TP2","TP3"].includes(maxTarget(s));
-  const reached2=Boolean(s.tp2_hit)||["TP2","TP3"].includes(maxTarget(s));
-  const reached3=Boolean(s.tp3_hit)||maxTarget(s)==="TP3";
+  const reached1=reachedTarget(s,1);
+  const reached2=reachedTarget(s,2);
+  const reached3=reachedTarget(s,3);
   // Only calculate risk/reward when numeric entry, stop and target are available.
   const entry=Number(s.entry), stop=Number(s.sl), target=Number(s.tp1??s.tp??s.tp2);
   const risk=Math.abs(entry-stop), reward=Math.abs(target-entry);
@@ -972,8 +985,9 @@ async function loadSignals(){
     setServiceHealth("signalDatabase",true,"Signal records retrieved through API");
     updateBridgeHealth(allSignals);
     const active=allSignals.filter(isActive);
-    const tp1=allSignals.filter(s=>s.tp1_hit||["TP1","TP2","TP3"].includes(maxTarget(s))).length;
-    const tp2=allSignals.filter(s=>s.tp2_hit||["TP2","TP3"].includes(maxTarget(s))).length;
+    const tp1=allSignals.filter(s=>reachedTarget(s,1)).length;
+    const tp2=allSignals.filter(s=>reachedTarget(s,2)).length;
+    const tp3=allSignals.filter(s=>reachedTarget(s,3)).length;
     const stopped=allSignals.filter(s=>normaliseStatus(s).label==="Stopped").length;
     const total=allSignals.length;
 
@@ -983,9 +997,11 @@ async function loadSignals(){
     document.getElementById("mActive").textContent=active.length;
     document.getElementById("mTp1").textContent=tp1;
     document.getElementById("mTp2").textContent=tp2;
+    document.getElementById("mTp3").textContent=tp3;
     document.getElementById("pTotal").textContent=total;
     document.getElementById("pRate1").textContent=total?Math.round((tp1/total)*100)+"%":"0%";
     document.getElementById("pRate2").textContent=total?Math.round((tp2/total)*100)+"%":"0%";
+    document.getElementById("pRate3").textContent=total?Math.round((tp3/total)*100)+"%":"0%";
     document.getElementById("pStopped").textContent=total?Math.round((stopped/total)*100)+"%":"0%";
 
     const now=new Date().toLocaleTimeString();
