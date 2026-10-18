@@ -235,6 +235,13 @@ html[data-density="compact"] .panel{padding:11px}
 .intel-grid .heat-row{grid-template-columns:52px minmax(0,1fr) 23px;gap:5px}
 @media(max-width:1180px){.intel-grid.intel-grid{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}.intel-grid>div:first-child{grid-column:1/-1}}
 @media(max-width:700px){.intel-grid.intel-grid{grid-template-columns:1fr}.intel-grid>div:first-child{grid-column:auto}}
+.history-options{justify-content:flex-start}
+.history-note{margin-left:auto}
+@media(max-width:620px){.history-note{margin-left:0;width:100%}}
+.history-limit-label{color:var(--muted);font-size:12px;font-weight:700;margin-left:5px}
+.history-limit{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:10px 12px;font-size:12px;cursor:pointer}
+#historyTable .row{grid-template-columns:1.1fr .8fr .6fr .75fr 1.6fr 1.2fr;align-items:center}
+@media(max-width:800px){#historyTable{overflow-x:auto}#historyTable .row{min-width:790px}}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -253,7 +260,7 @@ html[data-density="compact"] .panel{padding:11px}
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3.3 + Market News</div></div></div>
+  <div class="brandwrap"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3.5 + Market News</div></div></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <div class="user-meta"><div id="userEmail" class="user-email">Signed in</div><div class="user-plan" id="currentPlanHeader">Checking subscription…</div></div>
@@ -388,7 +395,7 @@ html[data-density="compact"] .panel{padding:11px}
 
 <section id="history" class="page">
 <div class="sectionhead"><h2>Signal history</h2><div class="r">Completed outcomes</div></div>
-<div class="history-options"><label class="history-toggle"><input id="historyIncludeArchived" type="checkbox"><span>Include expired &amp; superseded</span></label><span class="history-note" id="historyFilterNote">Expired and superseded signals hidden</span></div>
+<div class="history-options"><label class="history-toggle"><input id="historyIncludeExpired" type="checkbox"><span>Include expired</span></label><label class="history-toggle"><input id="historyIncludeSuperseded" type="checkbox"><span>Include superseded</span></label><label class="history-limit-label" for="historyLimit">Show</label><select id="historyLimit" class="history-limit" aria-label="Number of history records"><option value="10">Last 10</option><option value="20">Last 20</option><option value="50">Last 50</option></select><span class="history-note" id="historyFilterNote">Expired and superseded signals hidden</span></div>
 <section id="historyTable" class="table"><div class="row head"><div>Market</div><div>Side</div><div>Max target</div><div>Final outcome</div><div>Status</div></div></section>
 </section>
 
@@ -570,7 +577,7 @@ async function loadMarketNews(){
 document.getElementById("newsImpact").addEventListener("change",renderMarketNews);
 document.getElementById("newsCurrency").addEventListener("change",renderMarketNews);
 document.getElementById("newsRefresh").addEventListener("click",loadMarketNews);
-document.getElementById("historyIncludeArchived").addEventListener("change",()=>renderHistory(allSignals));
+["historyIncludeExpired","historyIncludeSuperseded","historyLimit"].forEach(id=>document.getElementById(id).addEventListener("change",()=>renderHistory(allSignals)));
 
 
 /* Status: evidence-based states; no manufactured green badges. */
@@ -756,23 +763,34 @@ function renderDashboard(){
 }
 
 function signalStatusCode(s){return String(s.status||s.event_type||"ACTIVE").toUpperCase()}
-function isArchivedSignal(s){return ["SUPERSEDED","SIGNAL_SUPERSEDED","EXPIRED","SIGNAL_EXPIRED","TIMED_OUT"].includes(signalStatusCode(s))}
+function isExpiredSignal(s){return ["EXPIRED","SIGNAL_EXPIRED","TIMED_OUT"].includes(signalStatusCode(s))}
+function isSupersededSignal(s){return ["SUPERSEDED","SIGNAL_SUPERSEDED"].includes(signalStatusCode(s))}
+function isArchivedSignal(s){return isExpiredSignal(s)||isSupersededSignal(s)}
 function isTickerSignal(s){return ["ACTIVE","SIGNAL_OPEN","TP1_HIT","TP2_HIT","TP3_HIT","CLOSED_TP1","CLOSED_TP2","CLOSED_TP3","SL_HIT","CLOSED_SL","STOPPED"].includes(signalStatusCode(s))}
 function renderHistory(signals){
   const el=document.getElementById("historyTable");
-  const showArchived=document.getElementById("historyIncludeArchived").checked;
-  const archivedCount=signals.filter(s=>!isActive(s)&&isArchivedSignal(s)).length;
-  document.getElementById("historyFilterNote").textContent=showArchived
-    ?"Showing expired and superseded records ("+archivedCount+" available)"
-    :"Expired and superseded hidden ("+archivedCount+" records)";
-  let html=`<div class="row head"><div>Market</div><div>Side</div><div>Max target</div><div>Final outcome</div><div>Status</div></div>`;
-  const closed=signals.filter(s=>!isActive(s)&&(showArchived||!isArchivedSignal(s))).slice(0,12);
+  const showExpired=document.getElementById("historyIncludeExpired").checked;
+  const showSuperseded=document.getElementById("historyIncludeSuperseded").checked;
+  const expiredCount=signals.filter(s=>!isActive(s)&&isExpiredSignal(s)).length;
+  const supersededCount=signals.filter(s=>!isActive(s)&&isSupersededSignal(s)).length;
+  document.getElementById("historyFilterNote").textContent=
+    `${showExpired?"Showing":"Hiding"} ${expiredCount} expired · ${showSuperseded?"showing":"hiding"} ${supersededCount} superseded`;
+  let html=`<div class="row head"><div>Date</div><div>Market</div><div>Side</div><div>Max target</div><div>Final outcome</div><div>Status</div></div>`;
+  const historyLimit=Number(document.getElementById("historyLimit").value)||10;
+  const closed=signals.filter(s=>!isActive(s)&&(showExpired||!isExpiredSignal(s))&&(showSuperseded||!isSupersededSignal(s)))
+    .sort((a,b)=>signalTime(b)-signalTime(a)).slice(0,historyLimit);
   if(!closed.length){
-    html+=`<div class="row"><div>No completed signals yet</div><div></div><div></div><div></div><div></div></div>`;
+    html+=`<div class="row"><div>—</div><div>No completed signals yet</div><div></div><div></div><div></div><div></div></div>`;
   }else{
     html+=closed.map(s=>{
       const dir=(s.direction||"").toUpperCase(),status=normaliseStatus(s);
-      return `<div class="row"><div>${esc(s.symbol)}</div><div class="${dir==="BUY"?"good":"bad"}">${esc(dir)}</div><div>${esc(maxTarget(s))}</div><div>${esc(finalOutcome(s))}</div><div><span class="status-badge ${status.cls}">${esc(status.label)}</span></div></div>`;
+      const stopped=status.label==="Stopped";
+      const achieved=stopped?(reachedTarget(s,3)?"TP3":reachedTarget(s,2)?"TP2":reachedTarget(s,1)?"TP1":null):null;
+      const label=stopped&&achieved?`Stopped · ${achieved} recorded`:status.label;
+      const outcome=stopped&&achieved?`${achieved} recorded; stop also recorded`:finalOutcome(s);
+      const dateValue=signalTime(s);
+      const displayDate=dateValue?new Intl.DateTimeFormat("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Europe/London"}).format(new Date(dateValue)):"—";
+      return `<div class="row"><div title="${esc(s.timestamp_utc||s.createdAt||s.created_at||s.timestamp||"Timestamp not recorded")}">${esc(displayDate)}</div><div>${esc(s.symbol)}</div><div class="${dir==="BUY"?"good":"bad"}">${esc(dir)}</div><div>${esc(maxTarget(s))}</div><div>${esc(outcome)}</div><div><span class="status-badge ${status.cls}">${esc(label)}</span></div></div>`;
     }).join("");
   }
   el.innerHTML=html;
