@@ -242,6 +242,9 @@ html[data-density="compact"] .panel{padding:11px}
 .history-limit{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:10px 12px;font-size:12px;cursor:pointer}
 #historyTable .row{grid-template-columns:1.1fr .8fr .6fr .75fr 1.6fr 1.2fr;align-items:center}
 @media(max-width:800px){#historyTable{overflow-x:auto}#historyTable .row{min-width:790px}}
+.brand-home{display:flex;gap:14px;align-items:center;text-align:left;border:0;background:none;color:inherit;padding:0;cursor:pointer;font:inherit;border-radius:12px}
+.brand-home:focus-visible{outline:2px solid var(--brand);outline-offset:5px}
+.brand-home:hover .logo{border-color:var(--brand);box-shadow:0 0 0 2px var(--amber-bg)}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -260,7 +263,7 @@ html[data-density="compact"] .panel{padding:11px}
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3.5 + Market News</div></div></div>
+  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3.7 + Market News</div></div></button></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <div class="user-meta"><div id="userEmail" class="user-email">Signed in</div><div class="user-plan" id="currentPlanHeader">Checking subscription…</div></div>
@@ -355,7 +358,7 @@ html[data-density="compact"] .panel{padding:11px}
   <button class="filterbtn active" data-filter="All">All</button>
   <button class="filterbtn" data-filter="FX">FX</button>
   <button class="filterbtn" data-filter="Gold / Metals">Metals</button>
-  <button class="filterbtn" data-filter="Indices">Indices</button>
+  <button class="filterbtn locked" data-filter="Indices">Indices <span class="lock" id="indicesFilterLock">ELITE</span></button>
   <button class="filterbtn locked" data-filter="Crypto">Crypto <span class="lock" id="cryptoFilterLock">ELITE</span></button>
 </div>
 
@@ -743,7 +746,7 @@ function renderDashboard(){
   const signalList=document.getElementById("signalList");
   let live=allSignals.filter(isActive);
 
-  if(activeFilter==="Crypto" && USER_PLAN!=="ELITE"){
+  if(["Crypto","Indices"].includes(activeFilter) && USER_PLAN!=="ELITE"){
     signalList.innerHTML=`<div class="panel">
       <h3>Crypto signals are an Elite feature</h3>
       <div class="notice">Upgrade to Elite to unlock live Crypto signals and Crypto signal history.</div>
@@ -752,7 +755,7 @@ function renderDashboard(){
     return;
   }
 
-  if(USER_PLAN!=="ELITE")live=live.filter(s=>assetClass(s.symbol)!=="Crypto");
+  if(USER_PLAN!=="ELITE")live=live.filter(s=>!["Crypto","Indices"].includes(assetClass(s.symbol)));
   if(USER_PLAN==="PRO")live=live.filter(s=>["FX","Gold / Metals"].includes(assetClass(s.symbol)));
   if(USER_PLAN==="FREE")live=[];
   if(activeFilter!=="All") live=live.filter(s=>assetClass(s.symbol)===activeFilter);
@@ -785,12 +788,14 @@ function renderHistory(signals){
     html+=closed.map(s=>{
       const dir=(s.direction||"").toUpperCase(),status=normaliseStatus(s);
       const stopped=status.label==="Stopped";
-      const achieved=stopped?(reachedTarget(s,3)?"TP3":reachedTarget(s,2)?"TP2":reachedTarget(s,1)?"TP1":null):null;
-      const label=stopped&&achieved?`Stopped · ${achieved} recorded`:status.label;
+      const achieved=reachedTarget(s,3)?"TP3":reachedTarget(s,2)?"TP2":reachedTarget(s,1)?"TP1":null;
+      // History badge prioritises the highest documented target over a subsequent SL event.
+      const label=achieved?`✓ ${achieved} Hit`:stopped?"✕ Stopped":status.label;
+      const badgeClass=achieved?"status-blue":stopped?"status-red":status.cls;
       const outcome=stopped&&achieved?`${achieved} recorded; stop also recorded`:finalOutcome(s);
       const dateValue=signalTime(s);
       const displayDate=dateValue?new Intl.DateTimeFormat("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Europe/London"}).format(new Date(dateValue)):"—";
-      return `<div class="row"><div title="${esc(s.timestamp_utc||s.createdAt||s.created_at||s.timestamp||"Timestamp not recorded")}">${esc(displayDate)}</div><div>${esc(s.symbol)}</div><div class="${dir==="BUY"?"good":"bad"}">${esc(dir)}</div><div>${esc(maxTarget(s))}</div><div>${esc(outcome)}</div><div><span class="status-badge ${status.cls}">${esc(label)}</span></div></div>`;
+      return `<div class="row"><div title="${esc(s.timestamp_utc||s.createdAt||s.created_at||s.timestamp||"Timestamp not recorded")}">${esc(displayDate)}</div><div>${esc(s.symbol)}</div><div class="${dir==="BUY"?"good":"bad"}">${esc(dir)}</div><div>${esc(maxTarget(s))}</div><div>${esc(outcome)}</div><div><span class="status-badge ${badgeClass}">${esc(label)}</span></div></div>`;
     }).join("");
   }
   el.innerHTML=html;
@@ -987,6 +992,7 @@ function switchPage(page){
   if(page==="status")refreshStatus();
 }
 document.querySelectorAll(".navbtn").forEach(btn=>btn.addEventListener("click",()=>switchPage(btn.dataset.page)));
+document.getElementById("dashboardLogo").addEventListener("click",()=>{switchPage("dashboard");window.scrollTo({top:0,behavior:"smooth"})});
 
 document.querySelectorAll(".filterbtn").forEach(btn=>btn.addEventListener("click",()=>{
   document.querySelectorAll(".filterbtn").forEach(b=>b.classList.remove("active"));
@@ -1196,11 +1202,14 @@ function updatePlanDisplay(){
   }
   const entitlements=tier==="ELITE"?["FX","Gold / Metals","Indices","Crypto"]:tier==="PRO"?["FX","Gold / Metals"]:[];
   document.getElementById("accessTier").textContent=tier;
-  document.getElementById("accessMarkets").innerHTML=["FX","Gold / Metals","Indices","Crypto"].map(name=>`<div class="kv"><span class="label">${name}</span><span class="${entitlements.includes(name)?"good":"warn"}">${entitlements.includes(name)?"✓ Included":name==="Crypto"?"Elite only":"Not included"}</span></div>`).join("");
+  document.getElementById("accessMarkets").innerHTML=["FX","Gold / Metals","Indices","Crypto"].map(name=>`<div class="kv"><span class="label">${name}</span><span class="${entitlements.includes(name)?"good":"warn"}">${entitlements.includes(name)?"✓ Included":["Crypto","Indices"].includes(name)?"Elite only":"Not included"}</span></div>`).join("");
   document.getElementById("accessUpgrade").classList.toggle("hidden",tier==="ELITE");
   const cryptoButton=document.querySelector('.filterbtn[data-filter="Crypto"]');
   cryptoButton.classList.toggle("locked",tier!=="ELITE");
   document.getElementById("cryptoFilterLock").textContent=tier==="ELITE"?"✓":"ELITE";
+  const indicesButton=document.querySelector('.filterbtn[data-filter="Indices"]');
+  indicesButton.classList.toggle("locked",tier!=="ELITE");
+  document.getElementById("indicesFilterLock").textContent=tier==="ELITE"?"✓":"ELITE";
   if(typeof renderDashboard==="function")renderDashboard();
 }
 function setAuthState(msg){ document.getElementById("authState").textContent=msg||""; }
