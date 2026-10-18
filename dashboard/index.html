@@ -218,6 +218,23 @@ html[data-density="compact"] .panel{padding:11px}
 .card-open,html[data-density="compact"] .card-open{right:14px;bottom:12px;background:var(--amber-bg);color:var(--brand);border:1px solid rgba(244,162,103,.48);border-radius:10px;padding:10px 14px;font-size:12px;font-weight:850;letter-spacing:.15px;text-transform:none;cursor:pointer}
 .card-open:hover{background:var(--brand);color:var(--bg)}
 @media(max-width:600px){.levels,html[data-density="compact"] .levels{grid-template-columns:repeat(2,minmax(0,1fr))}.sectionhead{flex-wrap:wrap}}
+/* v0.9.3.3: compact three-column intelligence row */
+.intel-grid.intel-grid{grid-template-columns:minmax(0,1.8fr) minmax(0,.85fr) minmax(0,1.05fr);align-items:stretch;gap:10px}
+.intel-grid>div{min-width:0;display:flex;flex-direction:column}
+.intel-grid .sectionhead{margin:0 0 8px;min-height:30px}
+.intel-grid .sectionhead h2{font-size:13px}
+.intel-grid .sectionhead .r{font-size:10px}
+.intel-grid .scanner,.intel-grid .insight-card{flex:1;min-width:0}
+.intel-grid .insight-card{padding:12px}
+.intel-grid .scanner-row{grid-template-columns:1.05fr .42fr .53fr .62fr .85fr;gap:5px;padding:10px}
+.intel-grid .donut-wrap{gap:8px;flex-wrap:wrap}
+.intel-grid .donut{width:76px;height:76px}
+.intel-grid .donut:after{width:50px;height:50px}
+.intel-grid .donut-center{font-size:13px}
+.intel-grid .legend{font-size:9px}
+.intel-grid .heat-row{grid-template-columns:52px minmax(0,1fr) 23px;gap:5px}
+@media(max-width:1180px){.intel-grid.intel-grid{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}.intel-grid>div:first-child{grid-column:1/-1}}
+@media(max-width:700px){.intel-grid.intel-grid{grid-template-columns:1fr}.intel-grid>div:first-child{grid-column:auto}}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -236,7 +253,7 @@ html[data-density="compact"] .panel{padding:11px}
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3.2 + Market News</div></div></div>
+  <div class="brandwrap"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3.3 + Market News</div></div></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <div class="user-meta"><div id="userEmail" class="user-email">Signed in</div><div class="user-plan" id="currentPlanHeader">Checking subscription…</div></div>
@@ -315,12 +332,13 @@ html[data-density="compact"] .panel{padding:11px}
     <div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">⌁</span> Market scanner</h2><div class="r">Latest state by instrument</div></div>
     <div id="scannerMatrix" class="scanner"><div class="scanner-empty">Scanner data will appear when signals load.</div></div>
   </div>
-  <div>
-    <div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">▤</span> Visual insights</h2><div class="r">Real feed data</div></div>
-    <div class="insights">
-      <div class="insight-card"><div class="insight-title">Outcome mix</div><div id="outcomeDonut"></div></div>
-      <div class="insight-card"><div class="insight-title">Signal activity · last 24h</div><div id="sessionHeatmap" class="heat-list"></div></div>
-    </div>
+  <div class="intel-panel">
+    <div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">◉</span> Outcome mix</h2></div>
+    <div class="insight-card"><div id="outcomeDonut"></div></div>
+  </div>
+  <div class="intel-panel">
+    <div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">▤</span> Signal activity</h2><span class="r">Last 24 hours</span></div>
+    <div class="insight-card"><div id="sessionHeatmap" class="heat-list"></div></div>
   </div>
 </section>
 
@@ -661,7 +679,7 @@ function isActive(s){const raw=signalLifecycleStatus(s);return raw==="ACTIVE"||r
 function renderSignal(s){
   const dir=(s.direction||"").toUpperCase();
   const status=normaliseStatus(s);
-  const grade=s.quality_grade||s.quality||"—";
+  const grade=displaySignalQuality(s);
   const setup=s.setup||s.strategy_profile||"Trend Engine";
   const asset=assetClass(s.symbol);
   const reached1=reachedTarget(s,1);
@@ -878,6 +896,22 @@ document.getElementById("closeDrawer").addEventListener("click",closeSignalDetai
 document.getElementById("signalDrawer").addEventListener("click",e=>{if(e.target.id==="signalDrawer")closeSignalDetail()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSignalDetail()});
 
+function displaySignalQuality(s){
+  // The issued signal's quality is distinct from live scanner confluence.
+  const fields=[s.quality_score,s.qualityScore,s.signal_score,s.signalScore,s.confidence_score,s.confidenceScore,s.score];
+  for(const v of fields){
+    if(v===null||v===undefined||v==="")continue;
+    const n=Number(v);
+    if(Number.isFinite(n)&&n>=0&&n<=100)return `${Math.round(n)}/100`;
+  }
+  const grade=s.quality_grade??s.quality;
+  if(grade!==null&&grade!==undefined&&String(grade).trim()!==""){
+    const str=String(grade).trim();
+    if(/^(?:100|[0-9]{1,2})(?:\.[0-9]+)?$/.test(str))return `${Math.round(Number(str))}/100`;
+    return str.slice(0,20);
+  }
+  return "—";
+}
 function renderVisualIntelligence(signals){
   const assets=[
     {name:"FX",icon:"↗",key:"FX"},
@@ -896,10 +930,10 @@ function renderVisualIntelligence(signals){
   const latest=new Map();
   ordered.forEach(s=>{if(s.symbol&&!latest.has(s.symbol))latest.set(s.symbol,s)});
   const rows=[...latest.values()].slice(0,10);
-  document.getElementById("scannerMatrix").innerHTML=rows.length?`<div class="scanner-row scanner-head"><span>Instrument</span><span>TF</span><span>Bias</span><span>Grade</span><span>Status</span></div>`+rows.map(s=>{
+  document.getElementById("scannerMatrix").innerHTML=rows.length?`<div class="scanner-row scanner-head"><span>Instrument</span><span>TF</span><span>Bias</span><span title="Score supplied by the issued signal; not scanner confluence">Quality</span><span>Status</span></div>`+rows.map(s=>{
     const dir=(s.direction||"—").toUpperCase();
     const status=normaliseStatus(s);
-    return `<div class="scanner-row"><span class="scanner-symbol">${esc(s.symbol)}</span><span>${esc(s.timeframe||"—")}</span><span class="${dir==="BUY"?"good":dir==="SELL"?"bad":""}">${esc(dir)}</span><span>${esc(s.quality_grade||s.quality||"—")}</span><span><span class="status-badge ${status.cls}">${esc(status.label)}</span></span></div>`;
+    return `<div class="scanner-row"><span class="scanner-symbol">${esc(s.symbol)}</span><span>${esc(s.timeframe||"—")}</span><span class="${dir==="BUY"?"good":dir==="SELL"?"bad":""}">${esc(dir)}</span><span>${esc(displaySignalQuality(s))}</span><span><span class="status-badge ${status.cls}">${esc(status.label)}</span></span></div>`;
   }).join(""):`<div class="scanner-empty">No scanner records available yet.</div>`;
 
   const tickerSignals=ordered.filter(isTickerSignal).slice(0,5);
