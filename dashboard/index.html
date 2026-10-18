@@ -211,6 +211,13 @@ html[data-density="compact"] .panel{padding:11px}
 #dashboard .metrics-six .metric .s{font-size:10px;line-height:1.25;margin-top:5px}
 @media(max-width:1150px){#dashboard .metrics-six{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:600px){#dashboard .metrics-six{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.signal-toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.signal-toolbar select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-size:12px;cursor:pointer}
+.levels,html[data-density="compact"] .levels{grid-template-columns:repeat(5,minmax(0,1fr))}.level .v{overflow-wrap:anywhere}
+.card{padding-bottom:53px}html[data-density="compact"] .card{padding-bottom:49px}
+.card-open,html[data-density="compact"] .card-open{right:14px;bottom:12px;background:var(--amber-bg);color:var(--brand);border:1px solid rgba(244,162,103,.48);border-radius:10px;padding:10px 14px;font-size:12px;font-weight:850;letter-spacing:.15px;text-transform:none;cursor:pointer}
+.card-open:hover{background:var(--brand);color:var(--bg)}
+@media(max-width:600px){.levels,html[data-density="compact"] .levels{grid-template-columns:repeat(2,minmax(0,1fr))}.sectionhead{flex-wrap:wrap}}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -229,7 +236,7 @@ html[data-density="compact"] .panel{padding:11px}
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3.1 + Market News</div></div></div>
+  <div class="brandwrap"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3.2 + Market News</div></div></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <div class="user-meta"><div id="userEmail" class="user-email">Signed in</div><div class="user-plan" id="currentPlanHeader">Checking subscription…</div></div>
@@ -312,19 +319,19 @@ html[data-density="compact"] .panel{padding:11px}
     <div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">▤</span> Visual insights</h2><div class="r">Real feed data</div></div>
     <div class="insights">
       <div class="insight-card"><div class="insight-title">Outcome mix</div><div id="outcomeDonut"></div></div>
-      <div class="insight-card"><div class="insight-title">Session activity</div><div id="sessionHeatmap" class="heat-list"></div></div>
+      <div class="insight-card"><div class="insight-title">Signal activity · last 24h</div><div id="sessionHeatmap" class="heat-list"></div></div>
     </div>
   </div>
 </section>
 
-<div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">✦</span> Live signals</h2><div class="r" id="updatedAt">Waiting for data</div></div>
+<div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">✦</span> Live signals</h2><div class="signal-toolbar"><label for="signalLimit">Show</label><select id="signalLimit"><option value="3">Last 3</option><option value="5">Last 5</option><option value="10">Last 10</option><option value="20">Last 20</option><option value="all">All</option></select><span class="r" id="updatedAt">Waiting for data</span></div></div>
 
 <div class="filters" aria-label="Signal filters">
   <button class="filterbtn active" data-filter="All">All</button>
   <button class="filterbtn" data-filter="FX">FX</button>
   <button class="filterbtn" data-filter="Gold / Metals">Metals</button>
   <button class="filterbtn" data-filter="Indices">Indices</button>
-  <button class="filterbtn locked" data-filter="Crypto">Crypto <span class="lock">ELITE</span></button>
+  <button class="filterbtn locked" data-filter="Crypto">Crypto <span class="lock" id="cryptoFilterLock">ELITE</span></button>
 </div>
 
 <section class="layout">
@@ -336,13 +343,10 @@ html[data-density="compact"] .panel{padding:11px}
     <div class="kv"><span class="label">Best outcome seen</span><span id="sumBest">—</span></div>
     <div class="kv"><span class="label">Stopped signals</span><span id="sumStopped">—</span></div>
   </div>
-  <div class="panel" style="margin-top:14px"><h3>Current access</h3>
-    <div class="kv"><span class="label">FX</span><span class="good">Included</span></div>
-    <div class="kv"><span class="label">Gold / Metals</span><span class="good">Included</span></div>
-    <div class="kv"><span class="label">Indices</span><span class="good">Included</span></div>
-    <div class="kv"><span class="label">Crypto</span><span class="warn">Elite only</span></div>
-    <div style="margin-top:12px"><span class="cta">Upgrade to Elite</span></div>
-  </div>
+   <div class="panel" style="margin-top:14px"><h3>Current access <span class="tiny plan" id="accessTier">Checking…</span></h3>
+     <div id="accessMarkets">Checking subscription entitlements…</div>
+     <div id="accessUpgrade" class="hidden" style="margin-top:12px"><span class="cta">Upgrade to Elite</span></div>
+   </div>
 </aside>
 </section>
 </section>
@@ -599,6 +603,15 @@ let scannerAssetFilter="All";
 let scannerStateFilter="All";
 let watchlistOnly=false;
 let watchedSymbols=new Set(JSON.parse(localStorage.getItem("artemis_watchlist")||"[]"));
+const allowedSignalLimits=new Set(["3","5","10","20","all"]);
+let signalLimit=localStorage.getItem("artemis_signal_limit")||"3";
+if(!allowedSignalLimits.has(signalLimit))signalLimit="3";
+document.getElementById("signalLimit").value=signalLimit;
+document.getElementById("signalLimit").addEventListener("change",event=>{
+ signalLimit=allowedSignalLimits.has(event.target.value)?event.target.value:"3";
+ localStorage.setItem("artemis_signal_limit",signalLimit);
+ renderDashboard();
+});
 
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 
@@ -608,6 +621,11 @@ function assetClass(symbol){
   if(s.includes("BTC")||s.includes("ETH")||s.includes("CRYPTO")) return "Crypto";
   if(["NAS100","US500","SPX500","US30","GER40","UK100","DE40"].some(x=>s.includes(x))) return "Indices";
   return "FX";
+}
+function signalTime(s){
+ const v=s.timestamp_utc||s.createdAt||s.created_at||s.timestamp;
+ const t=v?Date.parse(v):NaN;
+ return Number.isFinite(t)?t:0;
 }
 function signalLifecycleStatus(s){return String(s.status||s.event_type||"ACTIVE").toUpperCase()}
 function reachedTarget(s,level){
@@ -676,6 +694,7 @@ function renderSignal(s){
       <div class="level"><div class="k">STOP</div><div class="v">${esc(s.sl??"—")}</div></div>
       <div class="level ${reached1?"hit":""}"><div class="k">TP1</div><div class="v">${esc(s.tp1??"—")}${reached1?" ✓":""}</div></div>
       <div class="level ${reached2?"hit":""}"><div class="k">TP2</div><div class="v">${esc(s.tp2??"—")}${reached2?" ✓":""}</div></div>
+      <div class="level ${reached3?"hit":""}"><div class="k">TP3</div><div class="v">${esc(s.tp3??"—")}${reached3?" ✓":""}</div></div>
     </div>
     <div class="target-path" aria-label="Signal target progress">
       <div class="target-step done">Entry</div>
@@ -691,7 +710,7 @@ function renderSignal(s){
        <span class="chip">◷ ${esc(signalAge)}</span>
     </div>
     <div class="footerline"><span>${esc(s.timestamp_utc||"")}</span>${s.final_outcome?`<span>•</span><span>${esc(s.final_outcome)}</span>`:""}</div>
-    <button class="card-open" type="button" onclick="openSignalDetail(${signalIndex})">View signal →</button>
+    <button class="card-open" type="button" onclick="openSignalDetail(${signalIndex})">View details ↗</button>
   </article>`;
 }
 
@@ -708,7 +727,12 @@ function renderDashboard(){
     return;
   }
 
+  if(USER_PLAN!=="ELITE")live=live.filter(s=>assetClass(s.symbol)!=="Crypto");
+  if(USER_PLAN==="PRO")live=live.filter(s=>["FX","Gold / Metals"].includes(assetClass(s.symbol)));
+  if(USER_PLAN==="FREE")live=[];
   if(activeFilter!=="All") live=live.filter(s=>assetClass(s.symbol)===activeFilter);
+  live.sort((a,b)=>signalTime(b)-signalTime(a));
+  if(signalLimit!=="all")live=live.slice(0,Number(signalLimit));
 
   signalList.innerHTML=live.length ? live.map(renderSignal).join("") : `<div class="empty">No active ${activeFilter==="All"?"":esc(activeFilter)+" "}signals right now.</div>`;
 }
@@ -896,11 +920,10 @@ function renderVisualIntelligence(signals){
   const p1=active/total*100,p2=target/total*100,p3=stopped/total*100;
   document.getElementById("outcomeDonut").innerHTML=`<div class="donut-wrap"><div class="donut" style="background:conic-gradient(var(--green) 0 ${p1}%,var(--blue) ${p1}% ${p1+p2}%,var(--red) ${p1+p2}% ${p1+p2+p3}%,var(--line) ${p1+p2+p3}% 100%)"><div class="donut-center">${signals.length}<small>signals</small></div></div><div class="legend"><span style="--legend:var(--green)">${active} active</span><span style="--legend:var(--blue)">${target} target hit</span><span style="--legend:var(--red)">${stopped} stopped</span><span style="--legend:var(--line)">${other} other</span></div></div>`;
 
-  const sessions=new Map();
-  signals.forEach(s=>{const name=s.session||"Unspecified";sessions.set(name,(sessions.get(name)||0)+1)});
-  const sessionRows=[...sessions.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const max=Math.max(1,...sessionRows.map(x=>x[1]));
-  document.getElementById("sessionHeatmap").innerHTML=sessionRows.length?sessionRows.map(([name,count])=>`<div class="heat-row"><span>${esc(name)}</span><div class="heat-bar"><div class="heat-fill" style="width:${Math.round(count/max*100)}%"></div></div><strong>${count}</strong></div>`).join(""):`<div class="scanner-empty">No session data yet.</div>`;
+  const recent=signals.filter(s=>{const t=signalTime(s);return t>0&&t>=Date.now()-86400000&&t<=Date.now()+300000});
+  const stats=[["New",recent.length],["Active",recent.filter(isActive).length],["TP1+",recent.filter(s=>reachedTarget(s,1)).length],["TP2+",recent.filter(s=>reachedTarget(s,2)).length],["TP3",recent.filter(s=>reachedTarget(s,3)).length],["Stopped",recent.filter(s=>normaliseStatus(s).label==="Stopped").length]];
+  const max=Math.max(1,...stats.map(x=>x[1]));
+  document.getElementById("sessionHeatmap").innerHTML=recent.length?stats.map(([name,count])=>`<div class="heat-row"><span>${name}</span><div class="heat-bar"><div class="heat-fill" style="width:${Math.round(count/max*100)}%"></div></div><strong>${count}</strong></div>`).join(""):`<div class="scanner-empty">No timestamped signal records in the last 24 hours.</div>`;
 }
 
 function switchPage(page){
@@ -1119,6 +1142,13 @@ function updatePlanDisplay(){
     if(label==="plan")value.textContent=tier;
     if(label==="included markets")value.textContent=markets;
   }
+  const entitlements=tier==="ELITE"?["FX","Gold / Metals","Indices","Crypto"]:tier==="PRO"?["FX","Gold / Metals"]:[];
+  document.getElementById("accessTier").textContent=tier;
+  document.getElementById("accessMarkets").innerHTML=["FX","Gold / Metals","Indices","Crypto"].map(name=>`<div class="kv"><span class="label">${name}</span><span class="${entitlements.includes(name)?"good":"warn"}">${entitlements.includes(name)?"✓ Included":name==="Crypto"?"Elite only":"Not included"}</span></div>`).join("");
+  document.getElementById("accessUpgrade").classList.toggle("hidden",tier==="ELITE");
+  const cryptoButton=document.querySelector('.filterbtn[data-filter="Crypto"]');
+  cryptoButton.classList.toggle("locked",tier!=="ELITE");
+  document.getElementById("cryptoFilterLock").textContent=tier==="ELITE"?"✓":"ELITE";
   if(typeof renderDashboard==="function")renderDashboard();
 }
 function setAuthState(msg){ document.getElementById("authState").textContent=msg||""; }
