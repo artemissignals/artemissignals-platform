@@ -245,16 +245,29 @@ html[data-density="compact"] .panel{padding:11px}
 .brand-home{display:flex;gap:14px;align-items:center;text-align:left;border:0;background:none;color:inherit;padding:0;cursor:pointer;font:inherit;border-radius:12px}
 .brand-home:focus-visible{outline:2px solid var(--brand);outline-offset:5px}
 .brand-home:hover .logo{border-color:var(--brand);box-shadow:0 0 0 2px var(--amber-bg)}
-/* Performance cards stay on one desktop row, and wrap at smaller widths. */
-#performance .performance-toolbar{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted)}
+/* v0.9.3.9 performance layout */
+#performance .performance-toolbar{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);flex-wrap:wrap}
 #performance .performance-toolbar select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:12px}
-#performance .performance-metrics{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px}
-#performance .performance-metrics .metric{padding:13px 10px;min-width:0;border-radius:12px}
-#performance .performance-metrics .metric .k{font-size:9px;line-height:1.3}
-#performance .performance-metrics .metric .v{font-size:clamp(19px,2vw,27px)}
-#performance .performance-metrics .metric .s{font-size:10px;line-height:1.3}
-@media(max-width:1250px){#performance .performance-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media(max-width:650px){#performance .performance-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#performance .performance-group-label{font-size:11px;color:var(--muted);font-weight:850;text-transform:uppercase;letter-spacing:.7px;margin:20px 0 7px}
+#performance .performance-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 8px}
+#performance .performance-metrics .metric{padding:19px 17px;min-width:0;border-radius:14px}
+#performance .performance-metrics .metric .k{font-size:11px;line-height:1.4}
+#performance .performance-metrics .metric .v{font-size:clamp(27px,3vw,38px)}
+#performance .performance-metrics .metric .s{font-size:11px;line-height:1.4}
+#performance .performance-charts{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin:19px 0}
+#performance .performance-charts .panel{min-width:0}
+#performance .chart-subtitle{font-size:11px;color:var(--muted);margin-top:-6px;margin-bottom:14px}
+#performance .perf-chart{width:100%;min-height:215px}
+#performance .perf-chart svg{display:block;width:100%;height:auto}
+#performance .perf-chart-legend{display:flex;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:11px;margin-top:8px}
+#performance .perf-chart-legend b{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}
+#performance .perf-target-chart{display:grid;gap:18px;margin:24px 0}
+#performance .perf-target-line{display:grid;grid-template-columns:47px 1fr 50px;align-items:center;gap:10px;color:var(--muted);font-size:12px}
+#performance .perf-target-track{height:13px;border-radius:99px;background:var(--card2);overflow:hidden;border:1px solid var(--line)}
+#performance .perf-target-fill{height:100%;background:linear-gradient(90deg,var(--brand2),var(--brand));border-radius:99px}
+#performance .perf-chart-empty{color:var(--muted);font-size:12px;padding:30px 8px}
+@media(max-width:950px){#performance .performance-charts{grid-template-columns:1fr}}
+@media(max-width:650px){#performance .performance-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#performance .performance-metrics .metric{padding:13px 10px}#performance .performance-metrics .metric .v{font-size:27px}}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -273,7 +286,7 @@ html[data-density="compact"] .panel{padding:11px}
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3.8 + Market News</div></div></button></div>
+  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3.9 + Market News</div></div></button></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <div class="user-meta"><div id="userEmail" class="user-email">Signed in</div><div class="user-plan" id="currentPlanHeader">Checking subscription…</div></div>
@@ -413,16 +426,21 @@ html[data-density="compact"] .panel{padding:11px}
 </section>
 
 <section id="performance" class="page">
-<div class="sectionhead"><h2>Signal performance</h2><div class="performance-toolbar"><label for="performancePeriod">Period</label><select id="performancePeriod"><option value="30d">Last 30 days</option><option value="3m">Last 3 months</option><option value="6m">Last 6 months</option><option value="1y">Last year</option><option value="all">All time</option></select></div></div>
-<section class="metrics performance-metrics">
+<div class="sectionhead"><h2>Signal performance</h2><div class="performance-toolbar"><label for="performanceMarket">Market</label><select id="performanceMarket"><option value="All">All markets</option><option value="FX">FX</option><option value="Indices">Indices</option><option value="Crypto">Crypto</option><option value="Gold / Metals">Metals</option></select><label for="performancePeriod">Period</label><select id="performancePeriod"><option value="30d">Last 30 days</option><option value="3m">Last 3 months</option><option value="6m">Last 6 months</option><option value="1y">Last year</option><option value="all">All time</option></select></div></div>
+<div class="performance-group-label">Overview · key metrics</div><section class="metrics performance-metrics performance-vitals">
   <div class="metric"><div class="k">All-time received</div><div class="v" id="pAllTime">–</div><div class="s">Records returned by API</div></div>
   <div class="metric"><div class="k">Signals in period</div><div class="v" id="pTotal">–</div><div class="s">Selected time window</div></div>
   <div class="metric"><div class="k">Win rate</div><div class="v good" id="pWin">–</div><div class="s">TP1+ of resolved</div></div>
   <div class="metric"><div class="k">Loss rate</div><div class="v bad" id="pLoss">–</div><div class="s">Stopped before TP1</div></div>
+</section><div class="performance-group-label">Target breakdown · selected period</div><section class="metrics performance-metrics performance-breakdown">
   <div class="metric"><div class="k">TP1 hit rate</div><div class="v" id="pRate1">–</div><div class="s">Of signals in period</div></div>
   <div class="metric"><div class="k">TP2 hit rate</div><div class="v" id="pRate2">–</div><div class="s">Of signals in period</div></div>
   <div class="metric"><div class="k">TP3 hit rate</div><div class="v" id="pRate3">–</div><div class="s">Of signals in period</div></div>
   <div class="metric"><div class="k">SL before TP1</div><div class="v bad" id="pStopped">–</div><div class="s">Of signals in period</div></div>
+</section>
+<section class="performance-charts" aria-label="Signal performance trends">
+ <div class="panel"><h3>Signal outcomes over time</h3><div class="chart-subtitle">Wins, losses and unresolved signals by date</div><div id="performanceTrend" class="perf-chart" role="img" aria-label="Signal outcome trend chart">Waiting for data…</div></div>
+ <div class="panel"><h3>Target progression</h3><div class="chart-subtitle">Percentage of signals that reached each target in the selected period</div><div id="performanceTargets" class="perf-target-chart">Waiting for data…</div></div>
 </section>
 <div class="panel performance-explanation"><h3>How performance is calculated</h3><div class="notice" id="performanceExplanation">Waiting for data…</div></div>
 </section>
@@ -700,33 +718,63 @@ function maxTarget(s){
 function finalOutcome(s){return s.final_outcome||maxTarget(s)}
 function isActive(s){const raw=signalLifecycleStatus(s);return raw==="ACTIVE"||raw==="SIGNAL_OPEN"||raw==="TP1_HIT"||raw==="TP2_HIT"}
 
+function performanceOutcome(s){
+ if(reachedTarget(s,1))return "win";
+ if(normaliseStatus(s).label==="Stopped")return "loss";
+ return "unresolved";
+}
 function renderPerformance(){
-  const period=document.getElementById("performancePeriod").value;
-  const cutoff=new Date();
-  if(period==="30d")cutoff.setDate(cutoff.getDate()-30);
-  else if(period==="3m")cutoff.setMonth(cutoff.getMonth()-3);
-  else if(period==="6m")cutoff.setMonth(cutoff.getMonth()-6);
-  else if(period==="1y")cutoff.setFullYear(cutoff.getFullYear()-1);
-  const now=Date.now(), after=cutoff.getTime();
-  const valid=allSignals.filter(s=>{const t=signalTime(s);return t>0&&t<=now+300000});
-  const periodSignals=period==="all"?allSignals:valid.filter(s=>signalTime(s)>=after);
-  const n=periodSignals.length;
-  const wins=periodSignals.filter(s=>reachedTarget(s,1)).length;
-  const losses=periodSignals.filter(s=>normaliseStatus(s).label==="Stopped"&&!reachedTarget(s,1)).length;
-  const resolved=wins+losses;
-  const percent=(top,bottom)=>bottom?Math.round(top/bottom*100)+"%":"—";
-  document.getElementById("pAllTime").textContent=allSignals.length.toLocaleString("en-GB");
-  document.getElementById("pTotal").textContent=n.toLocaleString("en-GB");
-  document.getElementById("pWin").textContent=percent(wins,resolved);
-  document.getElementById("pLoss").textContent=percent(losses,resolved);
-  document.getElementById("pRate1").textContent=percent(wins,n);
-  document.getElementById("pRate2").textContent=percent(periodSignals.filter(s=>reachedTarget(s,2)).length,n);
-  document.getElementById("pRate3").textContent=percent(periodSignals.filter(s=>reachedTarget(s,3)).length,n);
-  document.getElementById("pStopped").textContent=percent(losses,n);
-  const undated=allSignals.length-valid.length;
-  document.getElementById("performanceExplanation").textContent=`${resolved} resolved (${wins} TP1+ wins, ${losses} stops before TP1); ${n-resolved} unresolved or otherwise classified in this period. Win/loss rates use resolved outcomes only. TP hit rates and SL rate use all ${n} signals in the selected window. ${period==="all"?"":"Records without valid timestamps are excluded from dated ranges. "}${undated?`${undated} records do not have a usable timestamp or have a future timestamp. `:""}All-time received counts the records returned by the current API response; full database totals require backend aggregation/pagination.`;
+ const period=document.getElementById("performancePeriod").value;
+ const market=document.getElementById("performanceMarket").value;
+ const marketSignals=allSignals.filter(s=>market==="All"||assetClass(s.symbol)===market);
+ const cutoff=new Date();
+ if(period==="30d")cutoff.setDate(cutoff.getDate()-30);
+ else if(period==="3m")cutoff.setMonth(cutoff.getMonth()-3);
+ else if(period==="6m")cutoff.setMonth(cutoff.getMonth()-6);
+ else if(period==="1y")cutoff.setFullYear(cutoff.getFullYear()-1);
+ const now=Date.now(),after=cutoff.getTime();
+ const valid=marketSignals.filter(s=>{const t=signalTime(s);return t>0&&t<=now+300000});
+ const periodSignals=period==="all"?marketSignals:valid.filter(s=>signalTime(s)>=after);
+ const n=periodSignals.length;
+ const wins=periodSignals.filter(s=>performanceOutcome(s)==="win").length;
+ const losses=periodSignals.filter(s=>performanceOutcome(s)==="loss").length;
+ const resolved=wins+losses;
+ const pct=(a,b)=>b?Math.round(a/b*100)+"%":"—";
+ const hits=[1,2,3].map(l=>periodSignals.filter(s=>reachedTarget(s,l)).length);
+ document.getElementById("pAllTime").textContent=marketSignals.length.toLocaleString("en-GB");
+ document.getElementById("pTotal").textContent=n.toLocaleString("en-GB");
+ document.getElementById("pWin").textContent=pct(wins,resolved);
+ document.getElementById("pLoss").textContent=pct(losses,resolved);
+ ["pRate1","pRate2","pRate3"].forEach((id,i)=>document.getElementById(id).textContent=pct(hits[i],n));
+ document.getElementById("pStopped").textContent=pct(losses,n);
+ const undated=marketSignals.length-valid.length;
+ document.getElementById("performanceExplanation").textContent=`${market==="All"?"All markets":market}: ${resolved} resolved (${wins} TP1+ wins, ${losses} stops before TP1), ${n-resolved} unresolved in selected period. Win/loss rates use resolved outcomes only; target rates use all ${n} signals in the selected period. ${undated?`${undated} records lack usable timestamps or are dated in the future. `:""}All-time received refers to API-returned records for the selected market, not necessarily the full database. Target reached does not establish realised profit.`;
+ const targets=document.getElementById("performanceTargets");
+ targets.innerHTML=n?hits.map((v,i)=>`<div class="perf-target-line"><strong>TP${i+1}</strong><div class="perf-target-track"><div class="perf-target-fill" style="width:${Math.round(v/n*100)}%"></div></div><strong>${pct(v,n)}</strong></div>`).join(""):`<div class="perf-chart-empty">No signals in this selection.</div>`;
+ const trend=document.getElementById("performanceTrend");
+ const stamped=periodSignals.filter(s=>{const t=signalTime(s);return t>0&&t<=now+300000});
+ if(!stamped.length){trend.innerHTML=`<div class="perf-chart-empty">No timestamped signals to chart for this selection.</div>`;return;}
+ // Aggregate to calendar days, or calendar weeks for longer ranges.
+ const grouped=new Map();
+ const weekly=period==="6m"||period==="1y"||period==="all";
+ for(const signal of stamped){
+  const d=new Date(signalTime(signal));d.setUTCHours(0,0,0,0);
+  if(weekly){const day=(d.getUTCDay()+6)%7;d.setUTCDate(d.getUTCDate()-day);}
+  const key=d.toISOString().slice(0,10);
+  if(!grouped.has(key))grouped.set(key,{win:0,loss:0,unresolved:0});
+  grouped.get(key)[performanceOutcome(signal)]++;
+ }
+ const rows=[...grouped.entries()].sort((a,b)=>a[0].localeCompare(b[0])).slice(-32);
+ const w=700,h=212,left=34,right=12,top=14,bottom=32,plotW=w-left-right,plotH=h-top-bottom;
+ const maximum=Math.max(1,...rows.map(([,v])=>v.win+v.loss+v.unresolved));
+ const barW=Math.max(5,Math.min(34,plotW/rows.length*.68));
+ const lines=[0,.25,.5,.75,1].map(f=>{const y=top+plotH*(1-f);return `<line x1="${left}" y1="${y}" x2="${w-right}" y2="${y}" stroke="var(--line)" stroke-width="1"/><text x="${left-5}" y="${y+4}" fill="var(--muted)" font-size="10" text-anchor="end">${Math.round(maximum*f)}</text>`}).join("");
+ const bars=rows.map(([date,v],i)=>{const x=left+(i+.5)*plotW/rows.length-barW/2;let y=top+plotH;let chunks="";for(const [k,color] of [["loss","var(--red)"],["unresolved","var(--grey)"],["win","var(--green)"]]){const height=v[k]/maximum*plotH;y-=height;if(height)chunks+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${height.toFixed(1)}" fill="${color}"><title>${date}: ${v.win} wins, ${v.loss} losses, ${v.unresolved} unresolved</title></rect>`;}return chunks}).join("");
+ const labels=[0,Math.floor((rows.length-1)/2),rows.length-1].filter((v,i,a)=>a.indexOf(v)===i).map(i=>`<text x="${left+(i+.5)*plotW/rows.length}" y="${h-8}" text-anchor="middle" font-size="10" fill="var(--muted)">${rows[i][0].slice(5)}</text>`).join("");
+ trend.innerHTML=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Daily or weekly counts of wins losses and unresolved signals">${lines}${bars}${labels}</svg><div class="perf-chart-legend"><span><b style="background:var(--green)"></b>TP1+ wins</span><span><b style="background:var(--red)"></b>Stopped before TP1</span><span><b style="background:var(--grey)"></b>Unresolved</span></div>`;
 }
 document.getElementById("performancePeriod").addEventListener("change",renderPerformance);
+document.getElementById("performanceMarket").addEventListener("change",renderPerformance);
 
 function renderSignal(s){
   const dir=(s.direction||"").toUpperCase();
