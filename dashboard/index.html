@@ -201,6 +201,7 @@ html[data-density="compact"] .panel{padding:11px}
 /* Artemis Status & maintenance, customer-facing status page */
 .status-summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 18px}.status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.status-tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.status-name{font-weight:850;font-size:15px}.status-note{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.5}.status-pill{display:inline-flex;align-items:center;gap:7px;border-radius:100px;padding:6px 10px;font-weight:800;font-size:11px;white-space:nowrap;border:1px solid var(--line)}.status-pill:before{content:'';width:8px;height:8px;border-radius:100px;background:currentColor}.status-pill.ok{color:var(--green);background:var(--green-bg)}.status-pill.down{color:var(--red);background:var(--red-bg)}.status-pill.unknown{color:var(--grey);background:var(--grey-bg)}.maint-card{margin-top:20px;padding:19px;background:var(--card);border:1px solid var(--line);border-radius:16px}.maint-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.maint-content{margin-top:14px;padding:18px;background:var(--card2);border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:13px;line-height:1.6}.maint-content strong{display:block;color:var(--text);margin-bottom:5px}.status-refresh{border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);padding:9px 12px;cursor:pointer;font-weight:700}.status-footnote{margin-top:13px;color:var(--muted);font-size:11px;line-height:1.6}@media(max-width:760px){.status-grid{grid-template-columns:1fr}.status-tile{padding:14px}}
 .ticker-item{display:inline-flex;align-items:center;gap:5px;flex:0 0 auto;padding:4px 8px;border-radius:8px;border:1px solid transparent}.ticker-item strong{margin-right:1px}.ticker-item .ticker-sep{margin-right:2px}.ticker-item.ticker-active{color:var(--green);background:var(--green-bg);border-color:rgba(91,213,188,.24)}.ticker-item.ticker-active strong,.ticker-item.ticker-active .ticker-sep{color:var(--green)}.ticker-item.ticker-target{color:var(--blue);background:var(--blue-bg);border-color:rgba(128,184,238,.24)}.ticker-item.ticker-target strong,.ticker-item.ticker-target .ticker-sep{color:var(--blue)}.ticker-item.ticker-stopped{color:var(--red);background:var(--red-bg);border-color:rgba(240,139,131,.24)}.ticker-item.ticker-stopped strong,.ticker-item.ticker-stopped .ticker-sep{color:var(--red)}.ticker-item.ticker-ended{color:var(--grey);background:var(--grey-bg);border-color:var(--line)}.ticker-item.ticker-ended strong,.ticker-item.ticker-ended .ticker-sep{color:var(--grey)}
+.history-options{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:10px 0 14px}.history-toggle{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--card);padding:10px 13px;border-radius:12px;cursor:pointer;color:var(--text);font-size:12px;font-weight:700}.history-toggle input{width:16px;height:16px;accent-color:var(--brand);cursor:pointer}.history-note{color:var(--muted);font-size:11px}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -353,7 +354,8 @@ html[data-density="compact"] .panel{padding:11px}
 </section>
 
 <section id="history" class="page">
-<div class="sectionhead"><h2>Signal history</h2><div class="r">Latest completed outcomes</div></div>
+<div class="sectionhead"><h2>Signal history</h2><div class="r">Completed outcomes</div></div>
+<div class="history-options"><label class="history-toggle"><input id="historyIncludeArchived" type="checkbox"><span>Include expired &amp; superseded</span></label><span class="history-note" id="historyFilterNote">Expired and superseded signals hidden</span></div>
 <section id="historyTable" class="table"><div class="row head"><div>Market</div><div>Side</div><div>Max target</div><div>Final outcome</div><div>Status</div></div></section>
 </section>
 
@@ -534,6 +536,7 @@ async function loadMarketNews(){
 document.getElementById("newsImpact").addEventListener("change",renderMarketNews);
 document.getElementById("newsCurrency").addEventListener("change",renderMarketNews);
 document.getElementById("newsRefresh").addEventListener("click",loadMarketNews);
+document.getElementById("historyIncludeArchived").addEventListener("change",()=>renderHistory(allSignals));
 
 
 /* Status: evidence-based states; no manufactured green badges. */
@@ -687,10 +690,18 @@ function renderDashboard(){
   signalList.innerHTML=live.length ? live.map(renderSignal).join("") : `<div class="empty">No active ${activeFilter==="All"?"":esc(activeFilter)+" "}signals right now.</div>`;
 }
 
+function signalStatusCode(s){return String(s.status||s.event_type||"ACTIVE").toUpperCase()}
+function isArchivedSignal(s){return ["SUPERSEDED","SIGNAL_SUPERSEDED","EXPIRED","SIGNAL_EXPIRED","TIMED_OUT"].includes(signalStatusCode(s))}
+function isTickerSignal(s){return ["ACTIVE","SIGNAL_OPEN","TP1_HIT","TP2_HIT","TP3_HIT","CLOSED_TP1","CLOSED_TP2","CLOSED_TP3","SL_HIT","CLOSED_SL","STOPPED"].includes(signalStatusCode(s))}
 function renderHistory(signals){
   const el=document.getElementById("historyTable");
+  const showArchived=document.getElementById("historyIncludeArchived").checked;
+  const archivedCount=signals.filter(s=>!isActive(s)&&isArchivedSignal(s)).length;
+  document.getElementById("historyFilterNote").textContent=showArchived
+    ?"Showing expired and superseded records ("+archivedCount+" available)"
+    :"Expired and superseded hidden ("+archivedCount+" records)";
   let html=`<div class="row head"><div>Market</div><div>Side</div><div>Max target</div><div>Final outcome</div><div>Status</div></div>`;
-  const closed=signals.filter(s=>!isActive(s)).slice(0,12);
+  const closed=signals.filter(s=>!isActive(s)&&(showArchived||!isArchivedSignal(s))).slice(0,12);
   if(!closed.length){
     html+=`<div class="row"><div>No completed signals yet</div><div></div><div></div><div></div><div></div></div>`;
   }else{
@@ -844,14 +855,15 @@ function renderVisualIntelligence(signals){
     return `<div class="scanner-row"><span class="scanner-symbol">${esc(s.symbol)}</span><span>${esc(s.timeframe||"—")}</span><span class="${dir==="BUY"?"good":dir==="SELL"?"bad":""}">${esc(dir)}</span><span>${esc(s.quality_grade||s.quality||"—")}</span><span><span class="status-badge ${status.cls}">${esc(status.label)}</span></span></div>`;
   }).join(""):`<div class="scanner-empty">No scanner records available yet.</div>`;
 
-  document.getElementById("activityTicker").innerHTML=ordered.length?ordered.slice(0,5).map(s=>{
+  const tickerSignals=ordered.filter(isTickerSignal).slice(0,5);
+  document.getElementById("activityTicker").innerHTML=tickerSignals.length?tickerSignals.map(s=>{
     const raw=String(s.status||s.event_type||"ACTIVE").toUpperCase();
     const kind=["ACTIVE","SIGNAL_OPEN","TP1_HIT"].includes(raw)?"ticker-active":
       ["TP2_HIT","TP3_HIT","CLOSED_TP2"].includes(raw)?"ticker-target":
       ["STOPPED","SL_HIT","CLOSED_SL"].includes(raw)?"ticker-stopped":"ticker-ended";
     const label={ACTIVE:"Active",SIGNAL_OPEN:"Active",TP1_HIT:"TP1 hit",TP2_HIT:"TP2 hit",TP3_HIT:"TP3 hit",STOPPED:"Stopped",SL_HIT:"Stopped",CLOSED_SL:"Stopped",EXPIRED:"Expired",SUPERSEDED:"Superseded",TIMED_OUT:"Timed out"}[raw]||normaliseStatus(s).label;
     return `<span class="ticker-item ${kind}"><span class="ticker-sep">◆</span><strong>${esc(s.symbol||"Market")}</strong>${esc((s.direction||"").toUpperCase())} · ${esc(label)}</span>`;
-  }).join(""):`<span>No signal activity recorded yet.</span>`;
+  }).join(""):`<span>No recent active signals or TP/SL hits.</span>`;
 
   const active=signals.filter(isActive).length;
   const stopped=signals.filter(s=>normaliseStatus(s).label==="Stopped").length;
