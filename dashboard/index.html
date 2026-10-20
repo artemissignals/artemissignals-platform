@@ -421,8 +421,8 @@ html[data-density="compact"] .panel{padding:11px}
 
 <section id="history" class="page">
 <div class="sectionhead"><h2>Signal history</h2><div class="r">Recorded outcomes · API-loaded results</div></div>
-<div class="history-options"><label for="historyMarket" class="history-limit-label">Market</label><select id="historyMarket" class="history-limit" aria-label="History asset category"><option value="All">All markets</option><option value="FX">FX</option><option value="Indices">Indices</option><option value="Gold / Metals">Metals</option><option value="Crypto">Crypto</option></select><label class="history-toggle"><input id="historyIncludeExpired" type="checkbox"><span>Include expired</span></label><label class="history-toggle"><input id="historyIncludeSuperseded" type="checkbox"><span>Include superseded</span></label><label class="history-limit-label" for="historyLimit">Show</label><select id="historyLimit" class="history-limit" aria-label="Number of history records"><option value="10">Last 10</option><option value="20">Last 20</option><option value="50">Last 50</option><option value="all">All loaded</option></select><span class="history-note" id="historyFilterNote">Expired and superseded signals hidden</span></div>
-<p id="historyCoverage" class="history-note" role="status">History includes only records returned by the signal API; earlier records may require backend pagination.</p>
+<div class="history-options"><label for="historyMarket" class="history-limit-label">Market</label><select id="historyMarket" class="history-limit" aria-label="History asset category"><option value="All">All markets</option><option value="FX">FX</option><option value="Indices">Indices</option><option value="Gold / Metals">Metals</option><option value="Crypto">Crypto</option></select><label class="history-toggle"><input id="historyIncludeExpired" type="checkbox"><span>Include expired</span></label><label class="history-toggle"><input id="historyIncludeSuperseded" type="checkbox"><span>Include superseded</span></label><label class="history-limit-label" for="historyPeriod">Period</label><select id="historyPeriod" class="history-limit"><option value="all">All dates</option><option value="1">24 hours</option><option value="7">7 days</option><option value="30">30 days</option><option value="90">90 days</option></select><label class="history-limit-label" for="historySymbol">Symbol</label><input id="historySymbol" class="history-limit" type="search" placeholder="e.g. USTech" style="max-width:130px"/><label class="history-limit-label" for="historyLimit">Show</label><select id="historyLimit" class="history-limit" aria-label="Number of history records"><option value="10">Last 10</option><option value="20">Last 20</option><option value="50">Last 50</option><option value="all">All loaded</option></select><span class="history-note" id="historyFilterNote">Expired and superseded signals hidden</span></div>
+<p id="historyCoverage" class="history-note" role="status">Checking API history coverage…</p><div class="history-options"><button type="button" id="historyReload" class="history-limit">↻ Refresh history</button><button type="button" id="historyFetchMore" class="history-limit" hidden>Load more from server</button><button type="button" id="historyExport" class="history-limit">Export loaded CSV</button><span class="history-note" id="historyPaginationState"></span></div>
 <section id="historyTable" class="table"><div class="row head"><div>Market</div><div>Side</div><div>Max target</div><div>Final outcome</div><div>Status</div></div></section>
 </section>
 
@@ -613,7 +613,12 @@ async function loadMarketNews(){
 document.getElementById("newsImpact").addEventListener("change",renderMarketNews);
 document.getElementById("newsCurrency").addEventListener("change",renderMarketNews);
 document.getElementById("newsRefresh").addEventListener("click",loadMarketNews);
-["historyIncludeExpired","historyIncludeSuperseded","historyLimit","historyMarket"].forEach(id=>document.getElementById(id).addEventListener("change",()=>renderHistory(allSignals)));
+["historyIncludeExpired","historyIncludeSuperseded","historyLimit","historyMarket","historyPeriod"].forEach(id=>document.getElementById(id).addEventListener("change",()=>renderHistory(allSignals)));
+document.getElementById("historySymbol").addEventListener("input",()=>renderHistory(allSignals));
+document.getElementById("historyReload").addEventListener("click",()=>loadSignals());
+document.getElementById("historyFetchMore").addEventListener("click",()=>loadAdditionalHistory());
+document.getElementById("historyExport").addEventListener("click",exportLoadedHistory);
+
 
 
 /* Status: evidence-based states; no manufactured green badges. */
@@ -658,6 +663,72 @@ async function refreshStatus(){
 document.getElementById('refreshStatus').addEventListener('click',refreshStatus);
 
 let allSignals=[];
+let historyNextToken=null;
+let historyCoverageMode="unknown";
+let historyLoading=false;
+let historyPageCount=0;
+const HISTORY_MAX_PAGES=20;
+function readNextHistoryToken(payload){
+  const token=payload?.nextToken??payload?.next_token??payload?.nextCursor??payload?.next_cursor??null;
+  return (typeof token==="string"&&token.length>0)?token:null;
+}
+function mergeSignals(existing,incoming){
+  const map=new Map();
+  for(const record of [...existing,...incoming]){
+    if(!record||typeof record!=="object"||record.recordType==="CURRENT_POINTER")continue;
+    const key=String(record.signalId||record.signal_id||[record.symbol,record.timeframe,record.direction,record.timestamp_utc||record.createdAt||record.created_at].join("|"));
+    map.set(key,record);
+  }
+  return [...map.values()].sort((a,b)=>signalTime(b)-signalTime(a));
+}
+function updateHistoryControls(){
+  const button=document.getElementById("historyFetchMore");
+  button.hidden=!historyNextToken;
+  button.disabled=historyLoading||historyPageCount>=HISTORY_MAX_PAGES;
+  document.getElementById("historyPaginationState").textContent=historyLoading?"Loading older records…":historyNextToken?(historyPageCount>=HISTORY_MAX_PAGES?"Page safety limit reached; refresh to continue":"More pages reported by API"):historyCoverageMode==="cursor-end"?"API reports last page reached":"API did not provide a pagination cursor";
+}
+async function loadAdditionalHistory(){
+  if(historyLoading||!historyNextToken||historyPageCount>=HISTORY_MAX_PAGES)return;
+  const token=historyNextToken;
+  historyLoading=true;updateHistoryControls();
+  try{
+    const auth=sessionStorage.getItem("artemis_id_token");
+    if(!auth)throw new Error("Please sign in again");
+    const url=new URL(API_URL);
+    url.searchParams.set("nextToken",token);
+    const res=await fetch(url.toString(),{headers:{Accept:"application/json",Authorization:auth},cache:"no-store"});
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const payload=await res.json();
+    if(!Array.isArray(payload.signals))throw new Error("Unexpected pagination response");
+    const before=allSignals.length;
+    const after=mergeSignals(allSignals,payload.signals);
+    const next=readNextHistoryToken(payload);
+    if(after.length===before&&next===token)throw new Error("API returned the same page. Stopped to avoid a loop.");
+    allSignals=after;
+    historyNextToken=next;
+    historyPageCount++;
+    if(!next)historyCoverageMode="cursor-end";
+    renderHistory(allSignals);
+  }catch(err){document.getElementById("historyPaginationState").textContent="Unable to load next page: "+err.message;historyNextToken=null;}
+  finally{historyLoading=false;updateHistoryControls();}
+}
+function historyFilteredRecords(signals){
+  const expired=document.getElementById("historyIncludeExpired").checked;
+  const superseded=document.getElementById("historyIncludeSuperseded").checked;
+  const market=document.getElementById("historyMarket").value;
+  const days=document.getElementById("historyPeriod").value;
+  const symbol=document.getElementById("historySymbol").value.trim().toUpperCase();
+  const min=days==="all"?0:Date.now()-Number(days)*86400000;
+  return signals.filter(s=>!isActive(s)&&(expired||!isExpiredSignal(s))&&(superseded||!isSupersededSignal(s))&&(market==="All"||assetClass(s.symbol)===market)&&(!symbol||displaySymbol(s.symbol).toUpperCase().includes(symbol))&&(!min||(signalTime(s)&&signalTime(s)>=min))).sort((a,b)=>signalTime(b)-signalTime(a));
+}
+function exportLoadedHistory(){
+  const records=historyFilteredRecords(allSignals);
+  const cols=["signalId","timestamp_utc","symbol","timeframe","direction","status","max_target","eventIds"];
+  const csv=[cols.join(","),...records.map(s=>cols.map(k=>{let v=s[k]??"";if(Array.isArray(v))v=v.join(";");return '"'+String(v).replace(/"/g,'""')+'"';}).join(","))].join("\r\n");
+  const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  const a=document.createElement("a");a.href=url;a.download="artemis-loaded-signal-history.csv";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
 let scannerStates=[];
 let activeFilter="All";
 let scannerAssetFilter="All";
@@ -873,10 +944,11 @@ function renderHistory(signals){
   let html=`<div class="row head"><div>Date</div><div>Market</div><div>Side</div><div>Max target</div><div>Final outcome</div><div>Status</div></div>`;
   const historyChoice=document.getElementById("historyLimit").value;
   const historyLimit=historyChoice==="all"?Infinity:(Number(historyChoice)||10);
-  const market=document.getElementById("historyMarket").value;
-  const closed=signals.filter(s=>!isActive(s)&&(showExpired||!isExpiredSignal(s))&&(showSuperseded||!isSupersededSignal(s))&&(market==="All"||assetClass(s.symbol)===market))
-    .sort((a,b)=>signalTime(b)-signalTime(a)).slice(0,historyLimit);
-  document.getElementById("historyCoverage").textContent=`Showing ${closed.length} matching records from ${signals.length} signals returned by the API. “All loaded” does not necessarily mean complete database history; backend pagination is not yet verified.`;
+  const matching=historyFilteredRecords(signals);
+  const closed=matching.slice(0,historyLimit);
+  const coverage=historyCoverageMode==="cursor-end"?"API pagination completed":historyNextToken?"More server pages available":"Full historical coverage unverified: API supplied no pagination cursor";
+  document.getElementById("historyCoverage").textContent=`Showing ${closed.length} of ${matching.length} matching records, from ${signals.length} distinct loaded signals. ${coverage}. Counts and CSV cover loaded records only.`;
+  updateHistoryControls();
   if(!closed.length){
     html+=`<div class="row"><div>—</div><div>No completed signals yet</div><div></div><div></div><div></div><div></div></div>`;
   }else{
@@ -1166,7 +1238,10 @@ async function loadSignals(){
     const res=await fetch(API_URL,{headers:{"Accept":"application/json","Authorization":idToken}});
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const data=await res.json();
-    allSignals=Array.isArray(data.signals)?data.signals:[];
+    allSignals=mergeSignals([],Array.isArray(data.signals)?data.signals:[]);
+    historyNextToken=readNextHistoryToken(data);
+    historyPageCount=1;
+    historyCoverageMode=historyNextToken?"cursor-available":"unverified";
     setServiceHealth("signalApi",true,"Authenticated signal request succeeded");
     setServiceHealth("signalDatabase",true,"Signal records retrieved through API");
     updateBridgeHealth(allSignals);
