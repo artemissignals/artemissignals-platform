@@ -613,9 +613,10 @@ async function loadMarketNews(){
 document.getElementById("newsImpact").addEventListener("change",renderMarketNews);
 document.getElementById("newsCurrency").addEventListener("change",renderMarketNews);
 document.getElementById("newsRefresh").addEventListener("click",loadMarketNews);
-["historyIncludeExpired","historyIncludeSuperseded","historyLimit","historyMarket","historyPeriod"].forEach(id=>document.getElementById(id).addEventListener("change",()=>renderHistory(allSignals)));
-document.getElementById("historySymbol").addEventListener("input",()=>renderHistory(allSignals));
-document.getElementById("historyReload").addEventListener("click",()=>loadSignals());
+["historyIncludeExpired","historyIncludeSuperseded","historyLimit","historyMarket"].forEach(id=>document.getElementById(id).addEventListener("change",()=>renderHistory(historySignals)));
+document.getElementById("historySymbol").addEventListener("input",()=>renderHistory(historySignals));
+document.getElementById("historyPeriod").addEventListener("change",()=>loadHistory());
+document.getElementById("historyReload").addEventListener("click",()=>loadHistory());
 document.getElementById("historyFetchMore").addEventListener("click",()=>loadAdditionalHistory());
 document.getElementById("historyExport").addEventListener("click",exportLoadedHistory);
 
@@ -663,10 +664,13 @@ async function refreshStatus(){
 document.getElementById('refreshStatus').addEventListener('click',refreshStatus);
 
 let allSignals=[];
+let historySignals=[];
 let historyNextToken=null;
 let historyCoverageMode="unknown";
 let historyLoading=false;
 let historyPageCount=0;
+let historyRequestSequence=0;
+let historyAsOf=null;
 const HISTORY_MAX_PAGES=20;
 function readNextHistoryToken(payload){
   const token=payload?.nextToken??payload?.next_token??payload?.nextCursor??payload?.next_cursor??null;
@@ -681,36 +685,76 @@ function mergeSignals(existing,incoming){
   }
   return [...map.values()].sort((a,b)=>signalTime(b)-signalTime(a));
 }
+
+function historyApiUrl(cursor=null){
+  const url=new URL(API_URL);
+  url.searchParams.set('limit','100');
+  const selected=document.getElementById('historyPeriod').value;
+  url.searchParams.set('period',selected==='all'?'all':selected+'d');
+  if(cursor)url.searchParams.set('cursor',cursor);
+  return url.toString();
+}
 function updateHistoryControls(){
-  const button=document.getElementById("historyFetchMore");
+  const button=document.getElementById('historyFetchMore');
   button.hidden=!historyNextToken;
   button.disabled=historyLoading||historyPageCount>=HISTORY_MAX_PAGES;
-  document.getElementById("historyPaginationState").textContent=historyLoading?"Loading older records…":historyNextToken?(historyPageCount>=HISTORY_MAX_PAGES?"Page safety limit reached; refresh to continue":"More pages reported by API"):historyCoverageMode==="cursor-end"?"API reports last page reached":"API did not provide a pagination cursor";
+  document.getElementById('historyPaginationState').textContent=historyLoading?'Loading history…':historyNextToken?(historyPageCount>=HISTORY_MAX_PAGES?'Safety page limit reached; refresh to continue':'More history available — select Load more'):(historyCoverageMode==='cursor-end'?'End of the selected period reached':'History completeness unverified');
+}
+async function loadHistory(){
+  const request=++historyRequestSequence;
+  const auth=sessionStorage.getItem('artemis_id_token');
+  if(!auth)return;
+  historyLoading=true;
+  historyNextToken=null;
+  historyPageCount=0;
+  historyCoverageMode='loading';
+  historySignals=[];
+  renderHistory(historySignals);
+  updateHistoryControls();
+  try{
+    const res=await fetch(historyApiUrl(),{headers:{Accept:'application/json',Authorization:auth},cache:'no-store'});
+    if(!res.ok)throw Error('History API HTTP '+res.status);
+    const payload=await res.json();
+    if(request!==historyRequestSequence)return;
+    if(!Array.isArray(payload.signals))throw Error('Unexpected history response');
+    historySignals=mergeSignals([],payload.signals);
+    historyNextToken=readNextHistoryToken(payload);
+    historyPageCount=1;
+    historyAsOf=Date.now();
+    historyCoverageMode=historyNextToken?'cursor-available':'cursor-end';
+    renderHistory(historySignals);
+  }catch(err){
+    if(request!==historyRequestSequence)return;
+    historyCoverageMode='error';
+    document.getElementById('historyCoverage').textContent='Unable to retrieve history: '+err.message;
+  }finally{
+    if(request===historyRequestSequence){historyLoading=false;updateHistoryControls();}
+  }
 }
 async function loadAdditionalHistory(){
   if(historyLoading||!historyNextToken||historyPageCount>=HISTORY_MAX_PAGES)return;
+  const request=historyRequestSequence;
   const token=historyNextToken;
   historyLoading=true;updateHistoryControls();
   try{
-    const auth=sessionStorage.getItem("artemis_id_token");
-    if(!auth)throw new Error("Please sign in again");
-    const url=new URL(API_URL);
-    url.searchParams.set("nextToken",token);
-    const res=await fetch(url.toString(),{headers:{Accept:"application/json",Authorization:auth},cache:"no-store"});
-    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const auth=sessionStorage.getItem('artemis_id_token');
+    if(!auth)throw Error('Please sign in again');
+    const res=await fetch(historyApiUrl(token),{headers:{Accept:'application/json',Authorization:auth},cache:'no-store'});
+    if(!res.ok)throw Error('History API HTTP '+res.status);
     const payload=await res.json();
-    if(!Array.isArray(payload.signals))throw new Error("Unexpected pagination response");
-    const before=allSignals.length;
-    const after=mergeSignals(allSignals,payload.signals);
+    if(request!==historyRequestSequence)return;
+    if(!Array.isArray(payload.signals))throw Error('Unexpected pagination response');
+    const merged=mergeSignals(historySignals,payload.signals);
     const next=readNextHistoryToken(payload);
-    if(after.length===before&&next===token)throw new Error("API returned the same page. Stopped to avoid a loop.");
-    allSignals=after;
+    if(merged.length===historySignals.length&&next===token)throw Error('Repeated page returned; stopped');
+    historySignals=merged;
     historyNextToken=next;
     historyPageCount++;
-    if(!next)historyCoverageMode="cursor-end";
-    renderHistory(allSignals);
-  }catch(err){document.getElementById("historyPaginationState").textContent="Unable to load next page: "+err.message;historyNextToken=null;}
-  finally{historyLoading=false;updateHistoryControls();}
+    if(!next)historyCoverageMode='cursor-end';
+    renderHistory(historySignals);
+  }catch(err){
+    if(request===historyRequestSequence){historyCoverageMode='error';document.getElementById('historyCoverage').textContent='Unable to load next page: '+err.message;}
+  }finally{if(request===historyRequestSequence){historyLoading=false;updateHistoryControls();}}
 }
 function historyFilteredRecords(signals){
   const expired=document.getElementById("historyIncludeExpired").checked;
@@ -722,7 +766,7 @@ function historyFilteredRecords(signals){
   return signals.filter(s=>!isActive(s)&&(expired||!isExpiredSignal(s))&&(superseded||!isSupersededSignal(s))&&(market==="All"||assetClass(s.symbol)===market)&&(!symbol||displaySymbol(s.symbol).toUpperCase().includes(symbol))&&(!min||(signalTime(s)&&signalTime(s)>=min))).sort((a,b)=>signalTime(b)-signalTime(a));
 }
 function exportLoadedHistory(){
-  const records=historyFilteredRecords(allSignals);
+  const records=historyFilteredRecords(historySignals);
   const cols=["signalId","timestamp_utc","symbol","timeframe","direction","status","max_target","eventIds"];
   const csv=[cols.join(","),...records.map(s=>cols.map(k=>{let v=s[k]??"";if(Array.isArray(v))v=v.join(";");return '"'+String(v).replace(/"/g,'""')+'"';}).join(","))].join("\r\n");
   const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
@@ -946,8 +990,8 @@ function renderHistory(signals){
   const historyLimit=historyChoice==="all"?Infinity:(Number(historyChoice)||10);
   const matching=historyFilteredRecords(signals);
   const closed=matching.slice(0,historyLimit);
-  const coverage=historyCoverageMode==="cursor-end"?"API pagination completed":historyNextToken?"More server pages available":"Full historical coverage unverified: API supplied no pagination cursor";
-  document.getElementById("historyCoverage").textContent=`Showing ${closed.length} of ${matching.length} matching non-active signals for ${document.getElementById("historyPeriod").selectedOptions[0].text}, from ${signals.length} distinct loaded signals. ${coverage}. Date filters, counts and CSV apply to API-loaded records only; older records may be missing.`;
+  const coverage=historyCoverageMode==="cursor-end"?"End of selected period reached":historyNextToken?"More server pages available":historyCoverageMode==="error"?"History retrieval incomplete":"History loading or unverified";
+  document.getElementById("historyCoverage").textContent=`Showing ${closed.length} of ${matching.length} matching non-active signals for ${document.getElementById("historyPeriod").selectedOptions[0].text}, from ${signals.length} distinct loaded signals. ${coverage}. Counts and CSV include fetched history pages only; select Load more until the end of the period is reached.`;
   updateHistoryControls();
   if(!closed.length){
     html+=`<div class="row"><div>—</div><div>No completed signals yet</div><div></div><div></div><div></div><div></div></div>`;
@@ -1239,9 +1283,6 @@ async function loadSignals(){
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const data=await res.json();
     allSignals=mergeSignals([],Array.isArray(data.signals)?data.signals:[]);
-    historyNextToken=readNextHistoryToken(data);
-    historyPageCount=1;
-    historyCoverageMode=historyNextToken?"cursor-available":"unverified";
     setServiceHealth("signalApi",true,"Authenticated signal request succeeded");
     setServiceHealth("signalDatabase",true,"Signal records retrieved through API");
     updateBridgeHealth(allSignals);
@@ -1276,7 +1317,6 @@ async function loadSignals(){
     document.getElementById("latestEventTime").textContent=latestSignal?.timestamp_utc||"No event recorded";
 
     renderDashboard();
-    renderHistory(allSignals);
     renderVisualIntelligence(allSignals);
     await loadScannerStates(idToken);
   }catch(err){
@@ -1488,6 +1528,7 @@ async function initAuth(){
 
   if(showDashboard()){
     loadSignals();
+    loadHistory();
     setInterval(loadSignals,15000);
   } else {
     document.getElementById("authGate").classList.remove("hidden");
