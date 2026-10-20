@@ -420,8 +420,9 @@ html[data-density="compact"] .panel{padding:11px}
 </section>
 
 <section id="history" class="page">
-<div class="sectionhead"><h2>Signal history</h2><div class="r">Completed outcomes</div></div>
-<div class="history-options"><label class="history-toggle"><input id="historyIncludeExpired" type="checkbox"><span>Include expired</span></label><label class="history-toggle"><input id="historyIncludeSuperseded" type="checkbox"><span>Include superseded</span></label><label class="history-limit-label" for="historyLimit">Show</label><select id="historyLimit" class="history-limit" aria-label="Number of history records"><option value="10">Last 10</option><option value="20">Last 20</option><option value="50">Last 50</option></select><span class="history-note" id="historyFilterNote">Expired and superseded signals hidden</span></div>
+<div class="sectionhead"><h2>Signal history</h2><div class="r">Recorded outcomes · API-loaded results</div></div>
+<div class="history-options"><label for="historyMarket" class="history-limit-label">Market</label><select id="historyMarket" class="history-limit" aria-label="History asset category"><option value="All">All markets</option><option value="FX">FX</option><option value="Indices">Indices</option><option value="Gold / Metals">Metals</option><option value="Crypto">Crypto</option></select><label class="history-toggle"><input id="historyIncludeExpired" type="checkbox"><span>Include expired</span></label><label class="history-toggle"><input id="historyIncludeSuperseded" type="checkbox"><span>Include superseded</span></label><label class="history-limit-label" for="historyLimit">Show</label><select id="historyLimit" class="history-limit" aria-label="Number of history records"><option value="10">Last 10</option><option value="20">Last 20</option><option value="50">Last 50</option><option value="all">All loaded</option></select><span class="history-note" id="historyFilterNote">Expired and superseded signals hidden</span></div>
+<p id="historyCoverage" class="history-note" role="status">History includes only records returned by the signal API; earlier records may require backend pagination.</p>
 <section id="historyTable" class="table"><div class="row head"><div>Market</div><div>Side</div><div>Max target</div><div>Final outcome</div><div>Status</div></div></section>
 </section>
 
@@ -612,7 +613,7 @@ async function loadMarketNews(){
 document.getElementById("newsImpact").addEventListener("change",renderMarketNews);
 document.getElementById("newsCurrency").addEventListener("change",renderMarketNews);
 document.getElementById("newsRefresh").addEventListener("click",loadMarketNews);
-["historyIncludeExpired","historyIncludeSuperseded","historyLimit"].forEach(id=>document.getElementById(id).addEventListener("change",()=>renderHistory(allSignals)));
+["historyIncludeExpired","historyIncludeSuperseded","historyLimit","historyMarket"].forEach(id=>document.getElementById(id).addEventListener("change",()=>renderHistory(allSignals)));
 
 
 /* Status: evidence-based states; no manufactured green badges. */
@@ -675,11 +676,12 @@ document.getElementById("signalLimit").addEventListener("change",event=>{
 
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
 
+function displaySymbol(symbol){return String(symbol||"").toUpperCase()==="USTEC"?"USTech":String(symbol||"");}
 function assetClass(symbol){
   const s=(symbol||"").toUpperCase();
   if(s.includes("XAU")||s.includes("GOLD")||s.includes("XAG")) return "Gold / Metals";
   if(s.includes("BTC")||s.includes("ETH")||s.includes("CRYPTO")) return "Crypto";
-  if(["NAS100","US500","SPX500","US30","GER40","UK100","DE40"].some(x=>s.includes(x))) return "Indices";
+  if(["USTEC","USTECH","US100","NAS100","NASDAQ","US500","SPX500","US30","DJ30","GER40","UK100","DE40"].some(x=>s.includes(x))) return "Indices";
   return "FX";
 }
 function signalTime(s){
@@ -798,7 +800,7 @@ function renderSignal(s){
     <div class="signal-top">
       <div>
         <div class="marketline">
-          <span class="symbol-emblem ${asset==="Gold / Metals"?"metal":asset==="Crypto"?"crypto":asset==="Indices"?"indices":"fx"}" aria-hidden="true">${asset==="Gold / Metals"?"✦":asset==="Crypto"?"₿":asset==="Indices"?"▥":"↗"}</span><span class="market">${esc(s.symbol)}</span>
+          <span class="symbol-emblem ${asset==="Gold / Metals"?"metal":asset==="Crypto"?"crypto":asset==="Indices"?"indices":"fx"}" aria-hidden="true">${asset==="Gold / Metals"?"✦":asset==="Crypto"?"₿":asset==="Indices"?"▥":"↗"}</span><span class="market">${esc(displaySymbol(s.symbol))}</span>
           <span class="badge ${dir==="BUY"?"buy":"sell"}">${esc(dir)}</span>
           <span class="badge grade">${esc(grade)}</span>
           <span class="tiny asset">${esc(asset)}</span>
@@ -869,9 +871,12 @@ function renderHistory(signals){
   document.getElementById("historyFilterNote").textContent=
     `${showExpired?"Showing":"Hiding"} ${expiredCount} expired · ${showSuperseded?"showing":"hiding"} ${supersededCount} superseded`;
   let html=`<div class="row head"><div>Date</div><div>Market</div><div>Side</div><div>Max target</div><div>Final outcome</div><div>Status</div></div>`;
-  const historyLimit=Number(document.getElementById("historyLimit").value)||10;
-  const closed=signals.filter(s=>!isActive(s)&&(showExpired||!isExpiredSignal(s))&&(showSuperseded||!isSupersededSignal(s)))
+  const historyChoice=document.getElementById("historyLimit").value;
+  const historyLimit=historyChoice==="all"?Infinity:(Number(historyChoice)||10);
+  const market=document.getElementById("historyMarket").value;
+  const closed=signals.filter(s=>!isActive(s)&&(showExpired||!isExpiredSignal(s))&&(showSuperseded||!isSupersededSignal(s))&&(market==="All"||assetClass(s.symbol)===market))
     .sort((a,b)=>signalTime(b)-signalTime(a)).slice(0,historyLimit);
+  document.getElementById("historyCoverage").textContent=`Showing ${closed.length} matching records from ${signals.length} signals returned by the API. “All loaded” does not necessarily mean complete database history; backend pagination is not yet verified.`;
   if(!closed.length){
     html+=`<div class="row"><div>—</div><div>No completed signals yet</div><div></div><div></div><div></div><div></div></div>`;
   }else{
@@ -885,7 +890,7 @@ function renderHistory(signals){
       const outcome=stopped&&achieved?`${achieved} recorded; stop also recorded`:finalOutcome(s);
       const dateValue=signalTime(s);
       const displayDate=dateValue?new Intl.DateTimeFormat("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Europe/London"}).format(new Date(dateValue)):"—";
-      return `<div class="row"><div title="${esc(s.timestamp_utc||s.createdAt||s.created_at||s.timestamp||"Timestamp not recorded")}">${esc(displayDate)}</div><div>${esc(s.symbol)}</div><div class="${dir==="BUY"?"good":"bad"}">${esc(dir)}</div><div>${esc(maxTarget(s))}</div><div>${esc(outcome)}</div><div><span class="status-badge ${badgeClass}">${esc(label)}</span></div></div>`;
+      return `<div class="row"><div title="${esc(s.timestamp_utc||s.createdAt||s.created_at||s.timestamp||"Timestamp not recorded")}">${esc(displayDate)}</div><div>${esc(displaySymbol(s.symbol))}</div><div class="${dir==="BUY"?"good":"bad"}">${esc(dir)}</div><div>${esc(maxTarget(s))}</div><div>${esc(outcome)}</div><div><span class="status-badge ${badgeClass}">${esc(label)}</span></div></div>`;
     }).join("");
   }
   el.innerHTML=html;
@@ -945,7 +950,7 @@ function renderOpportunityBoard(){
   }
   board.innerHTML=rows.map(s=>{
     const idx=scannerStates.indexOf(s),state=scannerDisplayState(s),dir=(s.bias||s.direction||"NEUTRAL").toUpperCase(),score=Math.max(0,Math.min(100,Number(s.confluence_score||0)));
-    return `<article class="opportunity ${state.offline?"offline":""}" role="button" tabindex="0" onclick="openScannerDetail(${idx})"><button class="watch-star ${watchedSymbols.has(s.symbol)?"on":""}" onclick="toggleWatch('${esc(s.symbol)}',event)" title="Add to watchlist">${watchedSymbols.has(s.symbol)?"★":"☆"}</button><div class="opp-top"><span class="opp-symbol">${esc(s.symbol)}</span><span class="badge ${dir==="BUY"?"buy":dir==="SELL"?"sell":"grade"}">${esc(dir)}</span></div><div class="opp-state"><strong>${esc(state.label)}</strong>${esc(scannerStateCopy(s,state))}</div><div class="state-progress"><i style="width:${score}%"></i></div><div class="opp-meta"><span class="tiny asset">${esc(s.timeframe||"—")}</span><span class="tiny plan">${score}% confluence</span><span class="tiny locked">${esc(assetClass(s.symbol))}</span></div><div class="freshness ${state.offline?"offline":""}">${esc(relativeAge(state.age))} · ${esc(s.scanner_id||"MT5")}</div></article>`;
+    return `<article class="opportunity ${state.offline?"offline":""}" role="button" tabindex="0" onclick="openScannerDetail(${idx})"><button class="watch-star ${watchedSymbols.has(s.symbol)?"on":""}" onclick="toggleWatch('${esc(displaySymbol(s.symbol))}',event)" title="Add to watchlist">${watchedSymbols.has(s.symbol)?"★":"☆"}</button><div class="opp-top"><span class="opp-symbol">${esc(displaySymbol(s.symbol))}</span><span class="badge ${dir==="BUY"?"buy":dir==="SELL"?"sell":"grade"}">${esc(dir)}</span></div><div class="opp-state"><strong>${esc(state.label)}</strong>${esc(scannerStateCopy(s,state))}</div><div class="state-progress"><i style="width:${score}%"></i></div><div class="opp-meta"><span class="tiny asset">${esc(s.timeframe||"—")}</span><span class="tiny plan">${score}% confluence</span><span class="tiny locked">${esc(assetClass(s.symbol))}</span></div><div class="freshness ${state.offline?"offline":""}">${esc(relativeAge(state.age))} · ${esc(s.scanner_id||"MT5")}</div></article>`;
   }).join("");
 }
 
@@ -1046,7 +1051,7 @@ function renderVisualIntelligence(signals){
   document.getElementById("scannerMatrix").innerHTML=rows.length?`<div class="scanner-row scanner-head"><span>Instrument</span><span>TF</span><span>Bias</span><span title="Score supplied by the issued signal; not scanner confluence">Quality</span><span>Status</span></div>`+rows.map(s=>{
     const dir=(s.direction||"—").toUpperCase();
     const status=normaliseStatus(s);
-    return `<div class="scanner-row"><span class="scanner-symbol">${esc(s.symbol)}</span><span>${esc(s.timeframe||"—")}</span><span class="${dir==="BUY"?"good":dir==="SELL"?"bad":""}">${esc(dir)}</span><span>${esc(displaySignalQuality(s))}</span><span><span class="status-badge ${status.cls}">${esc(status.label)}</span></span></div>`;
+    return `<div class="scanner-row"><span class="scanner-symbol">${esc(displaySymbol(s.symbol))}</span><span>${esc(s.timeframe||"—")}</span><span class="${dir==="BUY"?"good":dir==="SELL"?"bad":""}">${esc(dir)}</span><span>${esc(displaySignalQuality(s))}</span><span><span class="status-badge ${status.cls}">${esc(status.label)}</span></span></div>`;
   }).join(""):`<div class="scanner-empty">No scanner records available yet.</div>`;
 
   const tickerSignals=ordered.filter(isTickerSignal).slice(0,5);
