@@ -314,7 +314,7 @@ html[data-density="compact"] .hero{padding:13px 17px}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card,.card-open{transition:none}}
 
 
-/* v0.9.6.1: remove unused card foot-space, align the action on its own row. */
+/* v0.9.6.2: remove unused card foot-space, align the action on its own row. */
 .card,html[data-density="compact"] .card{padding-bottom:14px}
 .signal-card-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:10px;min-height:35px}
 .signal-card-subline{margin-right:auto;color:var(--muted);font-size:11px}
@@ -325,6 +325,20 @@ html[data-density="compact"] .hero{padding:13px 17px}
 html[data-density="compact"] .card{padding-bottom:9px}
 html[data-density="compact"] .signal-card-actions{margin-top:6px;min-height:30px}
 @media(max-width:600px){.signal-card-actions{margin-top:9px}.signal-card-meta{gap:4px 10px}.received-time{white-space:normal}}
+
+/* v0.9.6.2 — hide unreleased scanner experiences, retain underlying DOM for future reactivation */
+.legacy-scanner-hidden{display:none!important}
+.intel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.live-personalise{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:10px 0 14px;color:var(--muted);font-size:12px}
+.live-personalise input{min-width:180px;flex:1;max-width:300px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--text);background:var(--card);font:inherit}
+.live-personalise button,.signal-favourite{border:1px solid var(--line);background:var(--card2);color:var(--muted);border-radius:10px;padding:9px 12px;cursor:pointer;font:inherit}
+.live-personalise button[aria-pressed="true"],.signal-favourite.is-favourite{color:var(--brand);border-color:var(--brand)}
+.signal-favourite{font-size:17px;padding:2px 7px;line-height:1.1}
+.signal-freshness{font-size:10px;font-weight:800;border:1px solid var(--line);padding:4px 6px;border-radius:8px;color:var(--muted)}
+.signal-freshness.fresh-new{color:var(--green);background:var(--green-bg)}
+.signal-freshness.fresh-recent{color:var(--blue)}
+.live-filter-note{font-size:11px}
+@media(max-width:680px){.intel-grid{grid-template-columns:1fr}.live-personalise input{max-width:none;width:100%}.live-filter-note{display:none}}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -414,16 +428,16 @@ html[data-density="compact"] .signal-card-actions{margin-top:6px;min-height:30px
   <div class="heartbeat-cell"><div class="k">Latest signal event</div><div class="v" id="latestEventTime">No event loaded</div></div>
 </section>
 
-<div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">◎</span> Opportunity board</h2><div class="r">Live scanner state · click for evidence</div></div>
-<div class="scanner-toolbar" aria-label="Opportunity filters">
+<div class="sectionhead legacy-scanner-hidden"><h2><span class="heading-icon" aria-hidden="true">◎</span> Opportunity board</h2><div class="r">Live scanner state · click for evidence</div></div>
+<div class="scanner-toolbar legacy-scanner-hidden" aria-label="Opportunity filters">
   <select id="scannerAssetFilter"><option value="All">All markets</option><option value="FX">FX</option><option value="Gold / Metals">Metals</option><option value="Indices">Indices</option><option value="Crypto">Crypto</option></select>
   <select id="scannerStateFilter"><option value="All">All states</option><option>Early interest</option><option>Developing</option><option>Ready</option><option>Confirmed</option><option>Scanning</option><option>No setup</option><option>Market closed</option><option>Scanner offline</option></select>
   <button id="watchlistToggle" class="watch-toggle" type="button">☆ Watchlist only</button>
 </div>
-<section id="opportunityBoard" class="opportunity-board"><div class="scanner-empty">Waiting for tracked opportunities…</div></section>
+<section id="opportunityBoard" class="opportunity-board legacy-scanner-hidden"><div class="scanner-empty">Waiting for tracked opportunities…</div></section>
 
 <section class="intel-grid">
-  <div>
+  <div class="legacy-scanner-hidden">
     <div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">⌁</span> Market scanner</h2><div class="r">Latest state by instrument</div></div>
     <div id="scannerMatrix" class="scanner"><div class="scanner-empty">Scanner data will appear when signals load.</div></div>
   </div>
@@ -446,6 +460,7 @@ html[data-density="compact"] .signal-card-actions{margin-top:6px;min-height:30px
   <button class="filterbtn locked" data-filter="Indices">Indices <span class="lock" id="indicesFilterLock">ELITE</span></button>
   <button class="filterbtn locked" data-filter="Crypto">Crypto <span class="lock" id="cryptoFilterLock">ELITE</span></button>
 </div>
+<div class="live-personalise" aria-label="Live signal preferences"><label for="liveSymbolSearch">Find instrument</label><input id="liveSymbolSearch" type="search" placeholder="e.g. XAUUSD, USTech" autocomplete="off"/><button id="liveFavouritesOnly" type="button" aria-pressed="false">☆ Favourites only</button><span class="live-filter-note">Favourites are saved on this device</span></div>
 
 <section class="layout">
 <div id="signalList" class="signals"><div class="skeleton" aria-label="Loading signals"></div><div class="skeleton" aria-hidden="true"></div></div>
@@ -454,7 +469,7 @@ html[data-density="compact"] .signal-card-actions{margin-top:6px;min-height:30px
     <div class="kv"><span class="label">Current feed</span><span id="sumFeed">Checking…</span></div>
     <div class="kv"><span class="label">Last update</span><span id="sumUpdate">—</span></div>
     <div class="kv"><span class="label">Latest signal received</span><span id="sumLatestSignal">—</span></div>
-    <div class="kv"><span class="label">Stopped signals</span><span id="sumStopped">—</span></div>
+    <div class="kv"><span class="label">Signals shown</span><span id="sumVisible">—</span></div>
   </div>
    <div class="panel" style="margin-top:14px"><h3>Current access <span class="tiny plan" id="accessTier">Checking…</span></h3>
      <div id="accessMarkets">Checking subscription entitlements…</div>
@@ -841,6 +856,19 @@ let scannerAssetFilter="All";
 let scannerStateFilter="All";
 let watchlistOnly=false;
 let watchedSymbols=new Set(JSON.parse(localStorage.getItem("artemis_watchlist")||"[]"));
+// Customer live-signal preferences are local to this browser, not server entitlements.
+let favouriteSymbols=new Set();
+try { const saved=JSON.parse(localStorage.getItem("artemis_signal_favourites")||"[]"); if(Array.isArray(saved))favouriteSymbols=new Set(saved.filter(x=>typeof x==="string").map(x=>x.toUpperCase())); } catch(_) {}
+let favouritesOnly=false;
+let liveSymbolQuery="";
+function toggleSignalFavourite(index){
+  const s=allSignals[index];if(!s)return;
+  const key=String(s.symbol||"").toUpperCase();if(!key)return;
+  if(favouriteSymbols.has(key))favouriteSymbols.delete(key);else favouriteSymbols.add(key);
+  try{localStorage.setItem("artemis_signal_favourites",JSON.stringify([...favouriteSymbols]));}catch(_){}
+  renderDashboard();
+}
+
 const allowedSignalLimits=new Set(["3","5","10","20","all"]);
 let signalLimit=localStorage.getItem("artemis_signal_limit")||"3";
 if(!allowedSignalLimits.has(signalLimit))signalLimit="3";
@@ -988,6 +1016,8 @@ function renderSignal(s){
           <span class="badge ${dir==="BUY"?"buy":"sell"}">${esc(dir)}</span>
           <span class="badge grade">${esc(grade)}</span>
           <span class="tiny asset">${esc(asset)}</span>
+          <button class="signal-favourite ${favouriteSymbols.has(String(s.symbol||"").toUpperCase())?"is-favourite":""}" type="button" aria-label="${favouriteSymbols.has(String(s.symbol||"").toUpperCase())?"Remove favourite":"Add favourite"} ${esc(displaySymbol(s.symbol))}" aria-pressed="${favouriteSymbols.has(String(s.symbol||"").toUpperCase())}" onclick="toggleSignalFavourite(${signalIndex})">${favouriteSymbols.has(String(s.symbol||"").toUpperCase())?"★":"☆"}</button>
+          ${(()=>{const t=Date.parse(s.receivedAt||s.received_at||created||"");const age=(Date.now()-t)/60000;return Number.isFinite(age)&&age>=0?`<span class="signal-freshness ${age<30?"fresh-new":age<240?"fresh-recent":"fresh-old"}">${age<30?"New":age<240?"Recent":"Older"}</span>`:""})()}
         </div>
         <div class="meta signal-card-meta"><span>${esc(s.timeframe||"—")} · ${esc(setup)} · ${esc(s.session||"Live feed")}</span><time class="received-time" ${received.iso?`datetime="${esc(received.iso)}" title="Received ${esc(received.iso)}"`:''}><svg class="received-clock" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Received ${esc(received.label)}</time></div>
       </div>
@@ -1037,10 +1067,13 @@ function renderDashboard(){
   if(USER_PLAN==="PRO")live=live.filter(s=>["FX","Gold / Metals"].includes(assetClass(s.symbol)));
   if(USER_PLAN==="FREE")live=[];
   if(activeFilter!=="All") live=live.filter(s=>assetClass(s.symbol)===activeFilter);
-  live.sort((a,b)=>signalTime(b)-signalTime(a));
+  if(liveSymbolQuery)live=live.filter(s=>String(s.symbol||"").toLowerCase().includes(liveSymbolQuery)||String(displaySymbol(s.symbol)).toLowerCase().includes(liveSymbolQuery));
+  if(favouritesOnly)live=live.filter(s=>favouriteSymbols.has(String(s.symbol||"").toUpperCase()));
+  live.sort((a,b)=>Number(favouriteSymbols.has(String(b.symbol||"").toUpperCase()))-Number(favouriteSymbols.has(String(a.symbol||"").toUpperCase()))||signalTime(b)-signalTime(a));
   if(signalLimit!=="all")live=live.slice(0,Number(signalLimit));
 
-  signalList.innerHTML=live.length ? live.map(renderSignal).join("") : `<div class="empty">No active ${activeFilter==="All"?"":esc(activeFilter)+" "}signals right now.</div>`;
+  const visible=document.getElementById("sumVisible");if(visible)visible.textContent=String(live.length);
+  signalList.innerHTML=live.length ? live.map(renderSignal).join("") : `<div class="empty">No active signals match your selected filters.</div>`;
 }
 
 function signalStatusCode(s){return String(s.status||s.event_type||"ACTIVE").toUpperCase()}
@@ -1288,6 +1321,8 @@ document.querySelectorAll('.nav-more-menu .navbtn').forEach(btn=>btn.addEventLis
 
 document.getElementById("dashboardLogo").addEventListener("click",()=>{switchPage("dashboard");window.scrollTo({top:0,behavior:"smooth"})});
 
+document.getElementById("liveSymbolSearch").addEventListener("input",e=>{liveSymbolQuery=e.target.value.trim().toLowerCase();renderDashboard();});
+document.getElementById("liveFavouritesOnly").addEventListener("click",e=>{favouritesOnly=!favouritesOnly;e.currentTarget.setAttribute("aria-pressed",String(favouritesOnly));e.currentTarget.textContent=favouritesOnly?"★ Favourites only":"☆ Favourites only";renderDashboard();});
 document.querySelectorAll(".filterbtn").forEach(btn=>btn.addEventListener("click",()=>{
   document.querySelectorAll(".filterbtn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
@@ -1394,7 +1429,7 @@ async function loadSignals(){
     document.getElementById("sumUpdate").textContent=now;
     const latestReceivedMs=Math.max(0,...allSignals.map(x=>Date.parse(x.receivedAt||x.received_at||x.timestamp_utc||x.createdAt||x.created_at||x.timestamp||"" )).filter(Number.isFinite));
     document.getElementById("sumLatestSignal").textContent=latestReceivedMs ? new Date(latestReceivedMs).toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "Unavailable";
-    document.getElementById("sumStopped").textContent=stopped;
+
     document.getElementById("heartbeatStatus").textContent="Authenticated · healthy";
     document.getElementById("heartbeatTime").textContent=now;
     const latestSignal=[...allSignals].sort((a,b)=>String(b.timestamp_utc||"").localeCompare(String(a.timestamp_utc||"")))[0];
@@ -1402,7 +1437,7 @@ async function loadSignals(){
 
     renderDashboard();
     renderVisualIntelligence(allSignals);
-    await loadScannerStates(idToken);
+    // Scanner telemetry is intentionally disabled in the customer UI until launch.
   }catch(err){
     setServiceHealth("signalApi",false,"Signal API request failed: "+err.message);
     setServiceHealth("signalDatabase",null,"Cannot independently verify data storage");
