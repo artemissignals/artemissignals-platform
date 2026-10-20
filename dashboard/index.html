@@ -268,6 +268,51 @@ html[data-density="compact"] .panel{padding:11px}
 #performance .perf-chart-empty{color:var(--muted);font-size:12px;padding:30px 8px}
 @media(max-width:950px){#performance .performance-charts{grid-template-columns:1fr}}
 @media(max-width:650px){#performance .performance-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#performance .performance-metrics .metric{padding:13px 10px}#performance .performance-metrics .metric .v{font-size:27px}}
+
+/* v0.9.6 — premium front-end polish, no changes to authentication or data contracts */
+:root{--radius-large:20px}
+html{scroll-behavior:smooth}
+.wrap{max-width:1450px}
+.topbar{align-items:center}
+.brand-home .title{font-size:22px;letter-spacing:-.6px}
+.nav096{align-items:center;gap:5px;padding:7px;border-radius:18px;position:relative;box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.nav096 .navbtn,.nav096 .navjump,.nav-more>summary{font:700 13px/1.35 Inter,Arial,sans-serif;white-space:nowrap;padding:12px 15px;border-radius:11px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.nav096 .navbtn:hover,.nav096 .navjump:hover,.nav-more>summary:hover{background:var(--card2);color:var(--text)}
+.nav096 .navbtn.active{color:var(--text);background:var(--amber-bg);border-color:rgba(244,162,103,.35)}
+.nav-more{margin-left:auto;position:relative}.nav-more>summary{list-style:none}.nav-more>summary::-webkit-details-marker{display:none}
+.nav-more-menu{position:absolute;z-index:40;top:calc(100% + 10px);right:0;min-width:215px;background:var(--panel);border:1px solid var(--line);box-shadow:0 20px 44px rgba(0,0,0,.35);border-radius:15px;padding:6px;display:grid;gap:3px}
+.nav-more-menu .navbtn{width:100%;justify-content:flex-start;color:var(--text)}
+.nav-more:has(.navbtn.active)>summary{color:var(--brand)}
+.hero{padding:25px 28px;background:radial-gradient(circle at 80% -20%,rgba(244,162,103,.22),transparent 53%),linear-gradient(120deg,var(--panel),var(--card2));border-radius:22px}
+.hero-eyebrow{color:var(--brand);font-size:10px;letter-spacing:1.6px;font-weight:900;margin-bottom:12px}
+.hero-title{font-size:clamp(21px,2.4vw,32px);line-height:1.15;letter-spacing:-.8px}
+.hero-copy{max-width:550px}
+.hero-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+.hero-actions button{font-size:12px;font-weight:800;border-radius:10px;padding:11px 16px;cursor:pointer;border:1px solid var(--line)}
+.hero-primary{background:var(--brand);color:#101522;border-color:transparent!important}
+.hero-secondary{background:var(--card2);color:var(--text)}
+.metric,.panel,.card,.insight-card,.asset-card{transition:border-color .2s ease,box-shadow .2s ease}
+.metric{border-radius:16px;padding:18px;background:linear-gradient(150deg,var(--card),var(--card2))}
+.metric:after{width:55px;height:55px;right:-15px;bottom:-15px;opacity:.65}
+.metric .v{font-variant-numeric:tabular-nums}
+.sectionhead h2{font-size:17px;letter-spacing:-.2px}
+.card{border-radius:18px;background:linear-gradient(140deg,var(--card),var(--card2))}
+.card.signal-buy{border-left:3px solid var(--green)}.card.signal-sell{border-left:3px solid var(--red)}
+.market{letter-spacing:-.6px}.status-stack{flex-shrink:0}
+.levels{gap:8px}.level{min-width:0}.level .v{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.target-path{margin:17px 8px 9px}.target-step.done{color:var(--green);font-weight:900}
+.card-open{transition:background .15s ease,transform .15s ease}.card-open:hover{transform:translateY(-1px)}
+.nav096 :focus-visible,.hero-actions button:focus-visible,.filterbtn:focus-visible,.history-limit:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+html[data-density="compact"] .card .chips,html[data-density="compact"] .card .footerline{display:none}
+html[data-density="compact"] .signals{gap:6px}
+html[data-density="compact"] .card{padding:9px 12px 44px}
+html[data-density="compact"] .level{padding:5px 7px}
+html[data-density="compact"] .level .v{font-size:11px}
+html[data-density="compact"] .hero{padding:13px 17px}
+@media(max-width:940px){.nav096{overflow-x:auto;overflow-y:visible;flex-wrap:wrap}.nav-more{margin-left:0}.nav-more-menu{right:auto;left:0}.hero-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.wrap{padding:12px 10px 27px}.topbar{gap:12px}.user-menu{gap:7px}.nav096{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:visible;padding:5px;gap:2px}.nav096 .navbtn,.nav096 .navjump,.nav-more>summary{padding:9px 10px;font-size:12px}.nav-more{position:static}.nav-more-menu{position:fixed;top:auto;bottom:15px;right:12px;left:12px;max-height:65vh;overflow:auto;z-index:90}.hero{padding:18px}.hero-actions button{flex:1}.hero-title{font-size:24px}.quick{grid-template-columns:repeat(2,minmax(0,1fr))}.metrics-six{grid-template-columns:repeat(2,minmax(0,1fr))}.metric{padding:12px}.metric .v{font-size:25px}.signal-top{flex-wrap:wrap}.levels{gap:5px}.market{font-size:18px}.status-stack{text-align:left}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card,.card-open{transition:none}}
+
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -286,7 +331,7 @@ html[data-density="compact"] .panel{padding:11px}
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Live scanner terminal · v0.9.3.9 + Market News</div></div></button></div>
+  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Trading intelligence terminal · v0.9.6.0</div></div></button></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <div class="user-meta"><div id="userEmail" class="user-email">Signed in</div><div class="user-plan" id="currentPlanHeader">Checking subscription…</div></div>
@@ -310,29 +355,34 @@ html[data-density="compact"] .panel{padding:11px}
   <div id="activityTicker" class="ticker-track"><span>Waiting for authenticated signal activity…</span></div>
 </div>
 
-<nav class="nav">
+<nav class="nav nav096" aria-label="Main navigation">
   <button class="navbtn active" data-page="dashboard"><span class="nav-symbol" aria-hidden="true">◈</span> Dashboard</button>
-  <button class="navbtn" data-page="news"><span class="nav-symbol" aria-hidden="true">◉</span> Live Market News <span class="news-chip">PRO + ELITE</span></button>
+  <button class="navjump" id="jumpSignals" type="button"><span aria-hidden="true">↗</span> Signals</button>
   <button class="navbtn" data-page="history"><span class="nav-symbol" aria-hidden="true">◷</span> History</button>
   <button class="navbtn" data-page="performance"><span class="nav-symbol" aria-hidden="true">▥</span> Performance</button>
-  <button class="navbtn" data-page="profile"><span class="nav-symbol" aria-hidden="true">♙</span> My Profile</button>
-  <button class="navbtn" data-page="settings"><span class="nav-symbol" aria-hidden="true">⚙</span> Account Settings</button>
-  <button class="navbtn" data-page="status"><span class="nav-symbol" aria-hidden="true">◉</span> Status</button>
-  <button class="navbtn" data-page="support"><span class="nav-symbol" aria-hidden="true">✧</span> Support</button>
+  <button class="navbtn" data-page="news"><span class="nav-symbol" aria-hidden="true">◉</span> Market News <span class="news-chip">PRO + ELITE</span></button>
+  <details class="nav-more" id="moreNavigation"><summary>More <span aria-hidden="true">⌄</span></summary>
+    <div class="nav-more-menu">
+      <button class="navbtn" data-page="profile">♙ My Profile</button>
+      <button class="navbtn" data-page="settings">⚙ Account Settings</button>
+      <button class="navbtn" data-page="status">◉ System Status</button>
+      <button class="navbtn" data-page="support">✧ Support</button>
+    </div>
+  </details>
 </nav>
 
 <section class="hero">
 <div class="hero-grid">
 <div>
-  <div class="hero-title">Live multi-market signals</div>
-  <div class="hero-copy">Filter the dashboard by market, manage your alert preferences, review your plan and upgrade to Elite for Crypto access.</div>
+  <div class="hero-eyebrow">YOUR TRADING WORKSPACE · ARTEMIS SIGNALS</div><div class="hero-title">Your markets, at a glance</div>
+  <div class="hero-copy">Live opportunities, recorded target milestones and market context in one place. Explore your signals or review the complete available history.</div>
 </div>
 <div class="quick">
   <div class="box"><div class="k">Subscription</div><div class="v" id="subscriptionSummary">—</div></div>
   <div class="box"><div class="k">Feed</div><div class="v" id="heroFeed">Live</div></div>
   <div class="box"><div class="k">Included markets</div><div class="v" id="includedMarketsCount">—</div></div>
   <div class="box"><div class="k">Refresh</div><div class="v">15 sec</div></div>
-</div></div></section>
+</div></div><div class="hero-actions"><button type="button" id="heroSignals" class="hero-primary">Explore live signals →</button><button type="button" id="heroHistory" class="hero-secondary">Review history ↗</button></div></section>
 
 <section id="dashboard" class="page active">
 <section class="metrics metrics-six">
@@ -375,7 +425,7 @@ html[data-density="compact"] .panel{padding:11px}
   </div>
 </section>
 
-<div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">✦</span> Live signals</h2><div class="signal-toolbar"><label for="signalLimit">Show</label><select id="signalLimit"><option value="3">Last 3</option><option value="5">Last 5</option><option value="10">Last 10</option><option value="20">Last 20</option><option value="all">All</option></select><span class="r" id="updatedAt">Waiting for data</span></div></div>
+<div class="sectionhead" id="liveSignalsHeading"><h2><span class="heading-icon" aria-hidden="true">✦</span> Live signals</h2><div class="signal-toolbar"><label for="signalLimit">Show</label><select id="signalLimit"><option value="3">Last 3</option><option value="5">Last 5</option><option value="10">Last 10</option><option value="20">Last 20</option><option value="all">All</option></select><span class="r" id="updatedAt">Waiting for data</span></div></div>
 
 <div class="filters" aria-label="Signal filters">
   <button class="filterbtn active" data-filter="All">All</button>
@@ -1203,6 +1253,18 @@ function switchPage(page){
   if(page==="status")refreshStatus();
 }
 document.querySelectorAll(".navbtn").forEach(btn=>btn.addEventListener("click",()=>switchPage(btn.dataset.page)));
+
+// v0.9.6 navigation shortcuts; existing page routing remains authoritative.
+function jumpToSignalList(){
+  switchPage('dashboard');
+  const target=document.getElementById('liveSignalsHeading');
+  if(target)target.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+}
+document.getElementById('jumpSignals').addEventListener('click',jumpToSignalList);
+document.getElementById('heroSignals').addEventListener('click',jumpToSignalList);
+document.getElementById('heroHistory').addEventListener('click',()=>{switchPage('history');window.scrollTo({top:0,behavior:'smooth'});});
+document.querySelectorAll('.nav-more-menu .navbtn').forEach(btn=>btn.addEventListener('click',()=>{document.getElementById('moreNavigation').open=false;}));
+
 document.getElementById("dashboardLogo").addEventListener("click",()=>{switchPage("dashboard");window.scrollTo({top:0,behavior:"smooth"})});
 
 document.querySelectorAll(".filterbtn").forEach(btn=>btn.addEventListener("click",()=>{
