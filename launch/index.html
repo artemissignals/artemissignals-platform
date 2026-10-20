@@ -44,13 +44,26 @@
 .news-display{border:1px solid #3e5a74;background:linear-gradient(145deg,#13263b,#0a1524);border-radius:20px;padding:17px;box-shadow:0 25px 60px #0005}.news-display img{display:block;max-width:100%;width:100%;height:auto;border-radius:12px;border:1px solid #294057}.news-display .disclosure{color:#a4b7c8;font-size:.8rem;margin:12px 5px 2px}.news-benefits{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin:20px auto}.news-benefits span{border:1px solid #38536b;border-radius:30px;padding:7px 13px;color:#bed0de;background:#11273b;font-size:.8rem}.feature-availability{color:#f4a267;font-size:.8rem;font-weight:750;margin-bottom:14px;text-align:center}
 @media(max-width:900px){.product-features{grid-template-columns:repeat(2,1fr)}.toplinks{gap:10px}}@media(max-width:750px){.toplinks{display:none}.product-features{grid-template-columns:1fr 1fr}}@media(max-width:460px){.product-features{grid-template-columns:1fr}}
 
+
+/* v1.3.0 — public Live Pulse teaser; no subscriber data exposed */
+.pulse-section{padding-top:8px}.pulse-shell{border:1px solid #3a566d;border-radius:22px;background:linear-gradient(145deg,#132c42,#0a1829 75%);padding:25px;box-shadow:0 18px 54px #0004}.pulse-top,.pulse-head,.pulse-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.pulse-head{justify-content:flex-start}.pulse-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#204b4a;color:#78e6cc;font-size:22px}.pulse-kicker{font-size:.72rem;letter-spacing:.17em;color:#78dfc3;font-weight:850}.pulse-top h2{font-size:1.58rem;line-height:1.2;letter-spacing:-.035em;margin:3px 0}.pulse-state{font-size:.78rem;border:1px solid #657f92;border-radius:50px;padding:7px 11px;color:#d4e0ec;background:#122637}.pulse-state.live{color:#94f4d5;border-color:#398971;background:#17483f}.pulse-sub{color:#b6c7d8;font-size:.9rem;margin:14px 0 16px}.pulse-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.pulse-card{border:1px solid #34516a;border-radius:13px;padding:15px;background:#0b1b2c;min-width:0}.pulse-card-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.pulse-symbol{font-weight:850;letter-spacing:.025em}.pulse-market{color:#a4bbcb;font-size:.78rem;margin-top:3px}.pulse-side{font-size:.7rem;border-radius:7px;padding:3px 8px;font-weight:850}.pulse-side.buy{background:#1e5e4b;color:#a4f6d6}.pulse-side.sell{background:#6b3029;color:#ffd0bd}.pulse-status{color:#c9d8e4;font-size:.8rem;margin-top:15px}.pulse-time{font-size:.74rem;color:#96afc1;margin-top:8px}.pulse-blur{letter-spacing:.08em;color:#8ea2b4;background:#182d42;border:1px dashed #48617b;border-radius:8px;padding:8px 10px;margin-top:12px;font-size:.72rem}.pulse-empty{grid-column:1/-1;border:1px dashed #48617b;border-radius:12px;padding:27px;text-align:center;color:#c2d3df;background:#0a1b2b}.pulse-footer{margin-top:18px;padding-top:15px;border-top:1px solid #38526a}.pulse-footer p{font-size:.79rem;max-width:540px;color:#a8bfd0;margin:0}.pulse-small{font-size:.73rem;color:#89a5b8;margin:11px 1px 0}@media(max-width:800px){.pulse-grid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.pulse-shell{padding:17px}.pulse-grid{grid-template-columns:1fr}.pulse-footer .button{width:100%}}
   </style>
 </head>
 <body>
-<header><div class="wrap nav"><a href="#top" class="brand" aria-label="ArtemisSignals home"><span class="mark" aria-hidden="true">⌁</span><span>ARTEMIS<em>SIGNALS</em></span></a><div class="toplinks"><a href="#preview">Signals</a><a href="#latest-features">Features</a><a href="#market-news">Market News</a><a href="#plans">Plans</a><a href="#early-access" class="pill">JOIN EARLY ACCESS</a></div></div></header>
+<header><div class="wrap nav"><a href="#top" class="brand" aria-label="ArtemisSignals home"><span class="mark" aria-hidden="true">⌁</span><span>ARTEMIS<em>SIGNALS</em></span></a><div class="toplinks"><a href="#live-pulse">Live Pulse</a><a href="#preview">Demo</a><a href="#latest-features">Features</a><a href="#market-news">Market News</a><a href="#plans">Plans</a><a href="#early-access" class="pill">JOIN EARLY ACCESS</a></div></div></header>
 <main id="top">
-  <div class="wrap hero"><div class="eyebrow">Intelligent trading insights · Launching soon</div><h1>Trade with insight.<br><span>Not noise.</span></h1><p class="lead">Structured trading signals, target tracking and market intelligence across Forex, Gold, Indices and Crypto — designed to help you focus on the setups that matter.</p><div class="actions"><a class="button primary" href="#early-access">Get early access →</a><a class="button secondary" href="#how-it-works">Explore the platform</a></div><p class="disclaimer">Built for informed decision-making. Never a promise of returns.</p></div>
+  <div class="wrap hero"><div class="eyebrow">Intelligent trading insights · Launching soon</div><h1>Trade with insight.<br><span>Not noise.</span></h1><p class="lead">Structured trading signals, target tracking and market intelligence across Forex, Gold, Indices and Crypto — designed to help you focus on the setups that matter.</p><div class="actions"><a class="button primary" href="#early-access">Get early access →</a><a class="button secondary" href="#live-pulse">Explore Live Pulse</a></div><p class="disclaimer">Built for informed decision-making. Never a promise of returns.</p></div>
   <div class="wrap"><div class="signal" aria-label="Covered markets"><article><strong>FOREX + METALS</strong><p>Monitor currency pairs and precious metals.</p></article><article><strong>GLOBAL INDICES</strong><p>Discover structured setups on major indices.</p></article><article><strong>CRYPTO MARKETS</strong><p>Follow opportunities beyond traditional sessions.</p></article></div></div>
+
+  <section class="wrap section pulse-section" id="live-pulse" aria-labelledby="pulse-title">
+    <div class="pulse-shell">
+      <div class="pulse-top"><div class="pulse-head"><span class="pulse-icon" aria-hidden="true">◉</span><div><div class="pulse-kicker">A WINDOW INTO ARTEMISSIGNALS</div><h2 id="pulse-title">Live Pulse</h2></div></div><span id="pulseState" class="pulse-state" role="status">Preview awaiting connection</span></div>
+      <p class="pulse-sub">Explore recent signal activity without revealing subscriber-only entry, stop-loss or take-profit prices.</p>
+      <div id="pulseGrid" class="pulse-grid" aria-live="polite"><div class="pulse-empty">Public activity preview is coming soon. See the interactive signal demonstration below while we connect the live feed.</div></div>
+      <div class="pulse-footer"><p>Full subscribers see the structured signal details, three target levels and recorded outcomes. Public activity may be delayed or limited.</p><a class="button primary" href="#early-access">Join the early-access list →</a></div>
+      <p id="pulseDisclosure" class="pulse-small">No live market data is displayed unless the separate public preview feed is connected.</p>
+    </div>
+  </section>
   <section class="wrap section" id="preview"><h2 class="section-title">A clear signal. At a glance.</h2><p class="section-lead">A preview of how ArtemisSignals is designed to present setups without confusing charts or overloaded messages.</p>
     <div class="demo" aria-label="Interactive illustrative signals">
       <div class="demo-top"><div><h3 id="signalName">XAUUSD · Gold</h3><div class="demo-sub"><span id="signalDirection" class="trade-side buy">BUY</span><span id="signalPeriod" class="demo-meta">M15 · Example setup</span><span id="signalStatus" class="trade-status active" role="status">● Active</span></div></div><span class="demo-label">ILLUSTRATIVE · NOT LIVE</span></div>
@@ -147,6 +160,46 @@
     } catch(error){result.textContent=error.message||'Unable to submit right now.';result.className='form-result result-error';}
     finally{button.disabled=false;button.textContent='Join the early-access list →';}
   });
+})();
+</script>
+
+<script>
+/* Optional public preview only. Never call the protected /v1/signals endpoint from a public page. */
+(function(){
+  const endpoint=window.ARTEMIS_PUBLIC_PULSE_ENDPOINT;
+  if(!endpoint || typeof endpoint!== 'string' || !/^https:\/\//i.test(endpoint)) return;
+  const grid=document.getElementById('pulseGrid'), state=document.getElementById('pulseState'), disclosure=document.getElementById('pulseDisclosure');
+  const allowedMarkets=new Set(['FX','METALS','INDICES','CRYPTO']);
+  function put(parent,tag,cls,value){const el=document.createElement(tag);if(cls)el.className=cls;el.textContent=value;parent.appendChild(el);return el;}
+  function time(iso){const date=new Date(iso);return Number.isFinite(date.getTime())?date.toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZoneName:'short'}):'Time unavailable';}
+  async function load(){
+    const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),6500);
+    try{
+      const res=await fetch(endpoint,{cache:'no-store',signal:controller.signal,credentials:'omit',headers:{Accept:'application/json'}});
+      if(!res.ok)throw Error('Unavailable');
+      const data=await res.json(), entries=Array.isArray(data.items)?data.items:[];
+      const safe=entries.slice(0,6).filter(x=>x && typeof x.symbol==='string' && /^[A-Za-z0-9._-]{2,24}$/.test(x.symbol) && allowedMarkets.has(x.market) && ['BUY','SELL'].includes(x.side) && typeof x.receivedAt==='string' && Number.isFinite(Date.parse(x.receivedAt)));
+      grid.replaceChildren();
+      if(!safe.length)throw Error('Empty');
+      safe.forEach(x=>{
+        const card=put(grid,'article','pulse-card','');
+        const top=put(card,'div','pulse-card-top','');put(top,'span','pulse-symbol',x.symbol==='USTEC'?'USTech':x.symbol);
+        put(top,'span','pulse-side '+x.side.toLowerCase(),x.side);
+        put(card,'div','pulse-market',x.market+(typeof x.timeframe==='string'?' · '+x.timeframe.slice(0,8):''));
+        put(card,'div','pulse-status',typeof x.status==='string'?x.status.slice(0,55):'Signal recorded');
+        put(card,'div','pulse-time','◷ '+time(x.receivedAt));
+        put(card,'div','pulse-blur','ENTRY · SL · TP LEVELS — SUBSCRIBERS ONLY');
+      });
+      const updated=Date.parse(data.updatedAt||'');
+      const fresh=Number.isFinite(updated) && updated<=Date.now()+60000 && Date.now()-updated<15*60*1000;
+      state.textContent=fresh?'● Recent activity':'● Recorded activity'; state.classList.toggle('live',fresh);
+      disclosure.textContent='Recorded signal activity from the public preview feed. Timestamps are shown in your local time zone. Activity does not imply a trade remains actionable.';
+    }catch(err){
+      grid.replaceChildren();put(grid,'div','pulse-empty','Live preview temporarily unavailable. Explore the interactive demonstration below or join the early-access list.');
+      state.textContent='Preview unavailable';state.classList.remove('live');
+    }finally{clearTimeout(timer);}
+  }
+  load();setInterval(load,60000);
 })();
 </script>
 </body>
