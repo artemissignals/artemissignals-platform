@@ -314,7 +314,7 @@ html[data-density="compact"] .hero{padding:13px 17px}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card,.card-open{transition:none}}
 
 
-/* v0.9.6.2: remove unused card foot-space, align the action on its own row. */
+/* v0.9.6.4: remove unused card foot-space, align the action on its own row. */
 .card,html[data-density="compact"] .card{padding-bottom:14px}
 .signal-card-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:10px;min-height:35px}
 .signal-card-subline{margin-right:auto;color:var(--muted);font-size:11px}
@@ -326,7 +326,7 @@ html[data-density="compact"] .card{padding-bottom:9px}
 html[data-density="compact"] .signal-card-actions{margin-top:6px;min-height:30px}
 @media(max-width:600px){.signal-card-actions{margin-top:9px}.signal-card-meta{gap:4px 10px}.received-time{white-space:normal}}
 
-/* v0.9.6.2 — hide unreleased scanner experiences, retain underlying DOM for future reactivation */
+/* v0.9.6.4 — hide unreleased scanner experiences, retain underlying DOM for future reactivation */
 .legacy-scanner-hidden{display:none!important}
 .intel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .live-personalise{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:10px 0 14px;color:var(--muted);font-size:12px}
@@ -339,6 +339,46 @@ html[data-density="compact"] .signal-card-actions{margin-top:6px;min-height:30px
 .signal-freshness.fresh-recent{color:var(--blue)}
 .live-filter-note{font-size:11px}
 @media(max-width:680px){.intel-grid{grid-template-columns:1fr}.live-personalise input{max-width:none;width:100%}.live-filter-note{display:none}}
+
+/* v0.9.6.4: clearer lifecycle and collapsible operation panels */
+.service-collapse{border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:12px;background:var(--panel,transparent)}
+.service-collapse>summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;font-weight:800}
+.service-collapse>summary::-webkit-details-marker{display:none}
+.service-collapse>summary:after{content:'⌄';color:var(--muted);font-size:18px;transition:transform .15s}
+.service-collapse:not([open])>summary:after{transform:rotate(-90deg)}
+.service-collapse .panel{border:0!important;box-shadow:none!important;border-radius:0!important;margin:0!important;padding-top:0!important}
+.service-collapse .panel h3{display:none}
+.service-collapse .panel .kv:last-child{border-bottom:0}
+.lifecycle-note{display:flex;flex-wrap:wrap;align-items:center;gap:7px;font-size:11px;color:var(--muted);margin-top:9px}
+.lifecycle-note strong{color:var(--text)}
+.lifecycle-milestones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0}
+.lifecycle-milestone{border:1px solid var(--line);padding:9px;border-radius:9px;text-align:center;background:rgba(128,128,128,.04)}
+.lifecycle-milestone.reached{border-color:rgba(35,171,118,.5);background:rgba(35,171,118,.09)}
+.lifecycle-milestone span{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+.event-evidence{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5}
+html[data-density="compact"] .lifecycle-note{margin-top:4px}
+@media(max-width:980px){.service-collapse{margin-bottom:8px}}
+@media(max-width:600px){.service-collapse>summary{padding:12px}.lifecycle-milestones{gap:5px}.lifecycle-milestone{padding:7px 3px}}
+
+/* v0.9.6.5 — Account actions in the header; market navigation stays focused. */
+.topbar{position:relative;z-index:45}
+.account-menu{position:relative;min-width:0}
+.account-menu>summary{display:flex;align-items:center;gap:9px;cursor:pointer;list-style:none;padding:5px 9px;border:1px solid var(--line);border-radius:13px;background:var(--panel);color:var(--text);max-width:min(310px,52vw)}
+.account-menu>summary::-webkit-details-marker{display:none}
+.account-menu>summary:hover,.account-menu[open]>summary{border-color:var(--brand);background:var(--card2)}
+.account-menu>summary:focus-visible,.account-dropdown button:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.account-menu .user-meta{display:flex;flex-direction:column;text-align:left;min-width:0;overflow:hidden}
+.account-menu .user-email{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
+.account-menu .user-plan{display:block;margin-top:2px}
+.account-chevron{font-size:17px;color:var(--muted);transition:transform .15s}
+.account-menu[open] .account-chevron{transform:rotate(180deg)}
+.account-dropdown{position:absolute;right:0;top:calc(100% + 9px);width:240px;max-width:calc(100vw - 20px);z-index:110;padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:15px;box-shadow:0 22px 54px rgba(0,0,0,.45)}
+.account-dropdown-title{padding:9px 11px 7px;font-size:10px;letter-spacing:1px;color:var(--muted);font-weight:800}
+.account-dropdown .navbtn,.account-signout{width:100%;display:flex;align-items:center;justify-content:flex-start;gap:9px;text-align:left;padding:11px 12px;margin:0;border:0;border-radius:9px;background:transparent;color:var(--text);font:700 13px/1.3 Inter,Arial,sans-serif;cursor:pointer}
+.account-dropdown .navbtn:hover,.account-dropdown .navbtn.active,.account-signout:hover{background:var(--card2);color:var(--brand)}
+.account-dropdown-rule{height:1px;background:var(--line);margin:7px 4px}
+@media(max-width:760px){.topbar{z-index:60}.account-menu{order:0}.account-menu>summary{max-width:calc(100vw - 24px)}.account-menu .user-email{max-width:160px}.feed{order:4}}
+@media(max-width:440px){.account-menu .user-email{max-width:112px}.account-menu>summary{gap:6px;padding:5px}.account-dropdown{right:0}}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -357,14 +397,28 @@ html[data-density="compact"] .signal-card-actions{margin-top:6px;min-height:30px
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Trading intelligence terminal · v0.9.6.0</div></div></button></div>
+  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Trading intelligence terminal · v0.9.6.5</div></div></button></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
-  <div class="user-meta"><div id="userEmail" class="user-email">Signed in</div><div class="user-plan" id="currentPlanHeader">Checking subscription…</div></div>
-  <div class="avatar">AS</div>
+  <details class="account-menu" id="accountNavigation">
+    <summary aria-label="Open account menu" aria-haspopup="menu">
+      <span class="avatar" aria-hidden="true">AS</span>
+      <span class="user-meta"><span id="userEmail" class="user-email">Signed in</span><span class="user-plan" id="currentPlanHeader">Checking subscription…</span></span>
+      <span class="account-chevron" aria-hidden="true">⌄</span>
+    </summary>
+    <div class="account-dropdown" role="group" aria-label="Account and help">
+      <div class="account-dropdown-title">YOUR ACCOUNT</div>
+      <button class="navbtn" type="button" data-page="profile">♙ <span>My Profile</span></button>
+      <button class="navbtn" type="button" data-page="settings">⚙ <span>Account Management</span></button>
+      <div class="account-dropdown-rule"></div>
+      <button class="navbtn" type="button" data-page="support">✧ <span>Support</span></button>
+      <button class="navbtn" type="button" data-page="status">◉ <span>Service Status</span></button>
+      <div class="account-dropdown-rule"></div>
+      <button id="logoutButton" class="account-signout" type="button">↪ Sign out</button>
+    </div>
+  </details>
   <button id="densityButton" class="densitybtn" type="button" aria-label="Switch to compact dashboard view" aria-pressed="false">▤ Compact</button>
   <button class="themebtn" type="button" aria-label="Switch colour theme">☀ Light</button>
-  <button id="logoutButton" class="logoutbtn" type="button">Log Out</button>
 </div>
 </header>
 
@@ -387,14 +441,6 @@ html[data-density="compact"] .signal-card-actions{margin-top:6px;min-height:30px
   <button class="navbtn" data-page="history"><span class="nav-symbol" aria-hidden="true">◷</span> History</button>
   <button class="navbtn" data-page="performance"><span class="nav-symbol" aria-hidden="true">▥</span> Performance</button>
   <button class="navbtn" data-page="news"><span class="nav-symbol" aria-hidden="true">◉</span> Market News <span class="news-chip">PRO + ELITE</span></button>
-  <details class="nav-more" id="moreNavigation"><summary>More <span aria-hidden="true">⌄</span></summary>
-    <div class="nav-more-menu">
-      <button class="navbtn" data-page="profile">♙ My Profile</button>
-      <button class="navbtn" data-page="settings">⚙ Account Settings</button>
-      <button class="navbtn" data-page="status">◉ System Status</button>
-      <button class="navbtn" data-page="support">✧ Support</button>
-    </div>
-  </details>
 </nav>
 
 <section class="hero">
@@ -465,16 +511,16 @@ html[data-density="compact"] .signal-card-actions{margin-top:6px;min-height:30px
 <section class="layout">
 <div id="signalList" class="signals"><div class="skeleton" aria-label="Loading signals"></div><div class="skeleton" aria-hidden="true"></div></div>
 <aside>
-  <div class="panel"><h3>Service summary</h3>
+  <details class="service-collapse" id="serviceSummaryPanel" open><summary>Service summary</summary><div class="panel"><h3>Service summary</h3>
     <div class="kv"><span class="label">Current feed</span><span id="sumFeed">Checking…</span></div>
     <div class="kv"><span class="label">Last update</span><span id="sumUpdate">—</span></div>
     <div class="kv"><span class="label">Latest signal received</span><span id="sumLatestSignal">—</span></div>
     <div class="kv"><span class="label">Signals shown</span><span id="sumVisible">—</span></div>
-  </div>
-   <div class="panel" style="margin-top:14px"><h3>Current access <span class="tiny plan" id="accessTier">Checking…</span></h3>
+  </div></details>
+   <details class="service-collapse" id="currentAccessPanel" open><summary>Current access <span class="tiny plan" id="accessTier">Checking…</span></summary><div class="panel"><h3>Current access</h3>
      <div id="accessMarkets">Checking subscription entitlements…</div>
      <div id="accessUpgrade" class="hidden" style="margin-top:12px"><span class="cta">Upgrade to Elite</span></div>
-   </div>
+   </div></details>
 </aside>
 </section>
 </section>
@@ -851,7 +897,8 @@ function exportLoadedHistory(){
 }
 
 let scannerStates=[];
-let activeFilter="All";
+let activeFilter=localStorage.getItem("artemis_market_filter")||"All";
+if(!["All","FX","Gold / Metals","Indices","Crypto"].includes(activeFilter))activeFilter="All";
 let scannerAssetFilter="All";
 let scannerStateFilter="All";
 let watchlistOnly=false;
@@ -859,7 +906,7 @@ let watchedSymbols=new Set(JSON.parse(localStorage.getItem("artemis_watchlist")|
 // Customer live-signal preferences are local to this browser, not server entitlements.
 let favouriteSymbols=new Set();
 try { const saved=JSON.parse(localStorage.getItem("artemis_signal_favourites")||"[]"); if(Array.isArray(saved))favouriteSymbols=new Set(saved.filter(x=>typeof x==="string").map(x=>x.toUpperCase())); } catch(_) {}
-let favouritesOnly=false;
+let favouritesOnly=localStorage.getItem("artemis_favourites_only")==="true";
 let liveSymbolQuery="";
 function toggleSignalFavourite(index){
   const s=allSignals[index];if(!s)return;
@@ -899,6 +946,8 @@ function reachedTarget(s,level){
   const status=signalLifecycleStatus(s);
   const flags=[s[`tp${level}HitAt`],s[`tp${level}_hit_at`],s[`tp${level}_hit`],s[`tp${level}Hit`]];
   if(flags.some(v=>v!==null&&v!==undefined&&v!==false&&v!==0&&v!==""&&v!=="false"&&v!=="0"))return true;
+  const events=Array.isArray(s.eventIds)?s.eventIds:Array.isArray(s.event_ids)?s.event_ids:[];
+  if(events.some(e=>String(e).toUpperCase().endsWith(`:TP${level}_HIT`)||String(e).toUpperCase()===`TP${level}_HIT`))return true;
   const max=String(s.max_target||s.maxTarget||s.final_outcome||"").toUpperCase();
   if(/^TP[123]$/.test(max)&&Number(max.slice(2))>=level)return true;
   const hit=/^(?:CLOSED_)?TP([123])(?:_HIT)?$/.exec(status);
@@ -1030,6 +1079,7 @@ function renderSignal(s){
       <div class="level ${reached2?"hit":""}"><div class="k">TP2</div><div class="v">${esc(s.tp2??"—")}${reached2?" ✓":""}</div></div>
       <div class="level ${reached3?"hit":""}"><div class="k">TP3</div><div class="v">${esc(s.tp3??"—")}${reached3?" ✓":""}</div></div>
     </div>
+    <div class="lifecycle-note"><strong>Lifecycle: ${esc(status.label)}</strong><span>·</span><span>Targets reached: ${reached3?"TP1, TP2, TP3":reached2?"TP1, TP2":reached1?"TP1":"none recorded"}</span></div>
     <div class="target-path" aria-label="Signal target progress">
       <div class="target-step done">Entry</div>
       <div class="target-step ${reached1?"done":"current"}">TP1</div>
@@ -1204,8 +1254,9 @@ function openSignalDetail(index){
   const distance=Number.isFinite(entry)&&Number.isFinite(sl)?Math.abs(entry-sl):0;
   const rr1=distance&&Number.isFinite(tp1)?Math.abs(tp1-entry)/distance:null;
   const rr2=distance&&Number.isFinite(tp2)?Math.abs(tp2-entry)/distance:null;
-  const hit1=Boolean(s.tp1_hit)||["TP1","TP2","TP3"].includes(maxTarget(s));
-  const hit2=Boolean(s.tp2_hit)||["TP2","TP3"].includes(maxTarget(s));
+  const hit1=reachedTarget(s,1);
+  const hit2=reachedTarget(s,2);
+  const hit3=reachedTarget(s,3);
   const closed=!isActive(s);
   document.getElementById("drawerTitle").textContent=`${s.symbol||"Signal"} · ${dir}`;
   document.getElementById("drawerContent").innerHTML=`
@@ -1213,7 +1264,7 @@ function openSignalDetail(index){
       <div class="detail-box"><div class="k">Entry</div><div class="v">${esc(s.entry??"—")}</div></div><div class="detail-box"><div class="k">Stop</div><div class="v">${esc(s.sl??"—")}</div></div>
       <div class="detail-box"><div class="k">TP1 · ${rr1?"1:"+rr1.toFixed(2):"R:R —"}</div><div class="v">${esc(s.tp1??"—")}</div></div><div class="detail-box"><div class="k">TP2 · ${rr2?"1:"+rr2.toFixed(2):"R:R —"}</div><div class="v">${esc(s.tp2??"—")}</div></div>
     </div>
-    <section class="drawer-section"><h3>Lifecycle</h3><div class="life"><div class="life-step done">Issued</div><div class="life-step ${hit1?"done":"current"}">TP1</div><div class="life-step ${hit2?"done":hit1?"current":""}">TP2</div><div class="life-step ${closed?"done":hit2?"current":""}">${closed?esc(status.label):"Close"}</div></div><div class="meta" style="margin-top:12px">Created: ${esc(s.timestamp_utc||"Timestamp unavailable")} · Status: ${esc(status.label)}</div></section>
+    <section class="drawer-section"><h3>Lifecycle &amp; target milestones</h3><div class="lifecycle-note"><strong>${esc(status.label)}</strong> · ${closed?"Signal no longer active":"Signal currently active"}</div><div class="lifecycle-milestones"><div class="lifecycle-milestone ${hit1?"reached":""}">TP1 <span>${hit1?"✓ Recorded":"Not recorded"}</span></div><div class="lifecycle-milestone ${hit2?"reached":""}">TP2 <span>${hit2?"✓ Recorded":"Not recorded"}</span></div><div class="lifecycle-milestone ${hit3?"reached":""}">TP3 <span>${hit3?"✓ Recorded":"Not recorded"}</span></div></div><div class="meta">Created: ${esc(s.timestamp_utc||s.createdAt||"Timestamp unavailable")} · Current status: ${esc(status.label)}</div><div class="event-evidence">Milestones are based on stored hit fields, status and event IDs. Event IDs do not establish the order or exact times of events.</div></section>
     <section class="drawer-section"><h3>Why this signal?</h3><div class="why-copy">${esc(whySignal(s))}</div></section>
     <section class="drawer-section"><h3>Position-size planner</h3><div class="calc-grid"><div class="calc-field"><label>Account value</label><input id="calcAccount" type="number" min="0" step="100" value="10000"></div><div class="calc-field"><label>Risk %</label><input id="calcRisk" type="number" min="0.01" max="100" step="0.1" value="1"></div><div class="calc-field"><label>Value per 1.0 price move per lot</label><input id="calcPointValue" type="number" min="0" step="0.01" placeholder="From broker specification"></div><div class="calc-field"><label>Entry-to-stop distance</label><input type="text" value="${distance?distance.toFixed(5):"Unavailable"}" disabled></div></div><div id="calcResult" class="calc-result">Risk budget: <strong>100.00</strong><br>Enter the broker value per 1.0 price move to estimate position size.</div><div class="meta">Planning aid only. Verify contract size, tick value and currency conversion with your broker before trading.</div></section>`;
   ["calcAccount","calcRisk","calcPointValue"].forEach(id=>document.getElementById(id).addEventListener("input",()=>updateRiskCalculator(distance)));
@@ -1317,16 +1368,31 @@ function jumpToSignalList(){
 document.getElementById('jumpSignals').addEventListener('click',jumpToSignalList);
 document.getElementById('heroSignals').addEventListener('click',jumpToSignalList);
 document.getElementById('heroHistory').addEventListener('click',()=>{switchPage('history');window.scrollTo({top:0,behavior:'smooth'});});
-document.querySelectorAll('.nav-more-menu .navbtn').forEach(btn=>btn.addEventListener('click',()=>{document.getElementById('moreNavigation').open=false;}));
+// Account navigation shares the existing data-page navigation.
+document.querySelectorAll('.account-dropdown .navbtn').forEach(btn=>btn.addEventListener('click',()=>{
+  document.getElementById('accountNavigation').open=false;
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+document.addEventListener('pointerdown',event=>{
+  const menu=document.getElementById('accountNavigation');
+  if(menu?.open && !menu.contains(event.target)) menu.open=false;
+});
+document.addEventListener('keydown',event=>{
+  if(event.key==='Escape') document.getElementById('accountNavigation').open=false;
+});
 
 document.getElementById("dashboardLogo").addEventListener("click",()=>{switchPage("dashboard");window.scrollTo({top:0,behavior:"smooth"})});
 
 document.getElementById("liveSymbolSearch").addEventListener("input",e=>{liveSymbolQuery=e.target.value.trim().toLowerCase();renderDashboard();});
-document.getElementById("liveFavouritesOnly").addEventListener("click",e=>{favouritesOnly=!favouritesOnly;e.currentTarget.setAttribute("aria-pressed",String(favouritesOnly));e.currentTarget.textContent=favouritesOnly?"★ Favourites only":"☆ Favourites only";renderDashboard();});
+document.getElementById("liveFavouritesOnly").setAttribute("aria-pressed",String(favouritesOnly));
+document.getElementById("liveFavouritesOnly").textContent=favouritesOnly?"★ Favourites only":"☆ Favourites only";
+document.getElementById("liveFavouritesOnly").addEventListener("click",e=>{favouritesOnly=!favouritesOnly;localStorage.setItem("artemis_favourites_only",String(favouritesOnly));e.currentTarget.setAttribute("aria-pressed",String(favouritesOnly));e.currentTarget.textContent=favouritesOnly?"★ Favourites only":"☆ Favourites only";renderDashboard();});
+document.querySelectorAll(".filterbtn").forEach(btn=>btn.classList.toggle("active",btn.dataset.filter===activeFilter));
 document.querySelectorAll(".filterbtn").forEach(btn=>btn.addEventListener("click",()=>{
   document.querySelectorAll(".filterbtn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
   activeFilter=btn.dataset.filter;
+  localStorage.setItem("artemis_market_filter",activeFilter);
   renderDashboard();
 }));
 
@@ -1351,6 +1417,12 @@ function toggleTheme(){
 document.querySelectorAll(".themebtn").forEach(btn=>btn.addEventListener("click",toggleTheme));
 updateThemeButtons();
 
+["serviceSummaryPanel","currentAccessPanel"].forEach(id=>{
+  const panel=document.getElementById(id);
+  if(!panel)return;
+  panel.open=localStorage.getItem("artemis_panel_"+id)!=="closed";
+  panel.addEventListener("toggle",()=>localStorage.setItem("artemis_panel_"+id,panel.open?"open":"closed"));
+});
 const savedDensity=localStorage.getItem("artemis_density")||"comfortable";
 document.documentElement.dataset.density=savedDensity;
 function updateDensityButton(){
