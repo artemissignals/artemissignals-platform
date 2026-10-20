@@ -91,10 +91,41 @@
 @media(max-width:580px){.brand{gap:5px}.mark.mark-orbit{width:37px;height:37px;flex-basis:37px}.mark-orbit img{width:36px;height:36px}.brand .brand-wordmark{font-size:.9rem;letter-spacing:.012em}}
 @media(prefers-reduced-motion:reduce){.pulse-section.preview-connected .pulse-heading-beacon::before,.pulse-section.preview-connected .pulse-heading-beacon::after{animation:none;opacity:.24;transform:scale(1.35)}}
 
+
+/* v1.3.6 — global sensor-network architectural visual */
+.global-section{padding-top:18px;padding-bottom:54px}
+.global-section .section-lead{max-width:760px}
+.global-kicker{text-align:center;color:var(--teal);font-size:.72rem;letter-spacing:.19em;font-weight:850;margin:0 0 10px}
+.global-shell{position:relative;overflow:hidden;border:1px solid #35576c;border-radius:22px;background:radial-gradient(ellipse at 45% 28%,#183c50 0%,#0c1e30 54%,#091522 100%);box-shadow:0 30px 70px #0005}
+.global-shell::before{content:"";position:absolute;inset:0;opacity:.25;pointer-events:none;background-image:linear-gradient(#53788a20 1px,transparent 1px),linear-gradient(90deg,#53788a20 1px,transparent 1px);background-size:34px 34px}
+.global-map{position:relative;display:block;width:100%;height:auto;min-height:235px}
+.global-map .continent{fill:#254a5b;stroke:#3e7786;stroke-width:1.1;opacity:.73}
+.global-map .boundary{fill:none;stroke:#2e5868;stroke-width:1;opacity:.5}
+.global-map .route{fill:none;stroke-width:2.2;stroke-dasharray:7 11;stroke-linecap:round;animation:global-route 14s linear infinite}
+.global-map .route.orange{stroke:#eda16b}.global-map .route.teal{stroke:#64e1c6}
+.global-map .ring{fill:none;stroke-width:2;transform-box:fill-box;transform-origin:center;animation:global-ring 3s ease-out infinite}
+.global-map .ring.delay{animation-delay:1.35s}.global-map .ring.orange{stroke:#eda16b}.global-map .ring.teal{stroke:#64e1c6}
+.global-map .hubcore.orange{fill:#ffc28e}.global-map .hubcore.teal{fill:#76efd4}
+.global-map .city-label{fill:#f7f9ff;font:800 13px Inter,Arial,sans-serif;letter-spacing:1px}
+.global-map .city-sub{fill:#b1cbd9;font:11px Inter,Arial,sans-serif}
+.global-tech{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;padding:14px 24px;border-top:1px solid #35576c;background:#0a1c2b}
+.global-tech strong{font-size:.85rem;color:#eff8fe}.global-tech span{font-size:.77rem;color:#aec3d3}
+.global-hubs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+.global-hub{border:1px solid #35536a;border-radius:13px;background:#101f31;padding:16px 18px}
+.global-hub .hub-region{font-size:.7rem;letter-spacing:.1em;font-weight:850;color:var(--teal);text-transform:uppercase}
+.global-hub:nth-child(2) .hub-region{color:var(--accent)}
+.global-hub h3{margin:5px 0 3px;font-size:1.05rem}
+.global-hub p{color:var(--sub);font-size:.81rem;margin:0}
+.global-note{font-size:.76rem;color:#9aafc3;margin:13px 0 0;line-height:1.55}
+@keyframes global-ring{0%{opacity:.85;transform:scale(.3)}80%,100%{opacity:0;transform:scale(2.55)}}
+@keyframes global-route{to{stroke-dashoffset:-288}}
+@media(max-width:700px){.global-hubs{grid-template-columns:1fr}.global-map .city-label{font-size:14px}.global-map .city-sub{font-size:12px}.global-tech{padding:15px}.global-section{padding-bottom:34px}}
+@media(prefers-reduced-motion:reduce){.global-map .route,.global-map .ring{animation:none}.global-map .ring{opacity:.28}}
+
 </style>
 </head>
 <body>
-<header><div class="wrap nav"><a href="#top" class="brand" aria-label="ArtemisSignals home"><span class="mark mark-orbit" aria-hidden="true"><img src="/assets/artemis-a-logo.png" alt="" width="42" height="42" decoding="async" /></span><span class="brand-wordmark">ARTEMIS<em>SIGNALS</em></span></a><div class="toplinks"><a href="#live-pulse">Live Pulse</a><a href="#preview">Demo</a><a href="#latest-features">Features</a><a href="#market-news">Market News</a><a href="#plans">Plans</a><a href="#early-access" class="pill">JOIN EARLY ACCESS</a></div></div></header>
+<header><div class="wrap nav"><a href="#top" class="brand" aria-label="ArtemisSignals home"><span class="mark mark-orbit" aria-hidden="true"><img src="/assets/artemis-a-logo.png" alt="" width="42" height="42" decoding="async" /></span><span class="brand-wordmark">ARTEMIS<em>SIGNALS</em></span></a><div class="toplinks"><a href="#live-pulse">Live Pulse</a><a href="#global-network">Global Network</a><a href="#preview">Demo</a><a href="#latest-features">Features</a><a href="#market-news">Market News</a><a href="#plans">Plans</a><a href="#early-access" class="pill">JOIN EARLY ACCESS</a></div></div></header>
 <main id="top">
   <div class="wrap hero"><div class="eyebrow">Intelligent trading insights · Launching soon</div><h1>Trade with insight.<br><span>Not noise.</span></h1><p class="lead">Structured trading signals, target tracking and market intelligence across Forex, Gold, Indices and Crypto — designed to help you focus on the setups that matter.</p><div class="actions"><a class="button primary" href="#early-access">Get early access →</a><a class="button secondary" href="#live-pulse">Explore Live Pulse</a></div><p class="disclaimer">Built for informed decision-making. Never a promise of returns.</p></div>
   <div class="wrap"><div class="signal" aria-label="Covered markets"><article><strong>FOREX + METALS</strong><p>Monitor currency pairs and precious metals.</p></article><article><strong>GLOBAL INDICES</strong><p>Discover structured setups on major indices.</p></article><article><strong>CRYPTO MARKETS</strong><p>Follow opportunities beyond traditional sessions.</p></article></div></div>
@@ -109,6 +140,52 @@
       <p id="pulseDisclosure" class="pulse-small">This public feed shows recorded platform signals with a delay. It is not an execution feed or a guarantee of future performance.</p>
     </div>
   </section>
+
+<section class="wrap section global-section" id="global-network" aria-labelledby="global-title">
+  <p class="global-kicker">ARTEMIS GLOBAL SENSOR NETWORK</p>
+  <h2 class="section-title" id="global-title">Global sensors. Connected intelligence.</h2>
+  <p class="section-lead">A global telemetry architecture spanning the Americas, Europe and Asia-Pacific, designed to bring market data and structured signals together in one place.</p>
+  <div class="global-shell">
+    <svg class="global-map" viewBox="0 0 1060 450" role="img" aria-labelledby="globalMapTitle globalMapDescription" xmlns="http://www.w3.org/2000/svg">
+      <title id="globalMapTitle">ArtemisSignals global sensor network concept</title>
+      <desc id="globalMapDescription">Stylised world map connecting New York, Frankfurt and Singapore using animated telemetry paths. Illustrative architecture visual; not a real-time network status display.</desc>
+      <defs>
+        <radialGradient id="globalGlow"><stop offset="0" stop-color="#387e84" stop-opacity=".28"/><stop offset="1" stop-color="#113042" stop-opacity="0"/></radialGradient>
+        <filter id="globalHalo" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="6"/></filter>
+      </defs>
+      <ellipse cx="525" cy="230" rx="430" ry="175" fill="url(#globalGlow)"/>
+      <g opacity=".28" stroke="#4b8694" fill="none" stroke-width=".8"><path d="M0 115H1060M0 225H1060M0 335H1060"/><path d="M165 0V450M355 0V450M535 0V450M720 0V450M905 0V450"/><ellipse cx="530" cy="225" rx="502" ry="183"/><ellipse cx="530" cy="225" rx="365" ry="183"/></g>
+      <g class="continent">
+        <path d="M86 93L122 72 185 62 229 76 266 111 251 136 216 149 204 182 178 200 156 236 134 222 121 178 101 164 78 130Z"/>
+        <path d="M229 231L260 250 274 287 258 334 244 372 228 398 217 364 208 320 194 279Z"/>
+        <path d="M445 94L475 76 517 89 534 116 519 139 489 145 477 170 456 156 441 122Z"/>
+        <path d="M456 182L510 179 544 221 535 276 516 331 483 351 458 298 445 233Z"/>
+        <path d="M539 95L597 69 676 71 749 89 811 118 865 155 847 194 812 202 784 239 755 229 724 197 681 202 652 170 605 155 568 161Z"/>
+        <path d="M778 277L841 281 868 307 850 342 803 347 775 318Z"/>
+        <path d="M725 237L742 247 757 275 739 293 723 278Z"/>
+        <path d="M771 245L788 255 795 275 779 284Z"/>
+      </g>
+      <g class="boundary"><path d="M157 100L184 135 180 185M460 117L506 124M475 206L512 271M638 101L665 177M740 120L767 190"/></g>
+      <!-- Regional links convey system design, not proven inter-region redundancy or latency -->
+      <path class="route orange" d="M206 157 Q355 9 505 139"/>
+      <path class="route teal" d="M505 139 Q650 22 758 259"/>
+      <path class="route orange" d="M206 157 Q480 410 758 259" opacity=".55"/>
+      <g transform="translate(206 157)"><circle r="19" fill="#efa66d" opacity=".12" filter="url(#globalHalo)"/><circle class="ring orange" r="10"/><circle class="ring delay orange" r="10"/><circle r="9" fill="#e99b68" opacity=".23"/><circle class="hubcore orange" r="5"/></g>
+      <g transform="translate(505 139)"><circle r="19" fill="#efa66d" opacity=".12" filter="url(#globalHalo)"/><circle class="ring orange" r="10"/><circle class="ring delay orange" r="10"/><circle r="9" fill="#e99b68" opacity=".23"/><circle class="hubcore orange" r="5"/></g>
+      <g transform="translate(758 259)"><circle r="19" fill="#69e9ce" opacity=".12" filter="url(#globalHalo)"/><circle class="ring teal" r="10"/><circle class="ring delay teal" r="10"/><circle r="9" fill="#5bd5bc" opacity=".23"/><circle class="hubcore teal" r="5"/></g>
+      <g><text class="city-label" x="136" y="129">NEW YORK</text><text class="city-sub" x="136" y="145">AMERICAS</text><text class="city-label" x="521" y="119">FRANKFURT</text><text class="city-sub" x="521" y="135">EUROPE</text><text class="city-label" x="771" y="240">SINGAPORE</text><text class="city-sub" x="771" y="256">ASIA-PACIFIC</text></g>
+      <text x="34" y="414" fill="#8bb5c5" font-size="12" letter-spacing="2">TELEMETRY NETWORK  /  ARCHITECTURE VIEW</text>
+    </svg>
+    <div class="global-tech"><strong>◈ Built on AWS</strong><span>Cloud-based signal ingestion · Market telemetry · Global design</span></div>
+  </div>
+  <div class="global-hubs" aria-label="Global network regions">
+    <article class="global-hub"><div class="hub-region">Americas</div><h3>New York</h3><p>Regional sensor architecture</p></article>
+    <article class="global-hub"><div class="hub-region">Europe</div><h3>Frankfurt</h3><p>Regional sensor architecture</p></article>
+    <article class="global-hub"><div class="hub-region">Asia-Pacific</div><h3>Singapore</h3><p>Regional sensor architecture</p></article>
+  </div>
+  <p class="global-note">Architecture illustration. Geographic markers and animations are conceptual, not live sensor-health, latency or redundancy measurements. AWS powers ArtemisSignals services; this does not imply production infrastructure is currently deployed in each named location.</p>
+</section>
+
   <section class="wrap section" id="preview"><h2 class="section-title">A clear signal. At a glance.</h2><p class="section-lead">Explore a subscriber-style signal card, including entry and risk levels, TP milestones, and lifecycle status. These examples are illustrative; Live Pulse above shows real delayed platform activity.</p>
     <div class="demo" aria-label="Interactive illustrative signals">
       <div class="demo-top"><div><div class="demo-identity"><h3 id="signalName">XAUUSD · Gold</h3><span id="demoAsset" class="demo-asset">METALS</span><span id="signalDirection" class="trade-side buy">BUY</span></div><div class="demo-sub"><span id="signalPeriod" class="demo-meta">M15 · Artemis Fractal Breakout</span><span id="signalStatus" class="trade-status active" role="status">Active</span></div><div class="demo-received"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="demoReceived">Example arrival · 14:32 (illustrative)</span></div></div><span class="demo-label">INTERACTIVE EXAMPLE · NOT LIVE</span></div>
