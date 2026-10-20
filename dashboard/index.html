@@ -313,6 +313,18 @@ html[data-density="compact"] .hero{padding:13px 17px}
 @media(max-width:600px){.wrap{padding:12px 10px 27px}.topbar{gap:12px}.user-menu{gap:7px}.nav096{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:visible;padding:5px;gap:2px}.nav096 .navbtn,.nav096 .navjump,.nav-more>summary{padding:9px 10px;font-size:12px}.nav-more{position:static}.nav-more-menu{position:fixed;top:auto;bottom:15px;right:12px;left:12px;max-height:65vh;overflow:auto;z-index:90}.hero{padding:18px}.hero-actions button{flex:1}.hero-title{font-size:24px}.quick{grid-template-columns:repeat(2,minmax(0,1fr))}.metrics-six{grid-template-columns:repeat(2,minmax(0,1fr))}.metric{padding:12px}.metric .v{font-size:25px}.signal-top{flex-wrap:wrap}.levels{gap:5px}.market{font-size:18px}.status-stack{text-align:left}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.card,.card-open{transition:none}}
 
+
+/* v0.9.6.1: remove unused card foot-space, align the action on its own row. */
+.card,html[data-density="compact"] .card{padding-bottom:14px}
+.signal-card-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:10px;min-height:35px}
+.signal-card-subline{margin-right:auto;color:var(--muted);font-size:11px}
+.signal-card-actions .card-open,html[data-density="compact"] .signal-card-actions .card-open{position:static;right:auto;bottom:auto;padding:8px 12px;font-size:11px;white-space:nowrap}
+.signal-card-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px}
+.received-time{display:inline-flex;align-items:center;gap:5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.received-clock{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+html[data-density="compact"] .card{padding-bottom:9px}
+html[data-density="compact"] .signal-card-actions{margin-top:6px;min-height:30px}
+@media(max-width:600px){.signal-card-actions{margin-top:9px}.signal-card-meta{gap:4px 10px}.received-time{white-space:normal}}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -441,7 +453,7 @@ html[data-density="compact"] .hero{padding:13px 17px}
   <div class="panel"><h3>Service summary</h3>
     <div class="kv"><span class="label">Current feed</span><span id="sumFeed">Checking…</span></div>
     <div class="kv"><span class="label">Last update</span><span id="sumUpdate">—</span></div>
-    <div class="kv"><span class="label">Best outcome seen</span><span id="sumBest">—</span></div>
+    <div class="kv"><span class="label">Latest signal received</span><span id="sumLatestSignal">—</span></div>
     <div class="kv"><span class="label">Stopped signals</span><span id="sumStopped">—</span></div>
   </div>
    <div class="panel" style="margin-top:14px"><h3>Current access <span class="tiny plan" id="accessTier">Checking…</span></h3>
@@ -943,6 +955,12 @@ function renderPerformance(){
 document.getElementById("performancePeriod").addEventListener("change",renderPerformance);
 document.getElementById("performanceMarket").addEventListener("change",renderPerformance);
 
+function signalReceivedStamp(value){
+  if(!value) return {label:"Time unavailable",iso:""};
+  const d=new Date(value);
+  if(!Number.isFinite(d.getTime()))return {label:"Time unavailable",iso:""};
+  return {label:d.toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit",timeZoneName:"short"}),iso:d.toISOString()};
+}
 function renderSignal(s){
   const dir=(s.direction||"").toUpperCase();
   const status=normaliseStatus(s);
@@ -961,6 +979,7 @@ function renderSignal(s){
   const parsedTime=created?new Date(created).getTime():NaN;
   const signalAge=Number.isFinite(parsedTime)?relativeAge(Math.max(0,(Date.now()-parsedTime)/1000)):"Time unavailable";
   const signalIndex=allSignals.indexOf(s);
+  const received=signalReceivedStamp(s.receivedAt||s.received_at||created);
   return `<article class="card ${dir==="BUY"?"signal-buy":"signal-sell"}">
     <div class="signal-top">
       <div>
@@ -970,7 +989,7 @@ function renderSignal(s){
           <span class="badge grade">${esc(grade)}</span>
           <span class="tiny asset">${esc(asset)}</span>
         </div>
-        <div class="meta">${esc(s.timeframe||"—")} · ${esc(setup)} · ${esc(s.session||"Live feed")}</div>
+        <div class="meta signal-card-meta"><span>${esc(s.timeframe||"—")} · ${esc(setup)} · ${esc(s.session||"Live feed")}</span><time class="received-time" ${received.iso?`datetime="${esc(received.iso)}" title="Received ${esc(received.iso)}"`:''}><svg class="received-clock" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Received ${esc(received.label)}</time></div>
       </div>
       <div class="status-stack"><div class="status-label">Status</div><span class="status-badge ${status.cls}">${esc(status.label)}</span></div>
     </div>
@@ -994,8 +1013,10 @@ function renderSignal(s){
        ${rr?`<span class="chip rr-chip">⚖ Risk/reward 1:${esc(rr)}</span>`:""}
        <span class="chip">◷ ${esc(signalAge)}</span>
     </div>
-    <div class="footerline"><span>${esc(s.timestamp_utc||"")}</span>${s.final_outcome?`<span>•</span><span>${esc(s.final_outcome)}</span>`:""}</div>
-    <button class="card-open" type="button" onclick="openSignalDetail(${signalIndex})">View details ↗</button>
+    <div class="signal-card-actions">
+      <div class="signal-card-subline">${s.final_outcome?`<span>Outcome: ${esc(s.final_outcome)}</span>`:""}</div>
+      <button class="card-open" type="button" onclick="openSignalDetail(${signalIndex})">View details ↗</button>
+    </div>
   </article>`;
 }
 
@@ -1371,7 +1392,8 @@ async function loadSignals(){
     document.getElementById("updatedAt").textContent="Updated "+now;
     document.getElementById("sumFeed").textContent="Connected";
     document.getElementById("sumUpdate").textContent=now;
-    document.getElementById("sumBest").textContent=tp2>0?"TP2":(tp1>0?"TP1":"—");
+    const latestReceivedMs=Math.max(0,...allSignals.map(x=>Date.parse(x.receivedAt||x.received_at||x.timestamp_utc||x.createdAt||x.created_at||x.timestamp||"" )).filter(Number.isFinite));
+    document.getElementById("sumLatestSignal").textContent=latestReceivedMs ? new Date(latestReceivedMs).toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "Unavailable";
     document.getElementById("sumStopped").textContent=stopped;
     document.getElementById("heartbeatStatus").textContent="Authenticated · healthy";
     document.getElementById("heartbeatTime").textContent=now;
