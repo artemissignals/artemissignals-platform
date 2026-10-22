@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Artemis Signals v0.10.5.5 | Secure Live Trading Signal Dashboard</title>
+<title>Artemis Signals v0.10.5.6 | Secure Live Trading Signal Dashboard</title>
 <meta name="description" content="Secure Artemis Signals subscriber dashboard for authenticated access to FX, gold, indices and crypto market alerts, signal history and risk levels.">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="theme-color" content="#08111e">
@@ -483,12 +483,16 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
 #historyTable .history-running{background:rgba(63,205,159,.045)}
 #historyTable .history-live-pulse{vertical-align:middle;margin-right:7px;background:var(--green);}
 #historyTable .history-running .status-badge{white-space:nowrap}
+
+/* Brand mark: use the same transparent launch artwork across sign-in and dashboard. */
+.logo{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;border-radius:0!important;overflow:visible!important}
+.logo img{width:100%;height:100%;object-fit:contain;display:block}
 </style>
-<link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
+<link rel="icon" type="image/png" href="artemis-a-logo.png">
 </head>
 <body>
 <section id="authGate" class="auth-gate">
-  <div class="logo" style="margin:0 auto"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div>
+  <div class="logo" style="margin:0 auto"><img src="artemis-a-logo.png" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div>
   <h1>Artemis Signals</h1>
   <p id="authMessage">Sign in to access your subscriber dashboard, live signals, history and account settings.</p>
   <div class="auth-actions">
@@ -501,7 +505,7 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Trading intelligence terminal · v0.10.0</div></div></button></div>
+  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="artemis-a-logo.png" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Trading intelligence terminal · v0.10.5.6</div></div></button></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <details class="account-menu" id="accountNavigation">
