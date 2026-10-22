@@ -1465,14 +1465,40 @@ function updateMarketClocks(){
 updateMarketClocks();
 setInterval(updateMarketClocks,1000);
 
+// v0.9.6.6: collect all available signal pages for accurate dashboard metrics.
+// Do not silently describe a partial API page as the full signal population.
+let signalMetricsComplete=false;
+async function fetchDashboardSignals(idToken){
+  const headers={"Accept":"application/json","Authorization":idToken};
+  let records=[],cursor=null,seen=new Set(),complete=false;
+  for(let page=0;page<20;page++){
+    const url=new URL(API_URL);
+    url.searchParams.set('period','all');
+    url.searchParams.set('limit','100');
+    if(cursor)url.searchParams.set('cursor',cursor);
+    let response=await fetch(url.toString(),{headers,cache:'no-store'});
+    // Preserve compatibility with older endpoints that don't accept filters.
+    if(!response.ok && page===0 && [400,404,422].includes(response.status)){
+      response=await fetch(API_URL,{headers,cache:'no-store'});
+    }
+    if(!response.ok)throw new Error(`HTTP ${response.status}`);
+    const payload=await response.json();
+    if(!Array.isArray(payload.signals))throw new Error('Unexpected signal API response');
+    records=mergeSignals(records,payload.signals);
+    const next=readNextHistoryToken(payload);
+    if(!next){complete=true;break;}
+    if(seen.has(next))break;
+    seen.add(next);cursor=next;
+  }
+  return {signals:records,complete};
+}
 async function loadSignals(){
   try{
     const idToken=sessionStorage.getItem("artemis_id_token");
     if(!idToken) throw new Error("Authentication required");
-    const res=await fetch(API_URL,{headers:{"Accept":"application/json","Authorization":idToken}});
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data=await res.json();
-    allSignals=mergeSignals([],Array.isArray(data.signals)?data.signals:[]);
+    const result=await fetchDashboardSignals(idToken);
+    allSignals=result.signals;
+    signalMetricsComplete=result.complete;
     setServiceHealth("signalApi",true,"Authenticated signal request succeeded");
     setServiceHealth("signalDatabase",true,"Signal records retrieved through API");
     updateBridgeHealth(allSignals);
@@ -1487,7 +1513,8 @@ async function loadSignals(){
 
     document.getElementById("feedStatus").textContent="Live signal feed connected";
     document.getElementById("heroFeed").textContent="Connected";
-    document.getElementById("mTotal").textContent=total;
+    document.getElementById("mTotal").textContent=signalMetricsComplete?total.toLocaleString("en-GB"):`${total.toLocaleString("en-GB")}+`;
+    document.getElementById("mTotal").title=signalMetricsComplete?"All available signal pages counted":"At least this many signals; more pages may exist";
     document.getElementById("mActive").textContent=active.length;
     document.getElementById("mTp1").textContent=tp1;
     document.getElementById("mTp2").textContent=tp2;
