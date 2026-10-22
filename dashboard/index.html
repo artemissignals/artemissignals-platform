@@ -446,7 +446,7 @@ html[data-density="compact"] .signal-card-v101 .v101-stage{padding:4px 3px;font-
 /* Artemis v0.10.4–0.10.5: local watchlists and in-app activity */
 .v105-note{font-size:13px;color:var(--muted);line-height:1.6}.v105-chips{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.v105-chip,.v105-toolbar button,.v105-row button{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--card2);color:var(--text);cursor:pointer;font:inherit}.v105-chip.selected{border-color:var(--brand);color:var(--brand)}.v105-results{display:grid;gap:9px;margin-top:12px}.v105-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--card2)}.v105-row strong{color:var(--text)}.v105-row small{display:block;color:var(--muted);margin-top:5px}.v105-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}.v105-toolbar label{display:flex;gap:7px;align-items:center}.alert-unread{border-radius:99px;padding:2px 6px;background:var(--brand);color:#161b24;font-size:11px;font-weight:800}.v105-empty{padding:22px;color:var(--muted);text-align:center;border:1px dashed var(--line);border-radius:12px}
 
-/* v0.10.5.1 — compact combined 24h performance panel */
+/* v0.10.5.2 — compact combined 24h performance panel */
 .intel-grid.intel-grid{grid-template-columns:minmax(0,1fr)!important;gap:0;margin-bottom:14px}
 .intel-grid>.legacy-scanner-hidden{display:none!important}
 .intel-grid .v1051-panel{width:100%;max-width:100%}
@@ -463,6 +463,14 @@ html[data-density="compact"] .intel-grid .v1051-card{padding:8px 12px;gap:6px 16
 html[data-density="compact"] .v1051-summary>div{padding:7px 10px}
 html[data-density="compact"] .v1051-summary strong{font-size:19px}
 @media(max-width:700px){.intel-grid .v1051-card{grid-template-columns:1fr;gap:12px}.v1051-note{grid-column:auto}}
+
+/* v0.10.5.2 — semantic signal activity colours */
+.v1051-card .heat-row[data-activity="new"] .heat-fill{background:#F2A16A}
+.v1051-card .heat-row[data-activity="active"] .heat-fill{background:#60B8F5}
+.v1051-card .heat-row[data-activity="targets"] .heat-fill{background:#46CFA8}
+.v1051-card .heat-row[data-activity="stopped"] .heat-fill{background:#EF7777}
+.v1051-card .v1051-summary>div:last-child strong{color:#46CFA8}
+.v1051-card .heat-bar{background:#192B40}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -576,7 +584,7 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
   <div class="intel-panel v1051-panel">
     <div class="sectionhead"><h2><span class="heading-icon" aria-hidden="true">◉</span> Signal performance</h2><span class="r">Last 24 hours</span></div>
     <div class="insight-card v1051-card">
-      <div class="v1051-summary"><div><span>Total signals</span><strong id="v1051Total">—</strong></div><div><span>Targets hit</span><strong id="v1051Targets">—</strong></div></div>
+      <div class="v1051-summary"><div><span>New signals (24h)</span><strong id="v1051Total">—</strong></div><div><span>Targets hit</span><strong id="v1051Targets">—</strong></div></div>
       <div id="sessionHeatmap" class="heat-list" aria-label="Signal activity for the last 24 hours"></div>
       <div class="v1051-note">Activity counts can overlap. Targets hit counts each signal once.</div>
     </div>
@@ -1565,7 +1573,7 @@ function renderVisualIntelligence(signals){
   document.getElementById("v1051Targets").textContent=String(targetsHit);
   const stats=[["New",recent.length],["Active",recent.filter(isActive).length],["Targets hit",targetsHit],["Stopped",recent.filter(s=>normaliseStatus(s).label==="Stopped").length]];
   const max=Math.max(1,...stats.map(x=>x[1]));
-  document.getElementById("sessionHeatmap").innerHTML=recent.length?stats.map(([name,count])=>`<div class="heat-row"><span>${name}</span><div class="heat-bar"><div class="heat-fill" style="width:${Math.round(count/max*100)}%"></div></div><strong>${count}</strong></div>`).join(""):`<div class="scanner-empty">No timestamped signals in the last 24 hours.</div>`;
+  document.getElementById("sessionHeatmap").innerHTML=recent.length?stats.map(([name,count])=>`<div class="heat-row" data-activity="${name === "Targets hit" ? "targets" : name.toLowerCase()}"><span>${name}</span><div class="heat-bar"><div class="heat-fill" style="width:${Math.round(count/max*100)}%"></div></div><strong>${count}</strong></div>`).join(""):`<div class="scanner-empty">No timestamped signals in the last 24 hours.</div>`;
 }
 
 
