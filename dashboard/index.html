@@ -426,6 +426,22 @@ html[data-density="compact"] .signal-card-v101 .v101-stage{padding:4px 3px;font-
 
 /* v0.10.2 — signal price-level visualisation (not a market-price chart) */
 .priceviz{margin-top:16px}.priceviz-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.priceviz-sub{font-size:11px;color:var(--muted);margin:7px 0 12px;line-height:1.5}.priceviz-chart{position:relative;border:1px solid var(--line);border-radius:13px;background:linear-gradient(180deg,var(--card2),var(--card));overflow:hidden;padding:8px}.priceviz-chart svg{width:100%;height:auto;display:block}.priceviz-chart .level-line{stroke-width:1.7;stroke-dasharray:5 5;opacity:.9}.priceviz-chart .level-label{font-size:11px;font-weight:750;fill:var(--text)}.priceviz-chart .level-value{font-size:11px;fill:var(--muted)}.priceviz-chart .level-dot{stroke:var(--card);stroke-width:2}.priceviz-chart .priceviz-row{cursor:crosshair;outline:none}.priceviz-chart .priceviz-row:focus .level-line,.priceviz-chart .priceviz-row:hover .level-line{stroke-width:3;stroke-dasharray:none}.priceviz-hint{font-size:11px;color:var(--muted);min-height:20px;margin-top:8px}.priceviz-empty{padding:20px;color:var(--muted);font-size:12px;border:1px dashed var(--line);border-radius:12px}.priceviz-legend{display:flex;gap:9px;flex-wrap:wrap;margin-top:9px;font-size:10px;color:var(--muted)}.priceviz-legend span{display:inline-flex;gap:5px;align-items:center}.priceviz-legend i{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--c)}
+
+/* v0.10.3 Performance Explorer */
+#performance .explorer-toolbar{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:15px 0}
+#performance .explorer-toolbar label{display:grid;gap:5px;color:var(--muted);font-size:12px}
+#performance .explorer-toolbar select{min-width:130px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--card2);color:var(--text)}
+#performance .explorer-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+#performance .explorer-row{display:grid;grid-template-columns:minmax(90px,1.2fr) minmax(100px,2fr) 80px;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+#performance .explorer-name{overflow-wrap:anywhere;font-weight:650}
+#performance .explorer-bar{height:12px;background:var(--card2);border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+#performance .explorer-fill{height:100%;background:linear-gradient(90deg,var(--brand2),var(--green));border-radius:8px}
+#performance .explorer-detail{font-size:11px;color:var(--muted);margin-top:4px}
+#performance .explorer-number{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+#performance .explorer-footnote{font-size:12px;color:var(--muted);line-height:1.6;margin-top:10px}
+#performance .explorer-empty{padding:22px 0;color:var(--muted);font-size:13px}
+@media(max-width:850px){#performance .explorer-grid{grid-template-columns:1fr}}
+@media(max-width:500px){#performance .explorer-row{grid-template-columns:minmax(72px,1fr) minmax(65px,1.2fr) 64px;gap:7px;font-size:12px}}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -625,6 +641,7 @@ html[data-density="compact"] .signal-card-v101 .v101-stage{padding:4px 3px;font-
  <div class="panel"><h3>Signal outcomes over time</h3><div class="chart-subtitle">Wins, losses and unresolved signals by date</div><div id="performanceTrend" class="perf-chart" role="img" aria-label="Signal outcome trend chart">Waiting for data…</div></div>
  <div class="panel"><h3>Target progression</h3><div class="chart-subtitle">Percentage of signals that reached each target in the selected period</div><div id="performanceTargets" class="perf-target-chart">Waiting for data…</div></div>
 </section>
+<div class="panel" id="performanceExplorer"><h3>Performance Explorer <span style="font-size:12px;color:var(--muted);font-weight:400">· v0.10.3</span></h3><div class="chart-subtitle">Compare outcomes across instruments and timeframes. Uses the selected market and period above.</div><div class="explorer-toolbar"><label>Instrument <select id="explorerInstrument"><option value="All">All instruments</option></select></label><label>Timeframe <select id="explorerTimeframe"><option value="All">All timeframes</option></select></label><label>Sort by <select id="explorerSort"><option value="count">Most signals</option><option value="rate">Highest win rate</option><option value="name">Name A–Z</option></select></label><button type="button" id="explorerReset" class="btn" style="padding:10px 14px">Reset Explorer</button></div><div id="explorerSummary" class="explorer-footnote" aria-live="polite"></div><div class="explorer-grid"><div class="panel"><h3>By instrument</h3><div id="explorerInstruments"></div></div><div class="panel"><h3>By timeframe</h3><div id="explorerTimeframes"></div></div></div><div class="explorer-footnote">Win rate = TP1 reached ÷ (TP1 reached + stopped before TP1). Unresolved signals are excluded from the win-rate denominator. Rates are descriptive, not forecasts or realised returns. Comparisons use only records returned by the API.</div></div>
 <div class="panel performance-explanation"><h3>How performance is calculated</h3><div class="notice" id="performanceExplanation">Waiting for data…</div></div>
 </section>
 
@@ -1091,6 +1108,7 @@ function renderPerformance(){
  targets.innerHTML=n?hits.map((v,i)=>`<div class="perf-target-line"><strong>TP${i+1}</strong><div class="perf-target-track"><div class="perf-target-fill" style="width:${Math.round(v/n*100)}%"></div></div><strong>${pct(v,n)}</strong></div>`).join(""):`<div class="perf-chart-empty">No signals in this selection.</div>`;
  const trend=document.getElementById("performanceTrend");
  const stamped=periodSignals.filter(s=>{const t=signalTime(s);return t>0&&t<=now+300000});
+ renderExplorer(periodSignals);
  if(!stamped.length){trend.innerHTML=`<div class="perf-chart-empty">No timestamped signals to chart for this selection.</div>`;return;}
  // Aggregate to calendar days, or calendar weeks for longer ranges.
  const grouped=new Map();
@@ -1113,6 +1131,44 @@ function renderPerformance(){
 }
 document.getElementById("performancePeriod").addEventListener("change",renderPerformance);
 document.getElementById("performanceMarket").addEventListener("change",renderPerformance);
+
+
+function renderExplorer(baseSignals){
+ const instrument=document.getElementById('explorerInstrument');
+ const timeframe=document.getElementById('explorerTimeframe');
+ const sort=document.getElementById('explorerSort').value;
+ const unique=(arr)=>[...new Set(arr.map(v=>String(v||'Unknown').trim()||'Unknown'))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+ const symbolOf=s=>String(s.symbol||'Unknown').trim()||'Unknown';
+ const tfOf=s=>String(s.timeframe||s.tf||'Unknown').trim().toUpperCase()||'Unknown';
+ const setOptions=(el,values,defaultLabel)=>{
+  const old=el.value;
+  el.replaceChildren(new Option(defaultLabel,'All'));
+  for(const v of values)el.add(new Option(v,v));
+  el.value=values.includes(old)?old:'All';
+ };
+ setOptions(instrument,unique(baseSignals.map(symbolOf)),'All instruments');
+ setOptions(timeframe,unique(baseSignals.map(tfOf)),'All timeframes');
+ const selected=baseSignals.filter(s=>(instrument.value==='All'||symbolOf(s)===instrument.value)&&(timeframe.value==='All'||tfOf(s)===timeframe.value));
+ const wins=selected.filter(s=>performanceOutcome(s)==='win').length;
+ const losses=selected.filter(s=>performanceOutcome(s)==='loss').length;
+ const pct=(a,b)=>b?(100*a/b).toFixed(1)+'%':'—';
+ document.getElementById('explorerSummary').textContent=`${selected.length} matching signals · ${wins+losses} resolved · ${wins} TP1+ wins · ${losses} stopped before TP1 · ${pct(wins,wins+losses)} resolved win rate`;
+ function renderGroups(target,keyFn){
+  const groups=new Map();
+  for(const s of selected){const key=keyFn(s);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(s);}
+  const rows=[...groups].map(([name,items])=>{const win=items.filter(s=>performanceOutcome(s)==='win').length;const loss=items.filter(s=>performanceOutcome(s)==='loss').length;return {name,n:items.length,win,loss,resolved:win+loss,rate:win+loss?win/(win+loss):null};});
+  rows.sort((a,b)=>sort==='name'?a.name.localeCompare(b.name):sort==='rate'?(b.rate??-1)-(a.rate??-1)||b.resolved-a.resolved||b.n-a.n:b.n-a.n||a.name.localeCompare(b.name));
+  const container=document.getElementById(target);
+  if(!rows.length){container.innerHTML='<div class="explorer-empty">No signals match these filters.</div>';return;}
+  container.innerHTML=rows.map(r=>`<div class="explorer-row"><div><div class="explorer-name">${esc(r.name)}</div><div class="explorer-detail">${r.n} signals · ${r.resolved} resolved</div></div><div class="explorer-bar" title="${r.win} wins / ${r.resolved} resolved"><div class="explorer-fill" style="width:${r.rate===null?0:(r.rate*100).toFixed(1)}%"></div></div><div class="explorer-number">${r.rate===null?'—':(r.rate*100).toFixed(1)+'%'}</div></div>`).join('');
+ }
+ renderGroups('explorerInstruments',symbolOf);
+ renderGroups('explorerTimeframes',tfOf);
+}
+document.getElementById('explorerInstrument').addEventListener('change',renderPerformance);
+document.getElementById('explorerTimeframe').addEventListener('change',renderPerformance);
+document.getElementById('explorerSort').addEventListener('change',renderPerformance);
+document.getElementById('explorerReset').addEventListener('click',()=>{document.getElementById('explorerInstrument').value='All';document.getElementById('explorerTimeframe').value='All';document.getElementById('explorerSort').value='count';renderPerformance();});
 
 function signalReceivedStamp(value){
   if(!value) return {label:"Time unavailable",iso:""};
