@@ -554,8 +554,13 @@ html[data-density="compact"] .lifecycle-note{margin-top:4px}
 <div class="performance-group-label">Overview · key metrics</div><section class="metrics performance-metrics performance-vitals">
   <div class="metric"><div class="k">All-time received</div><div class="v" id="pAllTime">–</div><div class="s">Records returned by API</div></div>
   <div class="metric"><div class="k">Signals in period</div><div class="v" id="pTotal">–</div><div class="s">Selected time window</div></div>
-  <div class="metric"><div class="k">Win rate</div><div class="v good" id="pWin">–</div><div class="s">TP1+ of resolved</div></div>
-  <div class="metric"><div class="k">Loss rate</div><div class="v bad" id="pLoss">–</div><div class="s">Stopped before TP1</div></div>
+  <div class="metric"><div class="k">Win rate</div><div class="v good" id="pWin">–</div><div class="s" id="pWinDetail">TP1+ of resolved</div></div>
+  <div class="metric"><div class="k">Loss rate</div><div class="v bad" id="pLoss">–</div><div class="s" id="pLossDetail">Stopped before TP1</div></div>
+</section><div class="performance-group-label">Outcome coverage · selected period</div><section class="metrics performance-metrics">
+  <div class="metric"><div class="k">Resolved outcomes</div><div class="v" id="pResolved">–</div><div class="s" id="pResolvedDetail">TP1 reached or stopped before TP1</div></div>
+  <div class="metric"><div class="k">Unresolved</div><div class="v" id="pUnresolved">–</div><div class="s">No confirmed win/loss outcome</div></div>
+  <div class="metric"><div class="k">Currently active</div><div class="v" id="pActive">–</div><div class="s">Open, including TP1/TP2 reached</div></div>
+  <div class="metric"><div class="k">TP1 planned reward:risk</div><div class="v" id="pRR">–</div><div class="s" id="pRRDetail">Entry-to-target vs entry-to-stop; not realised P&amp;L</div></div>
 </section><div class="performance-group-label">Target breakdown · selected period</div><section class="metrics performance-metrics performance-breakdown">
   <div class="metric"><div class="k">TP1 hit rate</div><div class="v" id="pRate1">–</div><div class="s">Of signals in period</div></div>
   <div class="metric"><div class="k">TP2 hit rate</div><div class="v" id="pRate2">–</div><div class="s">Of signals in period</div></div>
@@ -979,6 +984,17 @@ function performanceOutcome(s){
  if(normaliseStatus(s).label==="Stopped")return "loss";
  return "unresolved";
 }
+function plannedTp1RR(s){
+ const entry=Number(s.entry),stop=Number(s.sl),target=Number(s.tp1);
+ if(![s.entry,s.sl,s.tp1].every(v=>v!==null&&v!==undefined&&v!==""))return null;
+ if(![entry,stop,target].every(Number.isFinite))return null;
+ const direction=String(s.direction||s.side||"").toUpperCase();
+ if(direction==="BUY"&&!(stop<entry&&target>entry))return null;
+ if(direction==="SELL"&&!(stop>entry&&target<entry))return null;
+ if(direction!=="BUY"&&direction!=="SELL")return null;
+ const risk=Math.abs(entry-stop);
+ return risk>0?Math.abs(target-entry)/risk:null;
+}
 function renderPerformance(){
  const period=document.getElementById("performancePeriod").value;
  const market=document.getElementById("performanceMarket").value;
@@ -1001,10 +1017,22 @@ function renderPerformance(){
  document.getElementById("pTotal").textContent=n.toLocaleString("en-GB");
  document.getElementById("pWin").textContent=pct(wins,resolved);
  document.getElementById("pLoss").textContent=pct(losses,resolved);
+ document.getElementById("pWinDetail").textContent=`${wins} wins / ${resolved} resolved`;
+ document.getElementById("pLossDetail").textContent=`${losses} losses / ${resolved} resolved`;
+ const unresolved=n-resolved;
+ const active=periodSignals.filter(isActive).length;
+ document.getElementById("pResolved").textContent=resolved.toLocaleString("en-GB");
+ document.getElementById("pResolvedDetail").textContent=`${pct(resolved,n)} of ${n} signals`;
+ document.getElementById("pUnresolved").textContent=unresolved.toLocaleString("en-GB");
+ document.getElementById("pActive").textContent=active.toLocaleString("en-GB");
+ const rrValues=periodSignals.map(plannedTp1RR).filter(v=>v!==null&&Number.isFinite(v));
+ const meanRR=rrValues.length?rrValues.reduce((a,b)=>a+b,0)/rrValues.length:null;
+ document.getElementById("pRR").textContent=meanRR===null?"—":`1:${meanRR.toFixed(2)}`;
+ document.getElementById("pRRDetail").textContent=`${rrValues.length} valid setups · theoretical TP1, not realised P&L`;
  ["pRate1","pRate2","pRate3"].forEach((id,i)=>document.getElementById(id).textContent=pct(hits[i],n));
  document.getElementById("pStopped").textContent=pct(losses,n);
  const undated=marketSignals.length-valid.length;
- document.getElementById("performanceExplanation").textContent=`${market==="All"?"All markets":market}: ${resolved} resolved (${wins} TP1+ wins, ${losses} stops before TP1), ${n-resolved} unresolved in selected period. Win/loss rates use resolved outcomes only; target rates use all ${n} signals in the selected period. ${undated?`${undated} records lack usable timestamps or are dated in the future. `:""}All-time received refers to API-returned records for the selected market, not necessarily the full database. Target reached does not establish realised profit.`;
+ document.getElementById("performanceExplanation").textContent=`${market==="All"?"All markets":market}: ${resolved} resolved (${wins} TP1+ wins, ${losses} stops before TP1), ${unresolved} unresolved (${active} currently active) in selected period. Win/loss rates use resolved outcomes only; target rates use all ${n} signals in the selected period. ${undated?`${undated} records lack usable timestamps or are dated in the future. `:""}All-time received refers to API-returned records for the selected market, not necessarily the full database. TP1 planned reward:risk is based on original entry, stop and TP1 levels; it does not represent realised profit or account returns. Target reached does not establish realised profit.`;
  const targets=document.getElementById("performanceTargets");
  targets.innerHTML=n?hits.map((v,i)=>`<div class="perf-target-line"><strong>TP${i+1}</strong><div class="perf-target-track"><div class="perf-target-fill" style="width:${Math.round(v/n*100)}%"></div></div><strong>${pct(v,n)}</strong></div>`).join(""):`<div class="perf-chart-empty">No signals in this selection.</div>`;
  const trend=document.getElementById("performanceTrend");
