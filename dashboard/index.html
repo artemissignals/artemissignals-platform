@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Artemis Signals | Secure Live Trading Signal Dashboard</title>
+<title>Artemis Signals v0.10.1 | Secure Live Trading Signal Dashboard</title>
 <meta name="description" content="Secure Artemis Signals subscriber dashboard for authenticated access to FX, gold, indices and crypto market alerts, signal history and risk levels.">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="theme-color" content="#08111e">
@@ -392,6 +392,37 @@ html[data-density="compact"] .lifecycle-note{margin-top:4px}
 html[data-density="compact"] .v010-toolbar{padding:7px 10px;gap:7px;margin:7px 0}
 html[data-density="compact"] .v010-toolbar select,html[data-density="compact"] .v010-reset{min-height:30px;padding:5px 8px}
 @media(max-width:620px){.v010-toolbar label{flex:1 1 130px}.v010-toolbar select{width:100%}.v010-count{width:100%;margin:0;padding:0}.v010-reset{flex:1 1 100%}}
+
+/* v0.10.1 — Premium signal cards; presentation only, API and calculations unchanged */
+.signal-card-v101{background:linear-gradient(135deg,var(--card) 0%,var(--card2) 100%);border-radius:19px;overflow:hidden}
+.signal-card-v101 .signal-top{align-items:center}
+.signal-card-v101 .market{font-size:clamp(19px,2vw,24px)}
+.signal-card-v101 .badge.buy,.signal-card-v101 .badge.sell{font-size:12px;padding:6px 12px;letter-spacing:.7px}
+.signal-card-v101 .status-badge{font-size:12px;font-weight:850}
+.signal-card-v101 .levels{margin-top:15px;gap:8px}
+.signal-card-v101 .level{padding:12px 10px;position:relative;min-width:0}
+.signal-card-v101 .level .k{font-size:10px;font-weight:850;letter-spacing:.7px}
+.signal-card-v101 .level .v{font-size:clamp(13px,1.3vw,17px);font-variant-numeric:tabular-nums}
+.signal-card-v101 .level.entry-level{border-color:rgba(128,184,238,.42);background:var(--blue-bg)}
+.signal-card-v101 .level.stop-level{border-color:rgba(240,139,131,.30)}
+.signal-card-v101 .level.hit .k{color:var(--green)}
+.signal-card-v101 .v101-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:14px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card2)}
+.signal-card-v101 .v101-summary-title{font-size:11px;font-weight:850;color:var(--text)}
+.signal-card-v101 .v101-summary-sub{font-size:10px;color:var(--muted)}
+.signal-card-v101 .v101-progress{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:10px}
+.signal-card-v101 .v101-stage{padding:7px 4px;border-radius:8px;text-align:center;background:var(--card2);border:1px solid var(--line);color:var(--muted);font-size:10px;font-weight:800}
+.signal-card-v101 .v101-stage.done{color:var(--green);background:var(--green-bg);border-color:rgba(91,213,188,.35)}
+.signal-card-v101 .v101-stage.next{color:var(--brand);border-color:rgba(244,162,103,.5)}
+.signal-card-v101 .v101-stage.unknown{color:var(--muted)}
+.signal-card-v101 .target-path{display:none}
+.signal-card-v101 .signal-card-actions{padding-top:9px;border-top:1px solid var(--line)}
+html[data-density="compact"] .signal-card-v101 .levels{margin-top:8px}
+html[data-density="compact"] .signal-card-v101 .level{padding:7px 8px}
+html[data-density="compact"] .signal-card-v101 .v101-summary{margin-top:7px;padding:6px 9px}
+html[data-density="compact"] .signal-card-v101 .v101-progress{margin-top:6px;gap:4px}
+html[data-density="compact"] .signal-card-v101 .v101-stage{padding:4px 3px;font-size:9px}
+@media(max-width:600px){.signal-card-v101 .levels{grid-template-columns:repeat(2,minmax(0,1fr))}.signal-card-v101 .level.entry-level{grid-column:span 1}.signal-card-v101 .v101-progress{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.signal-card-v101{transition:none}}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -1119,7 +1150,14 @@ function renderSignal(s){
   const signalAge=Number.isFinite(parsedTime)?relativeAge(Math.max(0,(Date.now()-parsedTime)/1000)):"Time unavailable";
   const signalIndex=allSignals.indexOf(s);
   const received=signalReceivedStamp(s.receivedAt||s.received_at||created);
-  return `<article class="card ${dir==="BUY"?"signal-buy":"signal-sell"}">
+  const stageCount=reached3?3:reached2?2:reached1?1:0;
+  const terminalStatus=/stop|loss|cancel|expir|invalid/i.test(String(status.label||""));
+  const progressStages=["Entry","TP1","TP2","TP3"].map((name,i)=>{
+    const done=i===0?false:i<=stageCount;
+    const next=!terminalStatus && i===stageCount+1;
+    return `<span class="v101-stage ${done?"done":next?"next":"unknown"}">${done?"✓ ":""}${name}</span>`;
+  }).join("");
+  return `<article class="card signal-card-v101 ${dir==="BUY"?"signal-buy":"signal-sell"}">
     <div class="signal-top">
       <div>
         <div class="marketline">
@@ -1135,13 +1173,15 @@ function renderSignal(s){
       <div class="status-stack"><div class="status-label">Status</div><span class="status-badge ${status.cls}">${esc(status.label)}</span></div>
     </div>
     <div class="levels">
-      <div class="level"><div class="k">ENTRY</div><div class="v">${esc(s.entry)}</div></div>
-      <div class="level"><div class="k">STOP</div><div class="v">${esc(s.sl??"—")}</div></div>
+      <div class="level entry-level"><div class="k">ENTRY</div><div class="v">${esc(s.entry)}</div></div>
+      <div class="level stop-level"><div class="k">STOP LOSS</div><div class="v">${esc(s.sl??"—")}</div></div>
       <div class="level ${reached1?"hit":""}"><div class="k">TP1</div><div class="v">${esc(s.tp1??"—")}${reached1?" ✓":""}</div></div>
       <div class="level ${reached2?"hit":""}"><div class="k">TP2</div><div class="v">${esc(s.tp2??"—")}${reached2?" ✓":""}</div></div>
       <div class="level ${reached3?"hit":""}"><div class="k">TP3</div><div class="v">${esc(s.tp3??"—")}${reached3?" ✓":""}</div></div>
     </div>
     <div class="lifecycle-note"><strong>Lifecycle: ${esc(status.label)}</strong><span>·</span><span>Targets reached: ${reached3?"TP1, TP2, TP3":reached2?"TP1, TP2":reached1?"TP1":"none recorded"}</span></div>
+    <div class="v101-summary" aria-label="Signal progress summary"><span class="v101-summary-title">${esc(status.label)}</span><span class="v101-summary-sub">${stageCount} of 3 targets recorded as reached${terminalStatus?" · Closed / stopped":""}</span></div>
+    <div class="v101-progress" aria-label="Target milestone progress">${progressStages}</div>
     <div class="target-path" aria-label="Signal target progress">
       <div class="target-step done">Entry</div>
       <div class="target-step ${reached1?"done":"current"}">TP1</div>
