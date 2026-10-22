@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Artemis Signals v0.10.6 | Secure Live Trading Signal Dashboard</title>
+<title>Artemis Signals v0.10.6.1 | Secure Live Trading Signal Dashboard</title>
 <meta name="description" content="Secure Artemis Signals subscriber dashboard for authenticated access to FX, gold, indices and crypto market alerts, signal history and risk levels.">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="theme-color" content="#08111e">
@@ -493,6 +493,17 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
 .alerts106-status{padding:11px 14px;border:1px solid var(--line);background:var(--panel);border-radius:11px;color:var(--muted);font-size:12px;margin-bottom:13px}.alerts106-status.error{color:var(--red);border-color:var(--red)}.alerts106-status.success{color:var(--green);border-color:var(--green)}
 .alerts106-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.alerts106-form .panel{min-width:0}.alerts106-hint{font-size:12px;color:var(--muted);line-height:1.5}.alerts106-choices{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.alerts106-option{display:inline-flex;align-items:center;gap:7px;background:var(--card2);border:1px solid var(--line);padding:9px 12px;border-radius:10px;color:var(--text);font-size:12px;cursor:pointer}.alerts106-option:has(input:checked){background:var(--amber-bg);border-color:var(--brand)}.alerts106-option:has(input:disabled){opacity:.48;cursor:not-allowed}.alerts106-option input{accent-color:var(--brand)}.alerts106-label{display:block;margin:17px 0 7px;font-size:12px;color:var(--muted)}.alerts106-add{display:flex;gap:8px}.alerts106-add input{flex:1;min-width:0;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--text)}.alerts106-add button,.alerts106-actions button{border:1px solid var(--brand);border-radius:10px;padding:10px 14px;background:var(--amber-bg);color:var(--text);font-weight:750;cursor:pointer}.alerts106-actions button:disabled{opacity:.45;cursor:not-allowed}.alerts106-actions{grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.alerts106-plan{font-size:12px;color:var(--muted)}.alerts106-channel{display:flex;justify-content:space-between;align-items:center;gap:15px;border-top:1px solid var(--line);padding:13px 0;font-size:13px}.alerts106-channel small{display:block;font-size:11px;color:var(--muted);margin-top:5px}.alerts106-channel input{accent-color:var(--brand)}
 @media(max-width:780px){.alerts106-form{grid-template-columns:1fr}}
+
+/* v0.10.6.1 — customer guidance for My Alerts */
+.alerts-guide{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:19px;margin:0 0 16px}
+.alerts-guide h3{margin:0 0 8px;font-size:16px}.alerts-guide>p{font-size:12px;color:var(--muted);line-height:1.65;margin:0 0 14px}
+.alerts-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.alerts-step{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:13px;min-width:0}
+.alerts-step strong{font-size:12px;display:block;margin-bottom:6px}.alerts-step p{font-size:11px;color:var(--muted);line-height:1.55;margin:0}
+.alerts-step-num{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--amber-bg);color:var(--brand);margin-right:7px;font-weight:850}
+.alerts-guide-note{margin-top:13px;padding:11px 13px;border-left:3px solid var(--brand);background:var(--amber-bg);border-radius:8px;color:var(--text);font-size:12px;line-height:1.55}
+.alerts106-example{font-size:11px;color:var(--muted);line-height:1.55;margin-top:12px}
+@media(max-width:760px){.alerts-steps{grid-template-columns:1fr}.alerts-guide{padding:14px}}
 </style>
 <link rel="icon" type="image/png" href="artemis-a-logo.png">
 </head>
@@ -731,20 +742,30 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
 
 
 <section id="myalerts" class="page" aria-labelledby="myAlertsHeading">
-  <div class="sectionhead"><h2 id="myAlertsHeading">♧ My Alerts</h2><div class="r">Your personal signal preferences · v0.10.6</div></div>
+  <div class="sectionhead"><h2 id="myAlertsHeading">♧ My Alerts</h2><div class="r">Your personal signal preferences · v0.10.6.1</div></div>
   <div class="alerts106-intro"><img src="artemis-a-logo.png" alt="ArtemisSignals logo" width="52" height="52"><div><strong>Signals tailored to you</strong><p>Choose which eligible signals matter to you. Preferences are securely saved to your ArtemisSignals account.</p></div></div>
+  <div class="alerts-guide" aria-label="How My Alerts works">
+    <h3>How My Alerts works</h3>
+    <p>Make ArtemisSignals more relevant to you by saving the types of trading signals you want to follow. Your choices are stored securely against your signed-in account, so you can retrieve them when you use another device.</p>
+    <div class="alerts-steps">
+      <div class="alerts-step"><strong><span class="alerts-step-num">1</span>Choose your markets</strong><p>Select the markets available with your subscription, such as FX or Metals. Locked markets require a different plan.</p></div>
+      <div class="alerts-step"><strong><span class="alerts-step-num">2</span>Refine your interests</strong><p>Choose specific instruments, BUY or SELL signals, and preferred chart timeframes. Leave instruments or timeframes empty where you want no restriction.</p></div>
+      <div class="alerts-step"><strong><span class="alerts-step-num">3</span>Save your choices</strong><p>Click <b>Save preferences</b>. A confirmation will appear. Use <b>Reload saved settings</b> to retrieve the last saved version.</p></div>
+    </div>
+    <div class="alerts-guide-note"><strong>Important:</strong> This release saves your preferences only. It does not yet filter every dashboard view or send email, Telegram or push notifications. Those capabilities will be enabled separately once built and tested.</div>
+  </div>
   <div id="alerts106Status" class="alerts106-status" role="status" aria-live="polite">Open My Alerts to load your saved preferences.</div>
   <form id="alerts106Form" class="alerts106-form" novalidate>
-    <div class="panel"><h3>Markets</h3><p class="alerts106-hint">Only markets included in your subscription can be selected.</p><div id="alerts106Markets" class="alerts106-choices"></div></div>
-    <div class="panel"><h3>Instruments</h3><p class="alerts106-hint">Select instruments from your available signal feed, or add a symbol manually. Leave empty to follow all eligible instruments in your chosen markets.</p><div id="alerts106Instruments" class="alerts106-choices"></div><label class="alerts106-label" for="alerts106Custom">Add instrument</label><div class="alerts106-add"><input id="alerts106Custom" type="text" maxlength="25" placeholder="e.g. XAUUSD" autocomplete="off"><button type="button" id="alerts106Add">Add</button></div></div>
-    <div class="panel"><h3>Signal direction</h3><div id="alerts106Directions" class="alerts106-choices"></div><h3 style="margin-top:22px">Timeframes</h3><p class="alerts106-hint">Leave all timeframes unchecked to include any timeframe.</p><div id="alerts106Timeframes" class="alerts106-choices"></div></div>
-    <div class="panel"><h3>Notification channels</h3><div class="alerts106-channel"><span>Email notifications <small>Coming soon — delivery is not active</small></span><input type="checkbox" disabled aria-label="Email notifications unavailable"></div><div class="alerts106-channel"><span>Telegram notifications <small>Coming soon — delivery is not active</small></span><input type="checkbox" disabled aria-label="Telegram notifications unavailable"></div><p class="alerts106-hint">Saving these settings does not send messages or change your subscription.</p></div>
-    <div class="alerts106-actions"><button id="alerts106Save" type="submit" disabled>Save preferences</button><button id="alerts106Reload" type="button">Reload saved settings</button><span id="alerts106Plan" class="alerts106-plan"></span></div>
+    <div class="panel"><h3>Markets</h3><p class="alerts106-hint">Choose the market categories you want to follow. Available choices depend on your FREE, PRO or ELITE subscription. Unavailable markets cannot be selected.</p><div id="alerts106Markets" class="alerts106-choices"></div></div>
+    <div class="panel"><h3>Instruments</h3><p class="alerts106-hint">Choose individual symbols (for example XAUUSD or EURUSD) from your feed, or type a symbol and click Add. If none are selected, no instrument-specific restriction is saved. Adding a symbol does not subscribe you to a new market or upgrade your plan.</p><div id="alerts106Instruments" class="alerts106-choices"></div><label class="alerts106-label" for="alerts106Custom">Add instrument</label><div class="alerts106-add"><input id="alerts106Custom" type="text" maxlength="25" placeholder="e.g. XAUUSD" autocomplete="off"><button type="button" id="alerts106Add">Add</button></div></div>
+    <div class="panel"><h3>Signal direction</h3><p class="alerts106-hint">Choose BUY, SELL or both, depending on which trade directions you want to follow.</p><div id="alerts106Directions" class="alerts106-choices"></div><h3 style="margin-top:22px">Timeframes</h3><p class="alerts106-hint">Select the chart intervals that interest you, such as M15 (15 minutes), H1 (1 hour) or D1 (1 day). Leave all unchecked for no timeframe restriction.</p><div id="alerts106Timeframes" class="alerts106-choices"></div></div>
+    <div class="panel"><h3>Notification channels</h3><div class="alerts106-channel"><span>Email notifications <small>Coming soon — delivery is not active</small></span><input type="checkbox" disabled aria-label="Email notifications unavailable"></div><div class="alerts106-channel"><span>Telegram notifications <small>Coming soon — delivery is not active</small></span><input type="checkbox" disabled aria-label="Telegram notifications unavailable"></div><p class="alerts106-hint">Email and Telegram are shown here to explain upcoming functionality; the switches are intentionally unavailable. Saving preferences does not send messages, change your plan or alter live trades.</p></div>
+    <div class="alerts106-actions"><button id="alerts106Save" type="submit" disabled>Save preferences</button><button id="alerts106Reload" type="button">Reload saved settings</button><span id="alerts106Plan" class="alerts106-plan"></span><span class="alerts106-hint">Changes are not stored until you click Save preferences.</span></div>
   </form>
 </section>
 <section id="settings" class="page">
 <div class="sectionhead"><h2>Account Settings</h2><div class="r">Manage your account</div></div>
-<div class="panel"><h3>Signal preferences</h3><p class="v105-note">Your saved alert preferences are managed securely in My Alerts. Email and Telegram delivery are not available yet.</p><button type="button" class="cta" id="openMyAlerts">Open My Alerts →</button></div>
+<div class="panel"><h3>Signal preferences</h3><p class="v105-note">Use My Alerts to choose the markets, instruments, directions and timeframes you want to follow. Your choices are saved to your account, but automatic email and Telegram delivery are not available yet.</p><button type="button" class="cta" id="openMyAlerts">Open My Alerts →</button></div>
 </section>
 
 
