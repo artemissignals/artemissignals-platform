@@ -423,6 +423,9 @@ html[data-density="compact"] .signal-card-v101 .v101-progress{margin-top:6px;gap
 html[data-density="compact"] .signal-card-v101 .v101-stage{padding:4px 3px;font-size:9px}
 @media(max-width:600px){.signal-card-v101 .levels{grid-template-columns:repeat(2,minmax(0,1fr))}.signal-card-v101 .level.entry-level{grid-column:span 1}.signal-card-v101 .v101-progress{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.signal-card-v101{transition:none}}
+
+/* v0.10.2 — signal price-level visualisation (not a market-price chart) */
+.priceviz{margin-top:16px}.priceviz-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.priceviz-sub{font-size:11px;color:var(--muted);margin:7px 0 12px;line-height:1.5}.priceviz-chart{position:relative;border:1px solid var(--line);border-radius:13px;background:linear-gradient(180deg,var(--card2),var(--card));overflow:hidden;padding:8px}.priceviz-chart svg{width:100%;height:auto;display:block}.priceviz-chart .level-line{stroke-width:1.7;stroke-dasharray:5 5;opacity:.9}.priceviz-chart .level-label{font-size:11px;font-weight:750;fill:var(--text)}.priceviz-chart .level-value{font-size:11px;fill:var(--muted)}.priceviz-chart .level-dot{stroke:var(--card);stroke-width:2}.priceviz-chart .priceviz-row{cursor:crosshair;outline:none}.priceviz-chart .priceviz-row:focus .level-line,.priceviz-chart .priceviz-row:hover .level-line{stroke-width:3;stroke-dasharray:none}.priceviz-hint{font-size:11px;color:var(--muted);min-height:20px;margin-top:8px}.priceviz-empty{padding:20px;color:var(--muted);font-size:12px;border:1px dashed var(--line);border-radius:12px}.priceviz-legend{display:flex;gap:9px;flex-wrap:wrap;margin-top:9px;font-size:10px;color:var(--muted)}.priceviz-legend span{display:inline-flex;gap:5px;align-items:center}.priceviz-legend i{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--c)}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -1356,6 +1359,24 @@ function whySignal(s){
   return text+" This summary reflects supplied signal metadata and does not reveal or invent proprietary scoring logic.";
 }
 
+
+// Visualises ONLY published signal levels. No live price, candles or inferred execution path.
+function artemisPriceLevelVisual(s){
+  const raw=[['Stop loss',s.sl,'var(--red)'],['Entry',s.entry,'var(--brand)'],['TP1',s.tp1,'var(--green)'],['TP2',s.tp2,'var(--green)'],['TP3',s.tp3,'var(--green)']];
+  const levels=raw.map(([name,value,color])=>({name,value:Number(value),color,raw:value})).filter(x=>x.raw!==null&&x.raw!==undefined&&x.raw!==''&&Number.isFinite(x.value));
+  const unique=[...new Set(levels.map(x=>x.value))];
+  if(unique.length<2)return '<section class="drawer-section priceviz"><h3>Signal price levels</h3><div class="priceviz-empty">Not enough recorded price levels to draw a meaningful scale.</div></section>';
+  const low=Math.min(...unique),high=Math.max(...unique),span=high-low,pad=span*.09||1,min=low-pad,max=high+pad;
+  const y=v=>Math.round(20+(max-v)/(max-min)*300);
+  const fmt=v=>Number(v).toLocaleString('en-GB',{maximumFractionDigits:8});
+  const ordered=levels.slice().sort((a,b)=>b.value-a.value);
+  const rows=ordered.map((x,i)=>{
+    const yy=y(x.value),label=esc(x.name),value=esc(fmt(x.value));
+    return `<g class="priceviz-row" tabindex="0" role="img" aria-label="${label} at ${value}" data-level="${label}: ${value}"><title>${label}: ${value}</title><line class="level-line" x1="18" x2="430" y1="${yy}" y2="${yy}" stroke="${x.color}"/><circle class="level-dot" cx="24" cy="${yy}" r="5" fill="${x.color}"/><text class="level-label" x="36" y="${yy-7}">${label}</text><text class="level-value" x="425" y="${yy-7}" text-anchor="end">${value}</text></g>`;
+  }).join('');
+  return `<section class="drawer-section priceviz"><div class="priceviz-head"><h3 style="margin:0">Signal price-level map</h3><span class="tiny">${esc(String(s.timeframe||'Signal'))}</span></div><p class="priceviz-sub">Recorded levels plotted on a proportional price scale. This is <strong>not</strong> a candlestick chart or live market price. Hover or focus a level to inspect it.</p><div class="priceviz-chart"><svg viewBox="0 0 448 340" role="img" aria-label="Price levels for ${esc(String(s.symbol||'signal'))}"><rect x="0" y="0" width="448" height="340" fill="transparent"/>${rows}</svg></div><div class="priceviz-hint" id="pricevizHint" aria-live="polite">Select a line to inspect its recorded price.</div><div class="priceviz-legend"><span style="--c:var(--red)"><i></i>Stop</span><span style="--c:var(--brand)"><i></i>Entry</span><span style="--c:var(--green)"><i></i>Targets</span></div></section>`;
+}
+
 function openSignalDetail(index){
   const s=allSignals[index]; if(!s)return;
   const dir=(s.direction||"—").toUpperCase(),status=normaliseStatus(s);
@@ -1373,9 +1394,14 @@ function openSignalDetail(index){
       <div class="detail-box"><div class="k">Entry</div><div class="v">${esc(s.entry??"—")}</div></div><div class="detail-box"><div class="k">Stop</div><div class="v">${esc(s.sl??"—")}</div></div>
       <div class="detail-box"><div class="k">TP1 · ${rr1?"1:"+rr1.toFixed(2):"R:R —"}</div><div class="v">${esc(s.tp1??"—")}</div></div><div class="detail-box"><div class="k">TP2 · ${rr2?"1:"+rr2.toFixed(2):"R:R —"}</div><div class="v">${esc(s.tp2??"—")}</div></div>
     </div>
+    ${artemisPriceLevelVisual(s)}
     <section class="drawer-section"><h3>Lifecycle &amp; target milestones</h3><div class="lifecycle-note"><strong>${esc(status.label)}</strong> · ${closed?"Signal no longer active":"Signal currently active"}</div><div class="lifecycle-milestones"><div class="lifecycle-milestone ${hit1?"reached":""}">TP1 <span>${hit1?"✓ Recorded":"Not recorded"}</span></div><div class="lifecycle-milestone ${hit2?"reached":""}">TP2 <span>${hit2?"✓ Recorded":"Not recorded"}</span></div><div class="lifecycle-milestone ${hit3?"reached":""}">TP3 <span>${hit3?"✓ Recorded":"Not recorded"}</span></div></div><div class="meta">Created: ${esc(s.timestamp_utc||s.createdAt||"Timestamp unavailable")} · Current status: ${esc(status.label)}</div><div class="event-evidence">Milestones are based on stored hit fields, status and event IDs. Event IDs do not establish the order or exact times of events.</div></section>
     <section class="drawer-section"><h3>Why this signal?</h3><div class="why-copy">${esc(whySignal(s))}</div></section>
     <section class="drawer-section"><h3>Position-size planner</h3><div class="calc-grid"><div class="calc-field"><label>Account value</label><input id="calcAccount" type="number" min="0" step="100" value="10000"></div><div class="calc-field"><label>Risk %</label><input id="calcRisk" type="number" min="0.01" max="100" step="0.1" value="1"></div><div class="calc-field"><label>Value per 1.0 price move per lot</label><input id="calcPointValue" type="number" min="0" step="0.01" placeholder="From broker specification"></div><div class="calc-field"><label>Entry-to-stop distance</label><input type="text" value="${distance?distance.toFixed(5):"Unavailable"}" disabled></div></div><div id="calcResult" class="calc-result">Risk budget: <strong>100.00</strong><br>Enter the broker value per 1.0 price move to estimate position size.</div><div class="meta">Planning aid only. Verify contract size, tick value and currency conversion with your broker before trading.</div></section>`;
+  document.querySelectorAll("#drawerContent .priceviz-row").forEach(row=>{
+    const show=()=>{const hint=document.getElementById("pricevizHint");if(hint)hint.textContent=row.getAttribute("data-level")||"";};
+    row.addEventListener("mouseenter",show);row.addEventListener("focus",show);row.addEventListener("click",show);
+  });
   ["calcAccount","calcRisk","calcPointValue"].forEach(id=>document.getElementById(id).addEventListener("input",()=>updateRiskCalculator(distance)));
   updateRiskCalculator(distance);
   document.getElementById("signalDrawer").classList.remove("hidden");
