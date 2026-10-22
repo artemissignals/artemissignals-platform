@@ -379,6 +379,19 @@ html[data-density="compact"] .lifecycle-note{margin-top:4px}
 .account-dropdown-rule{height:1px;background:var(--line);margin:7px 4px}
 @media(max-width:760px){.topbar{z-index:60}.account-menu{order:0}.account-menu>summary{max-width:calc(100vw - 24px)}.account-menu .user-email{max-width:160px}.feed{order:4}}
 @media(max-width:440px){.account-menu .user-email{max-width:112px}.account-menu>summary{gap:6px;padding:5px}.account-dropdown{right:0}}
+
+/* ArtemisSignals v0.10.0 — additive, no API or authentication changes */
+.v010-toolbar{display:flex;align-items:end;flex-wrap:wrap;gap:10px;margin:12px 0;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.v010-toolbar label{display:grid;gap:5px;color:var(--muted);font-size:11px;font-weight:750}
+.v010-toolbar select,.v010-reset{min-height:37px;border:1px solid var(--line);border-radius:9px;background:var(--card2);color:var(--text);padding:8px 11px;font:700 12px Inter,Arial,sans-serif}
+.v010-reset{cursor:pointer}.v010-reset:hover{border-color:var(--brand)}
+.v010-count{margin-left:auto;color:var(--muted);font-size:12px;padding-bottom:9px;font-variant-numeric:tabular-nums}
+.v010-toolbar :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.v010-empty{display:grid;gap:9px;justify-items:center;padding:28px;text-align:center}.v010-empty strong{color:var(--text)}
+.v010-empty button{border:1px solid var(--line);border-radius:9px;background:var(--amber-bg);color:var(--text);padding:9px 13px;cursor:pointer}
+html[data-density="compact"] .v010-toolbar{padding:7px 10px;gap:7px;margin:7px 0}
+html[data-density="compact"] .v010-toolbar select,html[data-density="compact"] .v010-reset{min-height:30px;padding:5px 8px}
+@media(max-width:620px){.v010-toolbar label{flex:1 1 130px}.v010-toolbar select{width:100%}.v010-count{width:100%;margin:0;padding:0}.v010-reset{flex:1 1 100%}}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -397,7 +410,7 @@ html[data-density="compact"] .lifecycle-note{margin-top:4px}
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Trading intelligence terminal · v0.9.6.5</div></div></button></div>
+  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="https://assets.artemissignals.ai/logos/artemis-mark-v1.svg" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Trading intelligence terminal · v0.10.0</div></div></button></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <details class="account-menu" id="accountNavigation">
@@ -505,6 +518,13 @@ html[data-density="compact"] .lifecycle-note{margin-top:4px}
   <button class="filterbtn" data-filter="Gold / Metals">Metals</button>
   <button class="filterbtn locked" data-filter="Indices">Indices <span class="lock" id="indicesFilterLock">ELITE</span></button>
   <button class="filterbtn locked" data-filter="Crypto">Crypto <span class="lock" id="cryptoFilterLock">ELITE</span></button>
+</div>
+<div class="v010-toolbar" aria-label="Additional live signal filters">
+  <label>Direction <select id="v010Direction" aria-label="Filter signal direction"><option value="All">Buy &amp; Sell</option><option value="BUY">Buy only</option><option value="SELL">Sell only</option></select></label>
+  <label>Timeframe <select id="v010Timeframe" aria-label="Filter signal timeframe"><option value="All">All timeframes</option><option value="M5">M5</option><option value="M15">M15</option><option value="M30">M30</option><option value="H1">H1</option><option value="H4">H4</option><option value="D1">D1</option><option value="W1">W1</option></select></label>
+  <label>Sort <select id="v010Sort" aria-label="Sort live signals"><option value="favourites">Favourites &amp; newest</option><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="symbol">Instrument A–Z</option></select></label>
+  <button id="v010Reset" type="button" class="v010-reset">Reset filters</button>
+  <span id="v010Count" role="status" aria-live="polite" class="v010-count">Waiting for signals…</span>
 </div>
 <div class="live-personalise" aria-label="Live signal preferences"><label for="liveSymbolSearch">Find instrument</label><input id="liveSymbolSearch" type="search" placeholder="e.g. XAUUSD, USTech" autocomplete="off"/><button id="liveFavouritesOnly" type="button" aria-pressed="false">☆ Favourites only</button><span class="live-filter-note">Favourites are saved on this device</span></div>
 
@@ -1066,6 +1086,20 @@ function signalReceivedStamp(value){
   if(!Number.isFinite(d.getTime()))return {label:"Time unavailable",iso:""};
   return {label:d.toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit",timeZoneName:"short"}),iso:d.toISOString()};
 }
+// v0.10 view-only controls: never change server entitlements or signal state.
+const v010={direction:"All",timeframe:"All",sort:"favourites"};
+function v010Reset(){
+  v010.direction="All";v010.timeframe="All";v010.sort="favourites";
+  for(const [id,val] of [["v010Direction","All"],["v010Timeframe","All"],["v010Sort","favourites"]])document.getElementById(id).value=val;
+  document.getElementById("liveSymbolSearch").value="";liveSymbolQuery="";
+  favouritesOnly=false;const fav=document.getElementById("liveFavouritesOnly");if(fav){fav.setAttribute("aria-pressed","false");fav.classList.remove("active");fav.textContent="☆ Favourites only";}
+  activeFilter="All";document.querySelectorAll(".filterbtn[data-filter]").forEach(b=>b.classList.toggle("active",b.dataset.filter==="All"));
+  renderDashboard();
+}
+for(const [id,key] of [["v010Direction","direction"],["v010Timeframe","timeframe"],["v010Sort","sort"]]){
+  document.getElementById(id).addEventListener("change",e=>{v010[key]=e.target.value;renderDashboard();});
+}
+document.getElementById("v010Reset").addEventListener("click",v010Reset);
 function renderSignal(s){
   const dir=(s.direction||"").toUpperCase();
   const status=normaliseStatus(s);
@@ -1147,11 +1181,18 @@ function renderDashboard(){
   if(activeFilter!=="All") live=live.filter(s=>assetClass(s.symbol)===activeFilter);
   if(liveSymbolQuery)live=live.filter(s=>String(s.symbol||"").toLowerCase().includes(liveSymbolQuery)||String(displaySymbol(s.symbol)).toLowerCase().includes(liveSymbolQuery));
   if(favouritesOnly)live=live.filter(s=>favouriteSymbols.has(String(s.symbol||"").toUpperCase()));
-  live.sort((a,b)=>Number(favouriteSymbols.has(String(b.symbol||"").toUpperCase()))-Number(favouriteSymbols.has(String(a.symbol||"").toUpperCase()))||signalTime(b)-signalTime(a));
+  if(v010.direction!=="All")live=live.filter(s=>String(s.direction||"").toUpperCase()===v010.direction);
+  if(v010.timeframe!=="All")live=live.filter(s=>String(s.timeframe||"").toUpperCase()===v010.timeframe);
+  if(v010.sort==="oldest")live.sort((a,b)=>signalTime(a)-signalTime(b));
+  else if(v010.sort==="newest")live.sort((a,b)=>signalTime(b)-signalTime(a));
+  else if(v010.sort==="symbol")live.sort((a,b)=>String(a.symbol||"").localeCompare(String(b.symbol||"")));
+  else live.sort((a,b)=>Number(favouriteSymbols.has(String(b.symbol||"").toUpperCase()))-Number(favouriteSymbols.has(String(a.symbol||"").toUpperCase()))||signalTime(b)-signalTime(a));
+  const matchingCount=live.length;
   if(signalLimit!=="all")live=live.slice(0,Number(signalLimit));
 
+  const count=document.getElementById("v010Count");if(count)count.textContent=`Showing ${live.length} of ${matchingCount} matching active signals`;
   const visible=document.getElementById("sumVisible");if(visible)visible.textContent=String(live.length);
-  signalList.innerHTML=live.length ? live.map(renderSignal).join("") : `<div class="empty">No active signals match your selected filters.</div>`;
+  signalList.innerHTML=live.length ? live.map(renderSignal).join("") : `<div class="empty v010-empty"><strong>No matching active signals</strong><span>Try a different market, direction, timeframe or instrument.</span><button type="button" onclick="v010Reset()">Clear filters</button></div>`;
 }
 
 function signalStatusCode(s){return String(s.status||s.event_type||"ACTIVE").toUpperCase()}
