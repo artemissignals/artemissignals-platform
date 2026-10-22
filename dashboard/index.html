@@ -427,7 +427,7 @@ html[data-density="compact"] .signal-card-v101 .v101-stage{padding:4px 3px;font-
 /* v0.10.2 — signal price-level visualisation (not a market-price chart) */
 .priceviz{margin-top:16px}.priceviz-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.priceviz-sub{font-size:11px;color:var(--muted);margin:7px 0 12px;line-height:1.5}.priceviz-chart{position:relative;border:1px solid var(--line);border-radius:13px;background:linear-gradient(180deg,var(--card2),var(--card));overflow:hidden;padding:8px}.priceviz-chart svg{width:100%;height:auto;display:block}.priceviz-chart .level-line{stroke-width:1.7;stroke-dasharray:5 5;opacity:.9}.priceviz-chart .level-label{font-size:11px;font-weight:750;fill:var(--text)}.priceviz-chart .level-value{font-size:11px;fill:var(--muted)}.priceviz-chart .level-dot{stroke:var(--card);stroke-width:2}.priceviz-chart .priceviz-row{cursor:crosshair;outline:none}.priceviz-chart .priceviz-row:focus .level-line,.priceviz-chart .priceviz-row:hover .level-line{stroke-width:3;stroke-dasharray:none}.priceviz-hint{font-size:11px;color:var(--muted);min-height:20px;margin-top:8px}.priceviz-empty{padding:20px;color:var(--muted);font-size:12px;border:1px dashed var(--line);border-radius:12px}.priceviz-legend{display:flex;gap:9px;flex-wrap:wrap;margin-top:9px;font-size:10px;color:var(--muted)}.priceviz-legend span{display:inline-flex;gap:5px;align-items:center}.priceviz-legend i{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--c)}
 
-/* v0.10.3 Performance Explorer */
+/* v0.10.5 Performance Explorer */
 #performance .explorer-toolbar{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:15px 0}
 #performance .explorer-toolbar label{display:grid;gap:5px;color:var(--muted);font-size:12px}
 #performance .explorer-toolbar select{min-width:130px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--card2);color:var(--text)}
@@ -442,6 +442,9 @@ html[data-density="compact"] .signal-card-v101 .v101-stage{padding:4px 3px;font-
 #performance .explorer-empty{padding:22px 0;color:var(--muted);font-size:13px}
 @media(max-width:850px){#performance .explorer-grid{grid-template-columns:1fr}}
 @media(max-width:500px){#performance .explorer-row{grid-template-columns:minmax(72px,1fr) minmax(65px,1.2fr) 64px;gap:7px;font-size:12px}}
+
+/* Artemis v0.10.4–0.10.5: local watchlists and in-app activity */
+.v105-note{font-size:13px;color:var(--muted);line-height:1.6}.v105-chips{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.v105-chip,.v105-toolbar button,.v105-row button{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--card2);color:var(--text);cursor:pointer;font:inherit}.v105-chip.selected{border-color:var(--brand);color:var(--brand)}.v105-results{display:grid;gap:9px;margin-top:12px}.v105-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--card2)}.v105-row strong{color:var(--text)}.v105-row small{display:block;color:var(--muted);margin-top:5px}.v105-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}.v105-toolbar label{display:flex;gap:7px;align-items:center}.alert-unread{border-radius:99px;padding:2px 6px;background:var(--brand);color:#161b24;font-size:11px;font-weight:800}.v105-empty{padding:22px;color:var(--muted);text-align:center;border:1px dashed var(--line);border-radius:12px}
 </style>
 <link rel="icon" type="image/svg+xml" href="https://assets.artemissignals.ai/icons/favicon-v1.svg">
 </head>
@@ -503,6 +506,8 @@ html[data-density="compact"] .signal-card-v101 .v101-stage{padding:4px 3px;font-
   <button class="navjump" id="jumpSignals" type="button"><span aria-hidden="true">↗</span> Signals</button>
   <button class="navbtn" data-page="history"><span class="nav-symbol" aria-hidden="true">◷</span> History</button>
   <button class="navbtn" data-page="performance"><span class="nav-symbol" aria-hidden="true">▥</span> Performance</button>
+  <button class="navbtn" data-page="watchlists"><span class="nav-symbol" aria-hidden="true">☆</span> My Watchlist</button>
+  <button class="navbtn" data-page="notifications"><span class="nav-symbol" aria-hidden="true">♧</span> Alerts <span id="alertUnreadBadge" class="alert-unread" hidden>0</span></button>
   <button class="navbtn" data-page="news"><span class="nav-symbol" aria-hidden="true">◉</span> Market News <span class="news-chip">PRO + ELITE</span></button>
 </nav>
 
@@ -641,7 +646,7 @@ html[data-density="compact"] .signal-card-v101 .v101-stage{padding:4px 3px;font-
  <div class="panel"><h3>Signal outcomes over time</h3><div class="chart-subtitle">Wins, losses and unresolved signals by date</div><div id="performanceTrend" class="perf-chart" role="img" aria-label="Signal outcome trend chart">Waiting for data…</div></div>
  <div class="panel"><h3>Target progression</h3><div class="chart-subtitle">Percentage of signals that reached each target in the selected period</div><div id="performanceTargets" class="perf-target-chart">Waiting for data…</div></div>
 </section>
-<div class="panel" id="performanceExplorer"><h3>Performance Explorer <span style="font-size:12px;color:var(--muted);font-weight:400">· v0.10.3</span></h3><div class="chart-subtitle">Compare outcomes across instruments and timeframes. Uses the selected market and period above.</div><div class="explorer-toolbar"><label>Instrument <select id="explorerInstrument"><option value="All">All instruments</option></select></label><label>Timeframe <select id="explorerTimeframe"><option value="All">All timeframes</option></select></label><label>Sort by <select id="explorerSort"><option value="count">Most signals</option><option value="rate">Highest win rate</option><option value="name">Name A–Z</option></select></label><button type="button" id="explorerReset" class="btn" style="padding:10px 14px">Reset Explorer</button></div><div id="explorerSummary" class="explorer-footnote" aria-live="polite"></div><div class="explorer-grid"><div class="panel"><h3>By instrument</h3><div id="explorerInstruments"></div></div><div class="panel"><h3>By timeframe</h3><div id="explorerTimeframes"></div></div></div><div class="explorer-footnote">Win rate = TP1 reached ÷ (TP1 reached + stopped before TP1). Unresolved signals are excluded from the win-rate denominator. Rates are descriptive, not forecasts or realised returns. Comparisons use only records returned by the API.</div></div>
+<div class="panel" id="performanceExplorer"><h3>Performance Explorer <span style="font-size:12px;color:var(--muted);font-weight:400">· v0.10.5</span></h3><div class="chart-subtitle">Compare outcomes across instruments and timeframes. Uses the selected market and period above.</div><div class="explorer-toolbar"><label>Instrument <select id="explorerInstrument"><option value="All">All instruments</option></select></label><label>Timeframe <select id="explorerTimeframe"><option value="All">All timeframes</option></select></label><label>Sort by <select id="explorerSort"><option value="count">Most signals</option><option value="rate">Highest win rate</option><option value="name">Name A–Z</option></select></label><button type="button" id="explorerReset" class="btn" style="padding:10px 14px">Reset Explorer</button></div><div id="explorerSummary" class="explorer-footnote" aria-live="polite"></div><div class="explorer-grid"><div class="panel"><h3>By instrument</h3><div id="explorerInstruments"></div></div><div class="panel"><h3>By timeframe</h3><div id="explorerTimeframes"></div></div></div><div class="explorer-footnote">Win rate = TP1 reached ÷ (TP1 reached + stopped before TP1). Unresolved signals are excluded from the win-rate denominator. Rates are descriptive, not forecasts or realised returns. Comparisons use only records returned by the API.</div></div>
 <div class="panel performance-explanation"><h3>How performance is calculated</h3><div class="notice" id="performanceExplanation">Waiting for data…</div></div>
 </section>
 
@@ -662,6 +667,16 @@ html[data-density="compact"] .signal-card-v101 .v101-stage{padding:4px 3px;font-
   <div style="margin-top:14px"><span class="cta">Manage Subscription</span></div>
 </div>
 </div>
+</section>
+
+
+<section id="watchlists" class="page">
+ <div class="sectionhead"><h2>My Watchlist</h2><div class="r">Your preferred instruments · saved on this device</div></div>
+ <div class="panel"><p class="v105-note">Star an instrument to follow its signals. Preferences are stored locally in this browser, not yet synced to your account.</p><div id="v105WatchChips" class="v105-chips"></div><div id="v105WatchResults" class="v105-results"></div></div>
+</section>
+<section id="notifications" class="page">
+ <div class="sectionhead"><h2>Notification Centre</h2><div class="r">Signal activity from your available feed</div></div>
+ <div class="panel"><div class="v105-toolbar"><label><input type="checkbox" id="v105OnlyWatch" checked> Watchlist instruments only</label><button type="button" id="v105MarkRead">Mark all as read</button></div><p class="v105-note">In-app activity only: no email, SMS, Telegram or push alerts are sent. Items appear when your authenticated feed loads; previously seen items are remembered on this device.</p><div id="v105AlertList" class="v105-results"></div></div>
 </section>
 
 <section id="settings" class="page">
@@ -1540,11 +1555,39 @@ function renderVisualIntelligence(signals){
   document.getElementById("sessionHeatmap").innerHTML=recent.length?stats.map(([name,count])=>`<div class="heat-row"><span>${name}</span><div class="heat-bar"><div class="heat-fill" style="width:${Math.round(count/max*100)}%"></div></div><strong>${count}</strong></div>`).join(""):`<div class="scanner-empty">No timestamped signal records in the last 24 hours.</div>`;
 }
 
+
+// v0.10.4 / v0.10.5 — client-side preferences and feed-based activity (no delivery backend).
+const V105_READ_KEY='artemis_v105_read_alerts';
+let v105ReadIds=new Set();
+try { const x=JSON.parse(localStorage.getItem(V105_READ_KEY)||'[]');if(Array.isArray(x))v105ReadIds=new Set(x.filter(v=>typeof v==='string')); }catch(_){}
+function v105Id(s){return String(s.signal_id||s.signalId||s.id||[s.symbol,s.timeframe,s.direction,s.timestamp_utc||s.createdAt||s.receivedAt,s.entry].join('|'));}
+function v105Entries(){
+ const seen=new Set();return [...allSignals].filter(s=>{const id=v105Id(s);if(seen.has(id))return false;seen.add(id);return true;}).sort((a,b)=>signalTime(b)-signalTime(a)).slice(0,100);
+}
+function v105Render(){
+ const symbols=[...new Set(allSignals.map(s=>String(s.symbol||'').toUpperCase()).filter(Boolean))].sort();
+ const chips=document.getElementById('v105WatchChips');
+ chips.innerHTML=symbols.length?symbols.map(sym=>`<button type="button" class="v105-chip ${favouriteSymbols.has(sym)?'selected':''}" data-v105-symbol="${esc(sym)}" aria-pressed="${favouriteSymbols.has(sym)}">${favouriteSymbols.has(sym)?'★':'☆'} ${esc(sym)}</button>`).join(''):'<div class="v105-empty">No instruments in the currently loaded feed.</div>';
+ const watched=v105Entries().filter(s=>favouriteSymbols.has(String(s.symbol||'').toUpperCase()));
+ document.getElementById('v105WatchResults').innerHTML=watched.length?watched.slice(0,30).map(s=>`<div class="v105-row"><div><strong>${esc(displaySymbol(s.symbol))} · ${esc(s.direction||'—')}</strong><small>${esc(s.timeframe||'—')} · ${esc(normaliseStatus(s).label||'—')}</small></div><button type="button" data-v105-open="${allSignals.indexOf(s)}">View details →</button></div>`).join(''):'<div class="v105-empty">Star an instrument above to create your watchlist. Only loaded signal records are shown.</div>';
+ const filtered=v105Entries().filter(s=>!document.getElementById('v105OnlyWatch').checked||favouriteSymbols.has(String(s.symbol||'').toUpperCase()));
+ const unread=filtered.filter(s=>!v105ReadIds.has(v105Id(s))).length;
+ const badge=document.getElementById('alertUnreadBadge');badge.hidden=!unread;badge.textContent=String(unread>99?'99+':unread);
+ document.getElementById('v105AlertList').innerHTML=filtered.length?filtered.slice(0,50).map(s=>`<div class="v105-row"><div><strong>${v105ReadIds.has(v105Id(s))?'':'● '}${esc(displaySymbol(s.symbol))} · ${esc(s.direction||'Signal')}</strong><small>${esc(s.timeframe||'—')} · ${esc(normaliseStatus(s).label||'—')} · ${esc(s.timestamp_utc||s.createdAt||s.receivedAt||'Time unavailable')}</small></div><button type="button" data-v105-read="${allSignals.indexOf(s)}">${v105ReadIds.has(v105Id(s))?'View':'Read / view'}</button></div>`).join(''):'<div class="v105-empty">No matching activity in your loaded signal feed.</div>';
+}
+function v105SaveRead(){try{localStorage.setItem(V105_READ_KEY,JSON.stringify([...v105ReadIds].slice(-500)));}catch(_){}}
+document.getElementById('v105OnlyWatch').addEventListener('change',v105Render);
+document.getElementById('v105MarkRead').addEventListener('click',()=>{v105Entries().forEach(s=>v105ReadIds.add(v105Id(s)));v105SaveRead();v105Render();});
+document.getElementById('v105WatchChips').addEventListener('click',e=>{const btn=e.target.closest('[data-v105-symbol]');if(!btn)return;const sym=btn.dataset.v105Symbol;if(favouriteSymbols.has(sym))favouriteSymbols.delete(sym);else favouriteSymbols.add(sym);try{localStorage.setItem('artemis_signal_favourites',JSON.stringify([...favouriteSymbols]));}catch(_){}renderDashboard();v105Render();});
+document.getElementById('v105WatchResults').addEventListener('click',e=>{const btn=e.target.closest('[data-v105-open]');if(btn)openSignalDetail(Number(btn.dataset.v105Open));});
+document.getElementById('v105AlertList').addEventListener('click',e=>{const btn=e.target.closest('[data-v105-read]');if(!btn)return;const index=Number(btn.dataset.v105Read);const s=allSignals[index];if(!s)return;v105ReadIds.add(v105Id(s));v105SaveRead();v105Render();openSignalDetail(index);});
+
 function switchPage(page){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));
   document.getElementById(page).classList.add("active");
   document.querySelector(`.navbtn[data-page="${page}"]`).classList.add("active");
+  if(page==="watchlists"||page==="notifications")v105Render();
   if(page==="news"&&!marketNewsLoaded)loadMarketNews();
   if(page==="status")refreshStatus();
 }
@@ -1726,6 +1769,7 @@ async function loadSignals(){
     document.getElementById("latestEventTime").textContent=latestSignal?.timestamp_utc||"No event recorded";
 
     renderDashboard();
+    v105Render();
     renderVisualIntelligence(allSignals);
     // Scanner telemetry is intentionally disabled in the customer UI until launch.
   }catch(err){
