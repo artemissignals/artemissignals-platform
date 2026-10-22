@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Artemis Signals v0.10.5.6 | Secure Live Trading Signal Dashboard</title>
+<title>Artemis Signals v0.10.6 | Secure Live Trading Signal Dashboard</title>
 <meta name="description" content="Secure Artemis Signals subscriber dashboard for authenticated access to FX, gold, indices and crypto market alerts, signal history and risk levels.">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="theme-color" content="#08111e">
@@ -487,6 +487,12 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
 /* Brand mark: use the same transparent launch artwork across sign-in and dashboard. */
 .logo{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;border-radius:0!important;overflow:visible!important}
 .logo img{width:100%;height:100%;object-fit:contain;display:block}
+
+/* v0.10.6 account-backed My Alerts */
+.alerts106-intro{display:flex;align-items:center;gap:14px;background:linear-gradient(115deg,var(--panel),var(--card2));border:1px solid var(--line);border-radius:17px;padding:17px;margin:10px 0 16px}.alerts106-intro img{width:52px;height:52px;object-fit:contain;flex-shrink:0}.alerts106-intro strong{font-size:17px}.alerts106-intro p{color:var(--muted);font-size:12px;margin:5px 0 0;line-height:1.5}
+.alerts106-status{padding:11px 14px;border:1px solid var(--line);background:var(--panel);border-radius:11px;color:var(--muted);font-size:12px;margin-bottom:13px}.alerts106-status.error{color:var(--red);border-color:var(--red)}.alerts106-status.success{color:var(--green);border-color:var(--green)}
+.alerts106-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.alerts106-form .panel{min-width:0}.alerts106-hint{font-size:12px;color:var(--muted);line-height:1.5}.alerts106-choices{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.alerts106-option{display:inline-flex;align-items:center;gap:7px;background:var(--card2);border:1px solid var(--line);padding:9px 12px;border-radius:10px;color:var(--text);font-size:12px;cursor:pointer}.alerts106-option:has(input:checked){background:var(--amber-bg);border-color:var(--brand)}.alerts106-option:has(input:disabled){opacity:.48;cursor:not-allowed}.alerts106-option input{accent-color:var(--brand)}.alerts106-label{display:block;margin:17px 0 7px;font-size:12px;color:var(--muted)}.alerts106-add{display:flex;gap:8px}.alerts106-add input{flex:1;min-width:0;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--text)}.alerts106-add button,.alerts106-actions button{border:1px solid var(--brand);border-radius:10px;padding:10px 14px;background:var(--amber-bg);color:var(--text);font-weight:750;cursor:pointer}.alerts106-actions button:disabled{opacity:.45;cursor:not-allowed}.alerts106-actions{grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.alerts106-plan{font-size:12px;color:var(--muted)}.alerts106-channel{display:flex;justify-content:space-between;align-items:center;gap:15px;border-top:1px solid var(--line);padding:13px 0;font-size:13px}.alerts106-channel small{display:block;font-size:11px;color:var(--muted);margin-top:5px}.alerts106-channel input{accent-color:var(--brand)}
+@media(max-width:780px){.alerts106-form{grid-template-columns:1fr}}
 </style>
 <link rel="icon" type="image/png" href="artemis-a-logo.png">
 </head>
@@ -505,7 +511,7 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="artemis-a-logo.png" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Trading intelligence terminal · v0.10.5.6</div></div></button></div>
+  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="artemis-a-logo.png" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Trading intelligence terminal · v0.10.6</div></div></button></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <details class="account-menu" id="accountNavigation">
@@ -517,6 +523,7 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
     <div class="account-dropdown" role="group" aria-label="Account and help">
       <div class="account-dropdown-title">YOUR ACCOUNT</div>
       <button class="navbtn" type="button" data-page="profile">♙ <span>My Profile</span></button>
+      <button class="navbtn" type="button" data-page="myalerts">♧ <span>My Alerts</span></button>
       <button class="navbtn" type="button" data-page="settings">⚙ <span>Account Management</span></button>
       <div class="account-dropdown-rule"></div>
       <button class="navbtn" type="button" data-page="support">✧ <span>Support</span></button>
@@ -549,6 +556,7 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
   <button class="navbtn" data-page="history"><span class="nav-symbol" aria-hidden="true">◷</span> History</button>
   <button class="navbtn" data-page="performance"><span class="nav-symbol" aria-hidden="true">▥</span> Performance</button>
   <button class="navbtn" data-page="watchlists"><span class="nav-symbol" aria-hidden="true">☆</span> My Watchlist</button>
+  <button class="navbtn" data-page="myalerts"><span class="nav-symbol" aria-hidden="true">♧</span> My Alerts</button>
   <button class="navbtn" data-page="notifications"><span class="nav-symbol" aria-hidden="true">♧</span> Alerts <span id="alertUnreadBadge" class="alert-unread" hidden>0</span></button>
   <button class="navbtn" data-page="news"><span class="nav-symbol" aria-hidden="true">◉</span> Market News <span class="news-chip">PRO + ELITE</span></button>
 </nav>
@@ -721,23 +729,22 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
  <div class="panel"><div class="v105-toolbar"><label><input type="checkbox" id="v105OnlyWatch" checked> Watchlist instruments only</label><button type="button" id="v105MarkRead">Mark all as read</button></div><p class="v105-note">In-app activity only: no email, SMS, Telegram or push alerts are sent. Items appear when your authenticated feed loads; previously seen items are remembered on this device.</p><div id="v105AlertList" class="v105-results"></div></div>
 </section>
 
+
+<section id="myalerts" class="page" aria-labelledby="myAlertsHeading">
+  <div class="sectionhead"><h2 id="myAlertsHeading">♧ My Alerts</h2><div class="r">Your personal signal preferences · v0.10.6</div></div>
+  <div class="alerts106-intro"><img src="artemis-a-logo.png" alt="ArtemisSignals logo" width="52" height="52"><div><strong>Signals tailored to you</strong><p>Choose which eligible signals matter to you. Preferences are securely saved to your ArtemisSignals account.</p></div></div>
+  <div id="alerts106Status" class="alerts106-status" role="status" aria-live="polite">Open My Alerts to load your saved preferences.</div>
+  <form id="alerts106Form" class="alerts106-form" novalidate>
+    <div class="panel"><h3>Markets</h3><p class="alerts106-hint">Only markets included in your subscription can be selected.</p><div id="alerts106Markets" class="alerts106-choices"></div></div>
+    <div class="panel"><h3>Instruments</h3><p class="alerts106-hint">Select instruments from your available signal feed, or add a symbol manually. Leave empty to follow all eligible instruments in your chosen markets.</p><div id="alerts106Instruments" class="alerts106-choices"></div><label class="alerts106-label" for="alerts106Custom">Add instrument</label><div class="alerts106-add"><input id="alerts106Custom" type="text" maxlength="25" placeholder="e.g. XAUUSD" autocomplete="off"><button type="button" id="alerts106Add">Add</button></div></div>
+    <div class="panel"><h3>Signal direction</h3><div id="alerts106Directions" class="alerts106-choices"></div><h3 style="margin-top:22px">Timeframes</h3><p class="alerts106-hint">Leave all timeframes unchecked to include any timeframe.</p><div id="alerts106Timeframes" class="alerts106-choices"></div></div>
+    <div class="panel"><h3>Notification channels</h3><div class="alerts106-channel"><span>Email notifications <small>Coming soon — delivery is not active</small></span><input type="checkbox" disabled aria-label="Email notifications unavailable"></div><div class="alerts106-channel"><span>Telegram notifications <small>Coming soon — delivery is not active</small></span><input type="checkbox" disabled aria-label="Telegram notifications unavailable"></div><p class="alerts106-hint">Saving these settings does not send messages or change your subscription.</p></div>
+    <div class="alerts106-actions"><button id="alerts106Save" type="submit" disabled>Save preferences</button><button id="alerts106Reload" type="button">Reload saved settings</button><span id="alerts106Plan" class="alerts106-plan"></span></div>
+  </form>
+</section>
 <section id="settings" class="page">
-<div class="sectionhead"><h2>Account Settings</h2><div class="r">Preferences and notifications</div></div>
-<div class="profile-grid">
-<div class="panel"><h3>Signal preferences</h3>
-  <div class="pref"><div class="pref-left"><div class="pref-title">FX</div><div class="pref-sub">Forex signal alerts</div></div><span class="switch on setting-switch" data-setting="fx"></span></div>
-  <div class="pref"><div class="pref-left"><div class="pref-title">Gold / Metals</div><div class="pref-sub">Gold and metals signal alerts</div></div><span class="switch on setting-switch" data-setting="metals"></span></div>
-  <div class="pref"><div class="pref-left"><div class="pref-title">Indices</div><div class="pref-sub">Indices signal alerts</div></div><span class="switch on setting-switch" data-setting="indices"></span></div>
-  <div class="pref"><div class="pref-left"><div class="pref-title">Crypto <span class="tiny locked">Elite only</span></div><div class="pref-sub">Upgrade to Elite to unlock crypto signals</div></div><span class="switch disabled"></span></div>
-</div>
-<div class="panel"><h3>Notifications & billing</h3>
-  <div class="pref"><div class="pref-left"><div class="pref-title">Email notifications</div><div class="pref-sub">Receive signal alerts by email</div></div><span class="switch on setting-switch" data-setting="email"></span></div>
-  <div class="pref"><div class="pref-left"><div class="pref-title">Browser notifications</div><div class="pref-sub">Enable browser alerts when supported</div></div><span class="switch setting-switch" data-setting="browser"></span></div>
-  <div class="field"><div class="label">Current plan</div><div class="value">PRO</div></div>
-  <div class="field"><div class="label">Billing</div><div class="value">Monthly subscription</div></div>
-  <div style="margin-top:14px"><span class="cta">Upgrade to Elite</span></div>
-</div>
-</div>
+<div class="sectionhead"><h2>Account Settings</h2><div class="r">Manage your account</div></div>
+<div class="panel"><h3>Signal preferences</h3><p class="v105-note">Your saved alert preferences are managed securely in My Alerts. Email and Telegram delivery are not available yet.</p><button type="button" class="cta" id="openMyAlerts">Open My Alerts →</button></div>
 </section>
 
 
@@ -1644,7 +1651,8 @@ function switchPage(page){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));
   document.getElementById(page).classList.add("active");
-  document.querySelector(`.navbtn[data-page="${page}"]`).classList.add("active");
+  const activeNav=document.querySelector(`.navbtn[data-page="${page}"]`); if(activeNav)activeNav.classList.add("active");
+  if(page==="myalerts")alerts106Load();
   if(page==="watchlists"||page==="notifications")v105Render();
   if(page==="news"&&!marketNewsLoaded)loadMarketNews();
   if(page==="status")refreshStatus();
@@ -2047,6 +2055,96 @@ async function initAuth(){
     document.getElementById("appRoot").classList.add("hidden");
   }
 }
+
+
+/* v0.10.6 — authenticated, account-backed preferences; no notification delivery */
+const ALERTS106_API='https://6ep0tlynl5.execute-api.eu-west-2.amazonaws.com/preferences';
+const ALERTS106_MARKETS=['FX','Metals','Indices','Crypto'];
+const ALERTS106_TFS=['M1','M5','M15','M30','H1','H4','D1'];
+let alerts106Allowed=[],alerts106Plan='',alerts106Loaded=false,alerts106Saving=false,alerts106ExtraSymbols=[];
+function alerts106Status(message,type=''){
+ const node=document.getElementById('alerts106Status');node.textContent=message;node.className='alerts106-status'+(type?' '+type:'');
+}
+function alerts106Checkboxes(id,items,selected,allowed=null){
+ const target=document.getElementById(id);target.replaceChildren();
+ for(const value of items){
+  const label=document.createElement('label');label.className='alerts106-option';
+  const input=document.createElement('input');input.type='checkbox';input.value=value;input.name=id;
+  input.checked=selected.includes(value);input.disabled=allowed!==null&&!allowed.includes(value);
+  label.append(input,document.createTextNode(value));target.append(label);
+ }
+}
+function alerts106Checked(id){return [...document.querySelectorAll('#'+id+' input:checked:not(:disabled)')].map(x=>x.value);}
+function alerts106KnownSymbols(){
+ const symbols=new Set(alerts106ExtraSymbols);
+ if(typeof allSignals!=='undefined'&&Array.isArray(allSignals))for(const signal of allSignals){
+  const symbol=String(signal.symbol||'').trim().toUpperCase();
+  if(/^[A-Z0-9_.]{1,25}$/.test(symbol))symbols.add(symbol);
+ }
+ return [...symbols].sort();
+}
+function alerts106Render(p){
+ alerts106Checkboxes('alerts106Markets',ALERTS106_MARKETS,p.markets||[],alerts106Allowed);
+ alerts106Checkboxes('alerts106Instruments',alerts106KnownSymbols(),p.instruments||[],alerts106Plan==='FREE'?[]:null);
+ alerts106Checkboxes('alerts106Directions',['BUY','SELL'],p.directions||[]);
+ alerts106Checkboxes('alerts106Timeframes',ALERTS106_TFS,p.timeframes||[]);
+ document.getElementById('alerts106Plan').textContent='Subscription: '+alerts106Plan+' · Markets: '+(alerts106Allowed.join(', ')||'None');
+ document.getElementById('alerts106Save').disabled=false;
+}
+async function alerts106Request(method,payload){
+ // The API JWT authorizer accepts the customer Cognito ID token with this app-client audience.
+ const token=sessionStorage.getItem('artemis_id_token');
+ if(!token)throw new Error('Please sign in again to manage your preferences.');
+ const headers={'Authorization':'Bearer '+token,'Accept':'application/json'};
+ if(payload)headers['Content-Type']='application/json';
+ const response=await fetch(ALERTS106_API,{method,headers,...(payload?{body:JSON.stringify(payload)}:{})});
+ const body=await response.json().catch(()=>({}));
+ if(!response.ok){
+  if(response.status===401)throw new Error('Session not authorised. Please sign out and sign in again.');
+  if(response.status===403)throw new Error(body.error||'Your account has no valid subscription group. Please sign in again or contact support.');
+  throw new Error(body.error||('Preferences API error '+response.status));
+ }
+ return body;
+}
+async function alerts106Load(){
+ if(alerts106Saving)return;
+ alerts106Status('Loading saved preferences…');
+ document.getElementById('alerts106Save').disabled=true;
+ try{
+  const result=await alerts106Request('GET');
+  alerts106Allowed=Array.isArray(result.allowedMarkets)?result.allowedMarkets:[];
+  alerts106Plan=result.plan||'UNKNOWN';
+  const p=result.preferences||{};
+  alerts106ExtraSymbols=(p.instruments||[]).filter(x=>typeof x==='string');
+  alerts106Render(p);alerts106Loaded=true;
+  alerts106Status('Preferences loaded from your ArtemisSignals account.','success');
+ }catch(err){alerts106Loaded=false;alerts106Status(err.message||'Could not load preferences.','error');}
+}
+async function alerts106Save(event){
+ event.preventDefault();if(!alerts106Loaded||alerts106Saving)return;
+ alerts106Saving=true;document.getElementById('alerts106Save').disabled=true;
+ alerts106Status('Saving preferences…');
+ const payload={markets:alerts106Checked('alerts106Markets'),instruments:alerts106Checked('alerts106Instruments'),directions:alerts106Checked('alerts106Directions'),timeframes:alerts106Checked('alerts106Timeframes'),emailEnabled:false,telegramEnabled:false};
+ try{
+  const result=await alerts106Request('PUT',payload);
+  alerts106Render(result.preferences||payload);
+  alerts106Status('Saved successfully. Your preferences are now linked to your account.','success');
+ }catch(err){alerts106Status(err.message||'Could not save preferences.','error');}
+ finally{alerts106Saving=false;document.getElementById('alerts106Save').disabled=!alerts106Loaded;}
+}
+function alerts106AddSymbol(){
+ const field=document.getElementById('alerts106Custom');const symbol=field.value.trim().toUpperCase();
+ if(!/^[A-Z0-9_.]{1,25}$/.test(symbol)){alerts106Status('Use a valid instrument symbol (letters, numbers, underscore or dot).','error');return;}
+ if(alerts106Plan==='FREE'){alerts106Status('Instrument preferences require PRO or ELITE.','error');return;}
+ const selected=alerts106Checked('alerts106Instruments');
+ if(!alerts106ExtraSymbols.includes(symbol))alerts106ExtraSymbols.push(symbol);
+ alerts106Checkboxes('alerts106Instruments',alerts106KnownSymbols(),[...selected,symbol]);field.value='';
+ alerts106Status('Instrument added. Select Save preferences to store it.');
+}
+document.getElementById('alerts106Form').addEventListener('submit',alerts106Save);
+document.getElementById('alerts106Reload').addEventListener('click',alerts106Load);
+document.getElementById('alerts106Add').addEventListener('click',alerts106AddSymbol);
+document.getElementById('openMyAlerts').addEventListener('click',()=>switchPage('myalerts'));
 
 initAuth();
 </script>
