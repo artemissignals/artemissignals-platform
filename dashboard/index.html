@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Artemis Signals v0.10.6.1 | Secure Live Trading Signal Dashboard</title>
+<title>Artemis Signals v0.10.7.2 | Secure Live Trading Signal Dashboard</title>
 <meta name="description" content="Secure Artemis Signals subscriber dashboard for authenticated access to FX, gold, indices and crypto market alerts, signal history and risk levels.">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="theme-color" content="#08111e">
@@ -504,6 +504,18 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
 .alerts-guide-note{margin-top:13px;padding:11px 13px;border-left:3px solid var(--brand);background:var(--amber-bg);border-radius:8px;color:var(--text);font-size:12px;line-height:1.55}
 .alerts106-example{font-size:11px;color:var(--muted);line-height:1.55;margin-top:12px}
 @media(max-width:760px){.alerts-steps{grid-template-columns:1fr}.alerts-guide{padding:14px}}
+
+/* Strategy Intelligence v0.10.7.2 — independent authenticated, all-time analytics */
+.si-shell{margin:18px 0;padding:18px;border:1px solid var(--line);border-radius:17px;background:var(--card)}
+.si-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.si-head h3{margin:0;font-size:16px}.si-note{font-size:11px;color:var(--muted);line-height:1.55;margin:9px 0 14px}
+.si-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.si-tile{border:1px solid var(--line);border-radius:12px;background:var(--card2);padding:12px;min-width:0}
+.si-tile small{font-size:10px;color:var(--muted);display:block}.si-tile strong{display:block;font-size:23px;margin:6px 0}.si-tile span{font-size:10px;color:var(--muted)}
+.si-tables{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:15px}.si-tables h4{margin:0 0 9px;font-size:12px}
+.si-table{width:100%;border-collapse:collapse;font-size:11px}.si-table th,.si-table td{text-align:left;border-bottom:1px solid var(--line);padding:8px 5px}.si-table th{color:var(--muted)}
+.si-refresh{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:8px 12px;border-radius:9px;cursor:pointer;font-size:11px}
+@media(max-width:800px){.si-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.si-tables{grid-template-columns:1fr}}
 </style>
 <link rel="icon" type="image/png" href="artemis-a-logo.png">
 </head>
@@ -706,6 +718,17 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
 <section class="performance-charts" aria-label="Signal performance trends">
  <div class="panel"><h3>Signal outcomes over time</h3><div class="chart-subtitle">Wins, losses and unresolved signals by date</div><div id="performanceTrend" class="perf-chart" role="img" aria-label="Signal outcome trend chart">Waiting for data…</div></div>
  <div class="panel"><h3>Target progression</h3><div class="chart-subtitle">Percentage of signals that reached each target in the selected period</div><div id="performanceTargets" class="perf-target-chart">Waiting for data…</div></div>
+</section>
+<section class="si-shell" aria-label="Strategy Intelligence" id="strategyIntelligence">
+ <div class="si-head"><h3>◈ Strategy Intelligence <span class="tiny asset">LIVE DATA</span></h3><button class="si-refresh" type="button" id="siRefresh">↻ Refresh</button></div>
+ <p class="si-note">All-time production signal tracking · independent of the market and period filters above. Target achievement is not realised profit. Active signals remain in the denominator.</p>
+ <div id="siState" class="si-note" role="status" aria-live="polite">Open Performance to load verified analytics.</div>
+ <div id="siContent" hidden>
+  <div class="si-metrics" id="siMetrics"></div>
+  <div class="si-tables"><div><h4>By instrument</h4><div id="siInstruments"></div></div><div><h4>By timeframe</h4><div id="siTimeframes"></div></div></div>
+  <p id="siQuality" class="si-note"></p>
+  <p class="si-note">Small samples are not ranked. Data is based on recorded target events, not independently verified executions or returns.</p>
+ </div>
 </section>
 <div class="panel" id="performanceExplorer"><h3>Performance Explorer <span style="font-size:12px;color:var(--muted);font-weight:400">· v0.10.5</span></h3><div class="chart-subtitle">Compare outcomes across instruments and timeframes. Uses the selected market and period above.</div><div class="explorer-toolbar"><label>Instrument <select id="explorerInstrument"><option value="All">All instruments</option></select></label><label>Timeframe <select id="explorerTimeframe"><option value="All">All timeframes</option></select></label><label>Sort by <select id="explorerSort"><option value="count">Most signals</option><option value="rate">Highest win rate</option><option value="name">Name A–Z</option></select></label><button type="button" id="explorerReset" class="btn" style="padding:10px 14px">Reset Explorer</button></div><div id="explorerSummary" class="explorer-footnote" aria-live="polite"></div><div class="explorer-grid"><div class="panel"><h3>By instrument</h3><div id="explorerInstruments"></div></div><div class="panel"><h3>By timeframe</h3><div id="explorerTimeframes"></div></div></div><div class="explorer-footnote">Win rate = TP1 reached ÷ (TP1 reached + stopped before TP1). Unresolved signals are excluded from the win-rate denominator. Rates are descriptive, not forecasts or realised returns. Comparisons use only records returned by the API.</div></div>
 <div class="panel performance-explanation"><h3>How performance is calculated</h3><div class="notice" id="performanceExplanation">Waiting for data…</div></div>
@@ -1668,11 +1691,45 @@ document.getElementById('v105WatchChips').addEventListener('click',e=>{const btn
 document.getElementById('v105WatchResults').addEventListener('click',e=>{const btn=e.target.closest('[data-v105-open]');if(btn)openSignalDetail(Number(btn.dataset.v105Open));});
 document.getElementById('v105AlertList').addEventListener('click',e=>{const btn=e.target.closest('[data-v105-read]');if(!btn)return;const index=Number(btn.dataset.v105Read);const s=allSignals[index];if(!s)return;v105ReadIds.add(v105Id(s));v105SaveRead();v105Render();openSignalDetail(index);});
 
+
+// Isolated Strategy Intelligence API client; does not alter existing signal feed.
+const STRATEGY_INTELLIGENCE_API="https://jrein60sph.execute-api.eu-west-2.amazonaws.com/analytics";
+let siLoading=false;
+const siSafe=(v)=>String(v??"—").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function siTable(items){
+ const rows=(Array.isArray(items)?items:[]).slice().sort((a,b)=>(b.signals||0)-(a.signals||0));
+ if(!rows.length)return '<div class="si-note">No data yet.</div>';
+ return '<table class="si-table"><thead><tr><th>Market</th><th>Signals</th><th>TP1</th><th>TP2</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+siSafe(r.name)+'</td><td>'+siSafe(r.signals)+'</td><td>'+siSafe(r.targetAchievementPctOfAllSignals?.tp1)+'%</td><td>'+siSafe(r.targetAchievementPctOfAllSignals?.tp2)+'%</td></tr>').join('')+'</tbody></table>';
+}
+async function siLoad(){
+ if(siLoading)return;
+ const state=document.getElementById('siState'),content=document.getElementById('siContent');
+ const token=sessionStorage.getItem('artemis_id_token');
+ if(!token){state.textContent='Sign in to view Strategy Intelligence.';content.hidden=true;return;}
+ siLoading=true;state.textContent='Loading all-time target analytics…';
+ try{
+  const res=await fetch(STRATEGY_INTELLIGENCE_API,{headers:{'Accept':'application/json','Authorization':'Bearer '+token},cache:'no-store'});
+  if(!res.ok)throw new Error(res.status===401?'Session expired. Please sign in again.':`Analytics unavailable (HTTP ${res.status}).`);
+  const data=await res.json();
+  if(data.methodology!=='target_tracking_only'||!data.summary)throw new Error('Unexpected analytics response.');
+  const x=data.summary,n=x.signals||0,counts=x.targetsReached||{},rates=x.targetAchievementPctOfAllSignals||{};
+  const cards=[['Signals tracked',n,'All-time records'],['TP1 achieved',`${rates.tp1??'—'}%`,`${counts.tp1??0} signals`],['TP2 achieved',`${rates.tp2??'—'}%`,`${counts.tp2??0} signals`],['TP3 achieved',`${rates.tp3??'—'}%`,`${counts.tp3??0} signals`],['SL before TP1',x.stoppedBeforeTP1??'—','Count, not loss rate']];
+  document.getElementById('siMetrics').innerHTML=cards.map(([label,value,note])=>`<div class="si-tile"><small>${siSafe(label)}</small><strong>${siSafe(value)}</strong><span>${siSafe(note)}</span></div>`).join('');
+  document.getElementById('siInstruments').innerHTML=siTable(data.byInstrument);
+  document.getElementById('siTimeframes').innerHTML=siTable(data.byTimeframe);
+  document.getElementById('siQuality').textContent=`Quality scores recorded for ${x.scoredSignals??0} of ${n} signals. ${Number(x.scoredSignals||0)<30?'Collecting data — no strong-signal performance conclusions yet.':'Quality bands are available in the analytics backend.'}`;
+  content.hidden=false;state.textContent=`All-time data · ${n} signals · live DynamoDB scan`;
+ }catch(err){content.hidden=true;state.textContent=err.message||'Unable to load analytics.';}
+ finally{siLoading=false;}
+}
+document.getElementById('siRefresh').addEventListener('click',siLoad);
+
 function switchPage(page){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));
   document.getElementById(page).classList.add("active");
   const activeNav=document.querySelector(`.navbtn[data-page="${page}"]`); if(activeNav)activeNav.classList.add("active");
+  if(page==="performance")siLoad();
   if(page==="myalerts")alerts106Load();
   if(page==="watchlists"||page==="notifications")v105Render();
   if(page==="news"&&!marketNewsLoaded)loadMarketNews();
