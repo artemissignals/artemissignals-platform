@@ -516,6 +516,7 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
 .si-table{width:100%;border-collapse:collapse;font-size:11px}.si-table th,.si-table td{text-align:left;border-bottom:1px solid var(--line);padding:8px 5px}.si-table th{color:var(--muted)}
 .si-refresh{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:8px 12px;border-radius:9px;cursor:pointer;font-size:11px}
 @media(max-width:800px){.si-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.si-tables{grid-template-columns:1fr}}
+.si-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.si-actions label{color:var(--muted);font-size:12px}.si-actions select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:8px}.si-trend{display:grid;gap:9px;max-height:320px;overflow:auto}.si-trend-row{display:grid;grid-template-columns:85px 1fr 45px 45px;gap:9px;align-items:center;font-size:11px;color:var(--muted)}.si-trend-track{height:10px;background:var(--card2);border-radius:20px;overflow:hidden}.si-trend-track i{display:block;height:100%;background:var(--brand);border-radius:20px}.si-trend-row strong{color:var(--text)}
 </style>
 <link rel="icon" type="image/png" href="artemis-a-logo.png">
 </head>
@@ -720,12 +721,13 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
  <div class="panel"><h3>Target progression</h3><div class="chart-subtitle">Percentage of signals that reached each target in the selected period</div><div id="performanceTargets" class="perf-target-chart">Waiting for data…</div></div>
 </section>
 <section class="si-shell" aria-label="Strategy Intelligence" id="strategyIntelligence">
- <div class="si-head"><h3>◈ Strategy Intelligence <span class="tiny asset">LIVE DATA</span></h3><button class="si-refresh" type="button" id="siRefresh">↻ Refresh</button></div>
- <p class="si-note">All-time production signal tracking · independent of the market and period filters above. Target achievement is not realised profit. Active signals remain in the denominator.</p>
+ <div class="si-head"><h3>◈ Strategy Intelligence <span class="tiny asset">LIVE DATA</span></h3><div class="si-actions"><label for="siPeriod">Period <select id="siPeriod"><option value="30d">30 days</option><option value="3m">3 months</option><option value="6m">6 months</option><option value="all" selected>All time</option></select></label><button class="si-refresh" type="button" id="siRefresh">↻ Refresh</button></div></div>
+ <p class="si-note">Production signal tracking · independent of the market filter above. Target achievement is not realised profit. Active signals remain in the denominator.</p>
  <div id="siState" class="si-note" role="status" aria-live="polite">Open Performance to load verified analytics.</div>
  <div id="siContent" hidden>
   <div class="si-metrics" id="siMetrics"></div>
   <div class="si-tables"><div><h4>By instrument</h4><div id="siInstruments"></div></div><div><h4>By timeframe</h4><div id="siTimeframes"></div></div></div>
+  <div class="si-tables"><div><h4>Weekly TP1 achievement trend</h4><div id="siTrend"></div></div><div><h4>Quality-score bands</h4><div id="siBands"></div></div></div>
   <p id="siQuality" class="si-note"></p>
   <p class="si-note">Small samples are not ranked. Data is based on recorded target events, not independently verified executions or returns.</p>
  </div>
@@ -1696,19 +1698,20 @@ document.getElementById('v105AlertList').addEventListener('click',e=>{const btn=
 const STRATEGY_INTELLIGENCE_API="https://jrein60sph.execute-api.eu-west-2.amazonaws.com/analytics";
 let siLoading=false;
 const siSafe=(v)=>String(v??"—").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function siTable(items){
+function siTable(items, heading='Market'){
  const rows=(Array.isArray(items)?items:[]).slice().sort((a,b)=>(b.signals||0)-(a.signals||0));
  if(!rows.length)return '<div class="si-note">No data yet.</div>';
- return '<table class="si-table"><thead><tr><th>Market</th><th>Signals</th><th>TP1</th><th>TP2</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+siSafe(r.name)+'</td><td>'+siSafe(r.signals)+'</td><td>'+siSafe(r.targetAchievementPctOfAllSignals?.tp1)+'%</td><td>'+siSafe(r.targetAchievementPctOfAllSignals?.tp2)+'%</td></tr>').join('')+'</tbody></table>';
+ return '<table class="si-table"><thead><tr><th>'+siSafe(heading)+'</th><th>Signals</th><th>TP1</th><th>TP2</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+siSafe(r.name)+'</td><td>'+siSafe(r.signals)+'</td><td>'+siSafe(r.targetAchievementPctOfAllSignals?.tp1)+'%</td><td>'+siSafe(r.targetAchievementPctOfAllSignals?.tp2)+'%</td></tr>').join('')+'</tbody></table>';
 }
 async function siLoad(){
  if(siLoading)return;
  const state=document.getElementById('siState'),content=document.getElementById('siContent');
  const token=sessionStorage.getItem('artemis_id_token');
  if(!token){state.textContent='Sign in to view Strategy Intelligence.';content.hidden=true;return;}
- siLoading=true;state.textContent='Loading all-time target analytics…';
+ siLoading=true;state.textContent='Loading target analytics…';
  try{
-  const res=await fetch(STRATEGY_INTELLIGENCE_API,{headers:{'Accept':'application/json','Authorization':'Bearer '+token},cache:'no-store'});
+  const period=document.getElementById('siPeriod').value;
+  const res=await fetch(STRATEGY_INTELLIGENCE_API+'?period='+encodeURIComponent(period),{headers:{'Accept':'application/json','Authorization':'Bearer '+token},cache:'no-store'});
   if(!res.ok)throw new Error(res.status===401?'Session expired. Please sign in again.':`Analytics unavailable (HTTP ${res.status}).`);
   const data=await res.json();
   if(data.methodology!=='target_tracking_only'||!data.summary)throw new Error('Unexpected analytics response.');
@@ -1717,12 +1720,16 @@ async function siLoad(){
   document.getElementById('siMetrics').innerHTML=cards.map(([label,value,note])=>`<div class="si-tile"><small>${siSafe(label)}</small><strong>${siSafe(value)}</strong><span>${siSafe(note)}</span></div>`).join('');
   document.getElementById('siInstruments').innerHTML=siTable(data.byInstrument);
   document.getElementById('siTimeframes').innerHTML=siTable(data.byTimeframe);
+  const trend=Array.isArray(data.weeklyTrend)?data.weeklyTrend:[];
+  document.getElementById('siTrend').innerHTML=trend.length?'<div class="si-trend">'+trend.map(w=>{const p=w.targetAchievementPctOfAllSignals?.tp1??0;return `<div class="si-trend-row"><span>${siSafe(w.weekStart)}</span><div class="si-trend-track"><i style="width:${Math.max(0,Math.min(100,Number(p)||0))}%"></i></div><strong>${siSafe(p)}%</strong><small>n=${siSafe(w.signals)}</small></div>`}).join('')+'</div>':'<p class="si-note">No dated signals in this period.</p>';
+  document.getElementById('siBands').innerHTML=siTable(data.byQualityBand,'Score band');
   document.getElementById('siQuality').textContent=`Quality scores recorded for ${x.scoredSignals??0} of ${n} signals. ${Number(x.scoredSignals||0)<30?'Collecting data — no strong-signal performance conclusions yet.':'Quality bands are available in the analytics backend.'}`;
-  content.hidden=false;state.textContent=`All-time data · ${n} signals · live DynamoDB scan`;
+  content.hidden=false;state.textContent=`${period==='all'?'All time':period} · ${n} signals · live DynamoDB scan${data.coverage?.excludedUndatedForPeriod?' · '+data.coverage.excludedUndatedForPeriod+' undated excluded':''}`;
  }catch(err){content.hidden=true;state.textContent=err.message||'Unable to load analytics.';}
  finally{siLoading=false;}
 }
 document.getElementById('siRefresh').addEventListener('click',siLoad);
+document.getElementById('siPeriod').addEventListener('change',siLoad);
 
 function switchPage(page){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
