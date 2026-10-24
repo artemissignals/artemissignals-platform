@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Artemis Signals v0.10.10 | Secure Live Trading Signal Dashboard</title>
+<title>Artemis Signals v0.10.10.1 | Secure Live Trading Signal Dashboard</title>
 <meta name="description" content="Secure Artemis Signals subscriber dashboard for authenticated access to FX, gold, indices and crypto market alerts, signal history and risk levels.">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="theme-color" content="#08111e">
@@ -524,7 +524,7 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
 @media(max-width:800px){.si-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.si-tables{grid-template-columns:1fr}}
 .si-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.si-actions label{color:var(--muted);font-size:12px}.si-actions select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:8px}.si-trend{display:grid;gap:9px;max-height:320px;overflow:auto}.si-trend-row{display:grid;grid-template-columns:85px 1fr 45px 45px;gap:9px;align-items:center;font-size:11px;color:var(--muted)}.si-trend-track{height:10px;background:var(--card2);border-radius:20px;overflow:hidden}.si-trend-track i{display:block;height:100%;background:var(--brand);border-radius:20px}.si-trend-row strong{color:var(--text)}
 
-/* v0.10.10 — signal card UX refresh; feed, access control and events unchanged */
+/* v0.10.10.1 — signal card UX refresh; feed, access control and events unchanged */
 #signalList{gap:12px}
 #signalList .signal-card-v101{padding:17px 18px 14px;border-radius:16px;background:linear-gradient(115deg,var(--card),var(--card2));box-shadow:0 7px 22px rgba(0,0,0,.10)}
 #signalList .signal-card-v101 .signal-top{gap:12px;align-items:flex-start}
@@ -578,7 +578,7 @@ html[data-density="compact"] #signalList .signal-card-v101 .card-open{min-height
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="artemis-a-logo.png" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Trading intelligence terminal · v0.10.10</div></div></button></div>
+  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="artemis-a-logo.png" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Trading intelligence terminal · v0.10.10.1</div></div></button></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <details class="account-menu" id="accountNavigation">
@@ -786,13 +786,13 @@ html[data-density="compact"] #signalList .signal-card-v101 .card-open{min-height
   <div class="field"><div class="label">Account</div><div class="value">Artemis Subscriber</div></div>
   <div class="field"><div class="label">Email</div><div class="value" id="profileEmail">Signed-in account</div></div>
   <div class="field"><div class="label">Plan</div><div class="value"><span class="tiny plan" id="profilePlan">—</span></div></div>
-  <div class="field"><div class="label">Authentication</div><div class="value"><span class="status-badge status-active">Cognito verified</span></div></div>
+  <div class="field"><div class="label">Authentication</div><div class="value"><span class="status-badge status-active">Verified</span></div></div>
 </div>
 <div class="panel"><h3>Subscription</h3>
   <div class="field"><div class="label">Status</div><div class="value"><span class="status-badge status-active">Active</span></div></div>
-  <div class="field"><div class="label">Entitlements</div><div class="value">PRO preview access</div></div>
+  <div class="field"><div class="label">Entitlements</div><div class="value" id="profileEntitlements">Checking access…</div></div>
   <div class="field"><div class="label">Billing</div><div class="value">Connection coming in v0.9</div></div>
-  <div class="field"><div class="label">Included markets</div><div class="value"><span class="tiny asset">FX</span> <span class="tiny asset">Gold / Metals</span> <span class="tiny asset">Indices</span> <span class="tiny locked">Crypto locked</span></div></div>
+  <div class="field"><div class="label">Included markets</div><div class="value" id="profileIncludedMarkets">Checking access…</div></div>
   <div style="margin-top:14px"><span class="cta">Manage Subscription</span></div>
 </div>
 </div>
@@ -1740,7 +1740,7 @@ document.getElementById('v105AlertList').addEventListener('click',e=>{const btn=
 const STRATEGY_INTELLIGENCE_API="https://jrein60sph.execute-api.eu-west-2.amazonaws.com/analytics";
 let siLoading=false;
 const siSafe=(v)=>String(v??"—").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-// v0.10.10 — sortable Strategy Intelligence tables; all three target milestones.
+// v0.10.10.1 — sortable Strategy Intelligence tables; all three target milestones.
 const siTableData={};
 const siTableSort={};
 function siNumber(value){const n=Number(value);return Number.isFinite(n)?n:null;}
@@ -2086,7 +2086,7 @@ function updatePlanDisplay(){
   const markets=tier==="ELITE"?"FX, Gold / Metals, Indices, Crypto":tier==="PRO"?"FX, Gold / Metals":"Preview only";
   for(const [id,value] of Object.entries({
     currentPlanHeader:tier+" subscriber",subscriptionSummary:tier,
-    profilePlan:tier,includedMarketsCount:tier==="ELITE"?"4":tier==="PRO"?"2":"0"
+    profilePlan:tier,profileEntitlements:tier==="ELITE"?"ELITE access":tier==="PRO"?"PRO access":"FREE access",includedMarketsCount:tier==="ELITE"?"4":tier==="PRO"?"2":"0"
   })){
     const node=document.getElementById(id);if(node)node.textContent=value;
   }
@@ -2098,6 +2098,19 @@ function updatePlanDisplay(){
     if(!value)continue;
     if(label==="plan")value.textContent=tier;
     if(label==="included markets")value.textContent=markets;
+  }
+  const profileMarkets=document.getElementById("profileIncludedMarkets");
+  if(profileMarkets){
+    const included=tier==="ELITE"?["FX","Gold / Metals","Indices","Crypto"]:tier==="PRO"?["FX","Gold / Metals"]:[];
+    profileMarkets.replaceChildren();
+    if(!included.length){profileMarkets.textContent="Preview only";}
+    else for(const market of included){
+      const chip=document.createElement("span");
+      chip.className="tiny asset";
+      chip.textContent=market;
+      chip.style.marginRight="6px";
+      profileMarkets.appendChild(chip);
+    }
   }
   const entitlements=tier==="ELITE"?["FX","Gold / Metals","Indices","Crypto"]:tier==="PRO"?["FX","Gold / Metals"]:[];
   document.getElementById("accessTier").textContent=tier;
