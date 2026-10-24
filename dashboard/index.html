@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Artemis Signals v0.10.10.1 | Secure Live Trading Signal Dashboard</title>
+<title>Artemis Signals v0.10.11 | Secure Live Trading Signal Dashboard</title>
 <meta name="description" content="Secure Artemis Signals subscriber dashboard for authenticated access to FX, gold, indices and crypto market alerts, signal history and risk levels.">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="theme-color" content="#08111e">
@@ -240,8 +240,8 @@ html[data-density="compact"] .panel{padding:11px}
 @media(max-width:620px){.history-note{margin-left:0;width:100%}}
 .history-limit-label{color:var(--muted);font-size:12px;font-weight:700;margin-left:5px}
 .history-limit{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:10px 12px;font-size:12px;cursor:pointer}
-#historyTable .row{grid-template-columns:1.1fr .8fr .6fr .75fr 1.6fr 1.2fr;align-items:center}
-@media(max-width:800px){#historyTable{overflow-x:auto}#historyTable .row{min-width:790px}}
+#historyTable .row{grid-template-columns:1.15fr .8fr .55fr .55fr .75fr 1.45fr 1.5fr 1fr;align-items:center}
+@media(max-width:800px){#historyTable{overflow-x:auto}#historyTable .row{min-width:1100px}}
 .brand-home{display:flex;gap:14px;align-items:center;text-align:left;border:0;background:none;color:inherit;padding:0;cursor:pointer;font:inherit;border-radius:12px}
 .brand-home:focus-visible{outline:2px solid var(--brand);outline-offset:5px}
 .brand-home:hover .logo{border-color:var(--brand);box-shadow:0 0 0 2px var(--amber-bg)}
@@ -524,7 +524,7 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
 @media(max-width:800px){.si-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.si-tables{grid-template-columns:1fr}}
 .si-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.si-actions label{color:var(--muted);font-size:12px}.si-actions select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:8px}.si-trend{display:grid;gap:9px;max-height:320px;overflow:auto}.si-trend-row{display:grid;grid-template-columns:85px 1fr 45px 45px;gap:9px;align-items:center;font-size:11px;color:var(--muted)}.si-trend-track{height:10px;background:var(--card2);border-radius:20px;overflow:hidden}.si-trend-track i{display:block;height:100%;background:var(--brand);border-radius:20px}.si-trend-row strong{color:var(--text)}
 
-/* v0.10.10.1 — signal card UX refresh; feed, access control and events unchanged */
+/* v0.10.11 — signal card UX refresh; feed, access control and events unchanged */
 #signalList{gap:12px}
 #signalList .signal-card-v101{padding:17px 18px 14px;border-radius:16px;background:linear-gradient(115deg,var(--card),var(--card2));box-shadow:0 7px 22px rgba(0,0,0,.10)}
 #signalList .signal-card-v101 .signal-top{gap:12px;align-items:flex-start}
@@ -560,6 +560,9 @@ html[data-density="compact"] #signalList .signal-card-v101 .card-open{min-height
 @media(max-width:700px){#signalList .signal-card-v101 .levels{grid-template-columns:repeat(3,minmax(0,1fr))}#signalList .signal-card-v101 .signal-top{flex-wrap:wrap}#signalList .signal-card-v101 .status-stack{text-align:left}#signalList .signal-card-v101 .card-open{min-height:44px}}
 @media(max-width:420px){#signalList .signal-card-v101 .levels{grid-template-columns:repeat(2,minmax(0,1fr))}#signalList .signal-card-v101 .signal-card-actions{flex-wrap:wrap}#signalList .signal-card-v101 .card-open{width:100%}#signalList .signal-card-v101 .v101-progress{gap:3px}#signalList .signal-card-v101 .v101-stage{font-size:9px}}
 @media(prefers-reduced-motion:reduce){#signalList .signal-card-v101{transition:none}}
+/* v0.10.11 — readable History event badges and timeframe */
+#historyTable .history-events{display:flex;flex-wrap:wrap;gap:4px}
+#historyTable .history-event{display:inline-flex;align-items:center;padding:3px 7px;border:1px solid var(--line);border-radius:999px;background:var(--card2);font-size:10px;white-space:nowrap}
 </style>
 <link rel="icon" type="image/png" href="artemis-a-logo.png">
 </head>
@@ -571,14 +574,14 @@ html[data-density="compact"] #signalList .signal-card-v101 .card-open{min-height
   <div class="auth-actions">
     <button id="loginButton" class="cta" type="button">Log In</button>
     <button id="signupButton" class="navbtn" type="button">Create Account</button>
-    <button class="themebtn" type="button" aria-label="Switch colour theme">☀ Light</button>
+    <button class="themebtn" type="button" aria-label="Switch color theme">☀ Light</button>
   </div>
   <div id="authState" class="auth-state"></div>
 </section>
 
 <div id="appRoot" class="wrap hidden">
 <header class="topbar">
-  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="artemis-a-logo.png" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Trading intelligence terminal · v0.10.10.1</div></div></button></div>
+  <div class="brandwrap"><button id="dashboardLogo" class="brand-home" type="button" aria-label="Go to Dashboard"><div class="logo"><img src="artemis-a-logo.png" alt="Artemis Signals" width="48" height="48" style="display:block;width:100%;height:100%;object-fit:contain"></div><div><div class="title">Artemis Signals</div><div class="sub">Trading intelligence terminal · v0.10.11</div></div></button></div>
   <div class="user-menu">
   <div class="feed"><span class="dot"></span><span id="feedStatus">Connecting…</span></div>
   <details class="account-menu" id="accountNavigation">
@@ -600,7 +603,7 @@ html[data-density="compact"] #signalList .signal-card-v101 .card-open{min-height
     </div>
   </details>
   <button id="densityButton" class="densitybtn" type="button" aria-label="Switch to compact dashboard view" aria-pressed="false">▤ Compact</button>
-  <button class="themebtn" type="button" aria-label="Switch colour theme">☀ Light</button>
+  <button class="themebtn" type="button" aria-label="Switch color theme">☀ Light</button>
 </div>
 </header>
 
@@ -694,11 +697,11 @@ html[data-density="compact"] #signalList .signal-card-v101 .card-open{min-height
 <div class="v010-toolbar" aria-label="Additional live signal filters">
   <label>Direction <select id="v010Direction" aria-label="Filter signal direction"><option value="All">Buy &amp; Sell</option><option value="BUY">Buy only</option><option value="SELL">Sell only</option></select></label>
   <label>Timeframe <select id="v010Timeframe" aria-label="Filter signal timeframe"><option value="All">All timeframes</option><option value="M5">M5</option><option value="M15">M15</option><option value="M30">M30</option><option value="H1">H1</option><option value="H4">H4</option><option value="D1">D1</option><option value="W1">W1</option></select></label>
-  <label>Sort <select id="v010Sort" aria-label="Sort live signals"><option value="favourites">Favourites &amp; newest</option><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="symbol">Instrument A–Z</option></select></label>
+  <label>Sort <select id="v010Sort" aria-label="Sort live signals"><option value="favourites">Favorites &amp; newest</option><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="symbol">Instrument A–Z</option></select></label>
   <button id="v010Reset" type="button" class="v010-reset">Reset filters</button>
   <span id="v010Count" role="status" aria-live="polite" class="v010-count">Waiting for signals…</span>
 </div>
-<div class="live-personalise" aria-label="Live signal preferences"><label for="liveSymbolSearch">Find instrument</label><input id="liveSymbolSearch" type="search" placeholder="e.g. XAUUSD, USTech" autocomplete="off"/><button id="liveFavouritesOnly" type="button" aria-pressed="false">☆ Favourites only</button><span class="live-filter-note">Favourites are saved on this device</span></div>
+<div class="live-personalise" aria-label="Live signal preferences"><label for="liveSymbolSearch">Find instrument</label><input id="liveSymbolSearch" type="search" placeholder="e.g. XAUUSD, USTech" autocomplete="off"/><button id="liveFavouritesOnly" type="button" aria-pressed="false">☆ Favorites only</button><span class="live-filter-note">Favorites are saved on this device</span></div>
 
 <section class="layout">
 <div id="signalList" class="signals"><div class="skeleton" aria-label="Loading signals"></div><div class="skeleton" aria-hidden="true"></div></div>
@@ -1339,7 +1342,7 @@ function v010Reset(){
   v010.direction="All";v010.timeframe="All";v010.sort="favourites";
   for(const [id,val] of [["v010Direction","All"],["v010Timeframe","All"],["v010Sort","favourites"]])document.getElementById(id).value=val;
   document.getElementById("liveSymbolSearch").value="";liveSymbolQuery="";
-  favouritesOnly=false;const fav=document.getElementById("liveFavouritesOnly");if(fav){fav.setAttribute("aria-pressed","false");fav.classList.remove("active");fav.textContent="☆ Favourites only";}
+  favouritesOnly=false;const fav=document.getElementById("liveFavouritesOnly");if(fav){fav.setAttribute("aria-pressed","false");fav.classList.remove("active");fav.textContent="☆ Favorites only";}
   activeFilter="All";document.querySelectorAll(".filterbtn[data-filter]").forEach(b=>b.classList.toggle("active",b.dataset.filter==="All"));
   renderDashboard();
 }
@@ -1381,7 +1384,7 @@ function renderSignal(s){
           <span class="badge ${dir==="BUY"?"buy":"sell"}">${esc(dir)}</span>
           <span class="badge grade signal-quality" title="Signal quality from the Artemis feed">✦ ${esc(grade)}</span>
           <span class="tiny asset">${esc(asset)}</span>
-          <button class="signal-favourite ${favouriteSymbols.has(String(s.symbol||"").toUpperCase())?"is-favourite":""}" type="button" aria-label="${favouriteSymbols.has(String(s.symbol||"").toUpperCase())?"Remove favourite":"Add favourite"} ${esc(displaySymbol(s.symbol))}" aria-pressed="${favouriteSymbols.has(String(s.symbol||"").toUpperCase())}" onclick="toggleSignalFavourite(${signalIndex})">${favouriteSymbols.has(String(s.symbol||"").toUpperCase())?"★":"☆"}</button>
+          <button class="signal-favourite ${favouriteSymbols.has(String(s.symbol||"").toUpperCase())?"is-favourite":""}" type="button" aria-label="${favouriteSymbols.has(String(s.symbol||"").toUpperCase())?"Remove favorite":"Add favorite"} ${esc(displaySymbol(s.symbol))}" aria-pressed="${favouriteSymbols.has(String(s.symbol||"").toUpperCase())}" onclick="toggleSignalFavourite(${signalIndex})">${favouriteSymbols.has(String(s.symbol||"").toUpperCase())?"★":"☆"}</button>
           ${(()=>{const t=Date.parse(s.receivedAt||s.received_at||created||"");const age=(Date.now()-t)/60000;return Number.isFinite(age)&&age>=0?`<span class="signal-freshness ${age<30?"fresh-new":age<240?"fresh-recent":"fresh-old"}">${age<30?"New":age<240?"Recent":"Older"}</span>`:""})()}
         </div>
         <div class="meta signal-card-meta"><span>${esc(s.timeframe||"—")} · ${esc(setup)} · ${esc(s.session||"Live feed")}</span><time class="received-time" ${received.iso?`datetime="${esc(received.iso)}" title="Received ${esc(received.iso)}"`:''}><svg class="received-clock" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Received ${esc(received.label)}</time></div>
@@ -1464,7 +1467,7 @@ function renderHistory(signals){
   const supersededCount=signals.filter(s=>!isActive(s)&&isSupersededSignal(s)).length;
   document.getElementById("historyFilterNote").textContent=
     `${showExpired?"Showing":"Hiding"} ${expiredCount} expired · ${showSuperseded?"showing":"hiding"} ${supersededCount} superseded · ${includeActive?"including":"excluding"} running trades`;
-  let html=`<div class="row head"><div>Date</div><div>Market</div><div>Side</div><div>Max target</div><div>Final outcome</div><div>Status</div></div>`;
+  let html=`<div class="row head"><div>Date</div><div>Market</div><div>Timeframe</div><div>Side</div><div>Max target</div><div>Events</div><div>Final outcome</div><div>Status</div></div>`;
   const historyChoice=document.getElementById("historyLimit").value;
   const historyLimit=historyChoice==="all"?Infinity:(Number(historyChoice)||10);
   const matching=historyFilteredRecords(signals);
@@ -1473,7 +1476,7 @@ function renderHistory(signals){
   document.getElementById("historyCoverage").textContent=`Showing ${closed.length} of ${matching.length} matching signals for ${document.getElementById("historyPeriod").selectedOptions[0].text}, from ${signals.length} distinct loaded signals. ${coverage}. Counts and CSV include fetched history pages only; select Load more until the end of the period is reached.`;
   updateHistoryControls();
   if(!closed.length){
-    html+=`<div class="row"><div>—</div><div>No matching signals in the selected period</div><div></div><div></div><div></div><div></div></div>`;
+    html+=`<div class="row"><div>—</div><div>No matching signals in the selected period</div><div></div><div></div><div></div><div></div><div></div><div></div></div>`;
   }else{
     html+=closed.map(s=>{
       const dir=(s.direction||"").toUpperCase(),status=normaliseStatus(s);
@@ -1484,9 +1487,12 @@ function renderHistory(signals){
       const label=running?`● ${achieved?achieved+" Hit · ":""}Active`:achieved?`✓ ${achieved} Hit`:stopped?"✕ Stopped":status.label;
       const badgeClass=running?"status-active":achieved?"status-blue":stopped?"status-red":status.cls;
       const outcome=running?`Tracking ${achieved?achieved+" reached · ":""}${reachedTarget(s,3)?"TP3 reached":reachedTarget(s,2)?"TP3 pending":reachedTarget(s,1)?"TP2 / TP3 pending":"TP1 / TP2 / TP3 pending"}`:stopped&&achieved?`${achieved} recorded; stop also recorded`:finalOutcome(s);
+      const eventLabels=[reachedTarget(s,1)?"TP1 hit":null,reachedTarget(s,2)?"TP2 hit":null,reachedTarget(s,3)?"TP3 hit":null,stopped?"Stopped":null].filter(Boolean);
+      if(!eventLabels.length)eventLabels.push(running?"Active":"No target events recorded");
+      const timeframe=String(s.timeframe||s.tf||"—").toUpperCase();
       const dateValue=signalTime(s);
       const displayDate=dateValue?new Intl.DateTimeFormat("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Europe/London"}).format(new Date(dateValue)):"—";
-      return `<div class="row ${running?"history-running":""}"><div title="${esc(s.timestamp_utc||s.createdAt||s.created_at||s.timestamp||"Timestamp not recorded")}">${esc(displayDate)}</div><div>${esc(displaySymbol(s.symbol))}</div><div class="${dir==="BUY"?"good":"bad"}">${esc(dir)}</div><div>${esc(maxTarget(s))}</div><div>${esc(outcome)}</div><div><span class="status-badge ${badgeClass}">${running?'<span class="pulse history-live-pulse" aria-hidden="true"></span>':''}${esc(running?label.replace(/^● /,''):label)}</span></div></div>`;
+      return `<div class="row ${running?"history-running":""}"><div title="${esc(s.timestamp_utc||s.createdAt||s.created_at||s.timestamp||"Timestamp not recorded")}">${esc(displayDate)}</div><div>${esc(displaySymbol(s.symbol))}</div><div>${esc(timeframe)}</div><div class="${dir==="BUY"?"good":"bad"}">${esc(dir)}</div><div>${esc(maxTarget(s))}</div><div class="history-events">${eventLabels.map(e=>`<span class="history-event">${esc(e)}</span>`).join("")}</div><div>${esc(outcome)}</div><div><span class="status-badge ${badgeClass}">${running?'<span class="pulse history-live-pulse" aria-hidden="true"></span>':''}${esc(running?label.replace(/^● /,''):label)}</span></div></div>`;
     }).join("");
   }
   el.innerHTML=html;
@@ -1540,13 +1546,13 @@ function renderOpportunityBoard(){
   if(watchlistOnly)rows=rows.filter(s=>watchedSymbols.has(s.symbol));
   const board=document.getElementById("opportunityBoard");
   if(!rows.length){
-    const waiting=scannerStates.length?"No opportunities match the selected filters.":"The signal feed is connected. Waiting for the first MT5 scanner heartbeat on the new scanner-state route.";
+    const waiting=scannerStates.length?"No opportunities match the selected filters.":"The signal feed is connected. Waiting for the first scanner update.";
     board.innerHTML=`<div class="panel" style="grid-column:1/-1"><h3>${scannerStates.length?"No matching opportunities":"Scanner telemetry waiting"}</h3><div class="notice">${waiting}</div></div>`;
     return;
   }
   board.innerHTML=rows.map(s=>{
     const idx=scannerStates.indexOf(s),state=scannerDisplayState(s),dir=(s.bias||s.direction||"NEUTRAL").toUpperCase(),score=Math.max(0,Math.min(100,Number(s.confluence_score||0)));
-    return `<article class="opportunity ${state.offline?"offline":""}" role="button" tabindex="0" onclick="openScannerDetail(${idx})"><button class="watch-star ${watchedSymbols.has(s.symbol)?"on":""}" onclick="toggleWatch('${esc(displaySymbol(s.symbol))}',event)" title="Add to watchlist">${watchedSymbols.has(s.symbol)?"★":"☆"}</button><div class="opp-top"><span class="opp-symbol">${esc(displaySymbol(s.symbol))}</span><span class="badge ${dir==="BUY"?"buy":dir==="SELL"?"sell":"grade"}">${esc(dir)}</span></div><div class="opp-state"><strong>${esc(state.label)}</strong>${esc(scannerStateCopy(s,state))}</div><div class="state-progress"><i style="width:${score}%"></i></div><div class="opp-meta"><span class="tiny asset">${esc(s.timeframe||"—")}</span><span class="tiny plan">${score}% confluence</span><span class="tiny locked">${esc(assetClass(s.symbol))}</span></div><div class="freshness ${state.offline?"offline":""}">${esc(relativeAge(state.age))} · ${esc(s.scanner_id||"MT5")}</div></article>`;
+    return `<article class="opportunity ${state.offline?"offline":""}" role="button" tabindex="0" onclick="openScannerDetail(${idx})"><button class="watch-star ${watchedSymbols.has(s.symbol)?"on":""}" onclick="toggleWatch('${esc(displaySymbol(s.symbol))}',event)" title="Add to watchlist">${watchedSymbols.has(s.symbol)?"★":"☆"}</button><div class="opp-top"><span class="opp-symbol">${esc(displaySymbol(s.symbol))}</span><span class="badge ${dir==="BUY"?"buy":dir==="SELL"?"sell":"grade"}">${esc(dir)}</span></div><div class="opp-state"><strong>${esc(state.label)}</strong>${esc(scannerStateCopy(s,state))}</div><div class="state-progress"><i style="width:${score}%"></i></div><div class="opp-meta"><span class="tiny asset">${esc(s.timeframe||"—")}</span><span class="tiny plan">${score}% confluence</span><span class="tiny locked">${esc(assetClass(s.symbol))}</span></div><div class="freshness ${state.offline?"offline":""}">${esc(relativeAge(state.age))} · ${esc(s.scanner_id||"Signal scanner")}</div></article>`;
   }).join("");
 }
 
@@ -1558,7 +1564,7 @@ function openScannerDetail(index){
     <div class="detail-grid"><div class="detail-box"><div class="k">Bias</div><div class="v">${esc(dir)}</div></div><div class="detail-box"><div class="k">Confluence</div><div class="v">${esc(s.confluence_score??0)}%</div></div><div class="detail-box"><div class="k">Timeframe</div><div class="v">${esc(s.timeframe||"—")}</div></div><div class="detail-box"><div class="k">Heartbeat</div><div class="v">${esc(relativeAge(state.age))}</div></div></div>
     <section class="drawer-section"><h3>Scanner state</h3><div class="why-copy"><strong>${esc(state.label)}</strong><br>${esc(scannerStateCopy(s,state))}</div></section>
     <section class="drawer-section"><h3>Confluence evidence</h3><div class="why-copy">Trend: ${esc(s.trend||"Unknown")}<br>Momentum: ${esc(s.momentum||"Unknown")}<br>Structure: ${esc(s.structure||"Unknown")}<br>Volatility: ${esc(s.volatility||"Unknown")}<br>Trigger: ${esc(s.trigger||"Pending")}</div></section>
-    <section class="drawer-section"><h3>Service health</h3><div class="why-copy">Scanner: ${esc(s.scanner_id||"Unknown")}<br>Terminal: ${esc(s.terminal||"MT5")}<br>Last update: ${esc(s.updated_at||"Unavailable")}<br>Status: ${state.offline?"Offline / stale":"Online"}</div></section>`;
+    <section class="drawer-section"><h3>Service health</h3><div class="why-copy">Source: ${esc(s.scanner_id||"Unknown")}<br>Last update: ${esc(s.updated_at||"Unavailable")}<br>Status: ${state.offline?"Offline / stale":"Online"}</div></section>`;
   document.getElementById("signalDrawer").classList.remove("hidden");document.body.classList.add("drawer-open");
 }
 
@@ -1740,7 +1746,7 @@ document.getElementById('v105AlertList').addEventListener('click',e=>{const btn=
 const STRATEGY_INTELLIGENCE_API="https://jrein60sph.execute-api.eu-west-2.amazonaws.com/analytics";
 let siLoading=false;
 const siSafe=(v)=>String(v??"—").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-// v0.10.10.1 — sortable Strategy Intelligence tables; all three target milestones.
+// v0.10.11 — sortable Strategy Intelligence tables; all three target milestones.
 const siTableData={};
 const siTableSort={};
 function siNumber(value){const n=Number(value);return Number.isFinite(n)?n:null;}
@@ -1858,8 +1864,8 @@ document.getElementById("dashboardLogo").addEventListener("click",()=>{switchPag
 
 document.getElementById("liveSymbolSearch").addEventListener("input",e=>{liveSymbolQuery=e.target.value.trim().toLowerCase();renderDashboard();});
 document.getElementById("liveFavouritesOnly").setAttribute("aria-pressed",String(favouritesOnly));
-document.getElementById("liveFavouritesOnly").textContent=favouritesOnly?"★ Favourites only":"☆ Favourites only";
-document.getElementById("liveFavouritesOnly").addEventListener("click",e=>{favouritesOnly=!favouritesOnly;localStorage.setItem("artemis_favourites_only",String(favouritesOnly));e.currentTarget.setAttribute("aria-pressed",String(favouritesOnly));e.currentTarget.textContent=favouritesOnly?"★ Favourites only":"☆ Favourites only";renderDashboard();});
+document.getElementById("liveFavouritesOnly").textContent=favouritesOnly?"★ Favorites only":"☆ Favorites only";
+document.getElementById("liveFavouritesOnly").addEventListener("click",e=>{favouritesOnly=!favouritesOnly;localStorage.setItem("artemis_favourites_only",String(favouritesOnly));e.currentTarget.setAttribute("aria-pressed",String(favouritesOnly));e.currentTarget.textContent=favouritesOnly?"★ Favorites only":"☆ Favorites only";renderDashboard();});
 document.querySelectorAll(".filterbtn").forEach(btn=>btn.classList.toggle("active",btn.dataset.filter===activeFilter));
 document.querySelectorAll(".filterbtn").forEach(btn=>btn.addEventListener("click",()=>{
   document.querySelectorAll(".filterbtn").forEach(b=>b.classList.remove("active"));
