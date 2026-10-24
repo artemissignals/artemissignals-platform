@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Artemis Signals v0.10.7.2 | Secure Live Trading Signal Dashboard</title>
+<title>Artemis Signals v0.10.9 | Secure Live Trading Signal Dashboard</title>
 <meta name="description" content="Secure Artemis Signals subscriber dashboard for authenticated access to FX, gold, indices and crypto market alerts, signal history and risk levels.">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="theme-color" content="#08111e">
@@ -517,6 +517,43 @@ html[data-density="compact"] .v1051-summary strong{font-size:19px}
 .si-refresh{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:8px 12px;border-radius:9px;cursor:pointer;font-size:11px}
 @media(max-width:800px){.si-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.si-tables{grid-template-columns:1fr}}
 .si-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.si-actions label{color:var(--muted);font-size:12px}.si-actions select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:8px}.si-trend{display:grid;gap:9px;max-height:320px;overflow:auto}.si-trend-row{display:grid;grid-template-columns:85px 1fr 45px 45px;gap:9px;align-items:center;font-size:11px;color:var(--muted)}.si-trend-track{height:10px;background:var(--card2);border-radius:20px;overflow:hidden}.si-trend-track i{display:block;height:100%;background:var(--brand);border-radius:20px}.si-trend-row strong{color:var(--text)}
+
+/* v0.10.9 — signal card UX refresh; feed, access control and events unchanged */
+#signalList{gap:12px}
+#signalList .signal-card-v101{padding:17px 18px 14px;border-radius:16px;background:linear-gradient(115deg,var(--card),var(--card2));box-shadow:0 7px 22px rgba(0,0,0,.10)}
+#signalList .signal-card-v101 .signal-top{gap:12px;align-items:flex-start}
+#signalList .signal-card-v101 .marketline{gap:7px 9px}
+#signalList .signal-card-v101 .market{font-size:23px;letter-spacing:-.55px}
+#signalList .signal-card-v101 .signal-quality{color:var(--brand);background:var(--amber-bg);font-weight:850}
+#signalList .signal-card-v101 .meta{line-height:1.65;margin-top:7px}
+#signalList .signal-card-v101 .status-stack{padding-top:3px}
+#signalList .signal-card-v101 .status-badge{font-size:11px;white-space:nowrap}
+#signalList .signal-card-v101 .levels{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:15px}
+#signalList .signal-card-v101 .level{padding:12px 11px;border-radius:11px}
+#signalList .signal-card-v101 .level .k{font-size:10px}
+#signalList .signal-card-v101 .level .v{font-size:clamp(13px,1.3vw,17px);line-height:1.3}
+#signalList .signal-card-v101 .v101-summary{background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;margin-top:13px;padding:12px 0 0}
+#signalList .signal-card-v101 .v101-progress{margin-top:9px;gap:7px}
+#signalList .signal-card-v101 .v101-stage{padding:7px 5px;border-radius:8px}
+#signalList .signal-card-v101 .chips{margin-top:12px;gap:6px}
+#signalList .signal-card-v101 .signal-card-actions{margin-top:12px;padding-top:12px;min-height:42px}
+#signalList .signal-card-v101 .card-open{background:var(--brand);color:#111b28;border-color:var(--brand);padding:11px 17px;font-size:12px;min-height:40px}
+#signalList .signal-card-v101 .card-open:hover{filter:brightness(1.08)}
+#signalList .signal-card-v101 .card-open:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+html[data-density="compact"] #signalList{gap:7px}
+html[data-density="compact"] #signalList .signal-card-v101{padding:10px 13px}
+html[data-density="compact"] #signalList .signal-card-v101 .market{font-size:17px}
+html[data-density="compact"] #signalList .signal-card-v101 .levels{margin-top:9px;gap:5px}
+html[data-density="compact"] #signalList .signal-card-v101 .level{padding:7px 8px}
+html[data-density="compact"] #signalList .signal-card-v101 .level .v{font-size:12px}
+html[data-density="compact"] #signalList .signal-card-v101 .v101-summary{margin-top:8px;padding-top:8px}
+html[data-density="compact"] #signalList .signal-card-v101 .v101-progress{margin-top:5px;gap:5px}
+html[data-density="compact"] #signalList .signal-card-v101 .v101-stage{padding:4px 3px}
+html[data-density="compact"] #signalList .signal-card-v101 .signal-card-actions{margin-top:6px;padding-top:7px;min-height:34px}
+html[data-density="compact"] #signalList .signal-card-v101 .card-open{min-height:32px;padding:7px 12px}
+@media(max-width:700px){#signalList .signal-card-v101 .levels{grid-template-columns:repeat(3,minmax(0,1fr))}#signalList .signal-card-v101 .signal-top{flex-wrap:wrap}#signalList .signal-card-v101 .status-stack{text-align:left}#signalList .signal-card-v101 .card-open{min-height:44px}}
+@media(max-width:420px){#signalList .signal-card-v101 .levels{grid-template-columns:repeat(2,minmax(0,1fr))}#signalList .signal-card-v101 .signal-card-actions{flex-wrap:wrap}#signalList .signal-card-v101 .card-open{width:100%}#signalList .signal-card-v101 .v101-progress{gap:3px}#signalList .signal-card-v101 .v101-stage{font-size:9px}}
+@media(prefers-reduced-motion:reduce){#signalList .signal-card-v101{transition:none}}
 </style>
 <link rel="icon" type="image/png" href="artemis-a-logo.png">
 </head>
@@ -1336,14 +1373,14 @@ function renderSignal(s){
         <div class="marketline">
           <span class="symbol-emblem ${asset==="Gold / Metals"?"metal":asset==="Crypto"?"crypto":asset==="Indices"?"indices":"fx"}" aria-hidden="true">${asset==="Gold / Metals"?"✦":asset==="Crypto"?"₿":asset==="Indices"?"▥":"↗"}</span><span class="market">${esc(displaySymbol(s.symbol))}</span>
           <span class="badge ${dir==="BUY"?"buy":"sell"}">${esc(dir)}</span>
-          <span class="badge grade">${esc(grade)}</span>
+          <span class="badge grade signal-quality" title="Signal quality from the Artemis feed">✦ ${esc(grade)}</span>
           <span class="tiny asset">${esc(asset)}</span>
           <button class="signal-favourite ${favouriteSymbols.has(String(s.symbol||"").toUpperCase())?"is-favourite":""}" type="button" aria-label="${favouriteSymbols.has(String(s.symbol||"").toUpperCase())?"Remove favourite":"Add favourite"} ${esc(displaySymbol(s.symbol))}" aria-pressed="${favouriteSymbols.has(String(s.symbol||"").toUpperCase())}" onclick="toggleSignalFavourite(${signalIndex})">${favouriteSymbols.has(String(s.symbol||"").toUpperCase())?"★":"☆"}</button>
           ${(()=>{const t=Date.parse(s.receivedAt||s.received_at||created||"");const age=(Date.now()-t)/60000;return Number.isFinite(age)&&age>=0?`<span class="signal-freshness ${age<30?"fresh-new":age<240?"fresh-recent":"fresh-old"}">${age<30?"New":age<240?"Recent":"Older"}</span>`:""})()}
         </div>
         <div class="meta signal-card-meta"><span>${esc(s.timeframe||"—")} · ${esc(setup)} · ${esc(s.session||"Live feed")}</span><time class="received-time" ${received.iso?`datetime="${esc(received.iso)}" title="Received ${esc(received.iso)}"`:''}><svg class="received-clock" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Received ${esc(received.label)}</time></div>
       </div>
-      <div class="status-stack"><div class="status-label">Status</div><span class="status-badge ${status.cls}">${esc(status.label)}</span></div>
+      <div class="status-stack"><div class="status-label">Signal status</div><span class="status-badge ${status.cls}">${esc(status.label)}</span></div>
     </div>
     <div class="levels">
       <div class="level entry-level"><div class="k">ENTRY</div><div class="v">${esc(s.entry)}</div></div>
@@ -1352,8 +1389,7 @@ function renderSignal(s){
       <div class="level ${reached2?"hit":""}"><div class="k">TP2</div><div class="v">${esc(s.tp2??"—")}${reached2?" ✓":""}</div></div>
       <div class="level ${reached3?"hit":""}"><div class="k">TP3</div><div class="v">${esc(s.tp3??"—")}${reached3?" ✓":""}</div></div>
     </div>
-    <div class="lifecycle-note"><strong>Lifecycle: ${esc(status.label)}</strong><span>·</span><span>Targets reached: ${reached3?"TP1, TP2, TP3":reached2?"TP1, TP2":reached1?"TP1":"none recorded"}</span></div>
-    <div class="v101-summary" aria-label="Signal progress summary"><span class="v101-summary-title">${esc(status.label)}</span><span class="v101-summary-sub">${stageCount} of 3 targets recorded as reached${terminalStatus?" · Closed / stopped":""}</span></div>
+    <div class="v101-summary" aria-label="Signal progress summary"><span class="v101-summary-title">Target progress</span><span class="v101-summary-sub">${stageCount} of 3 targets reached${terminalStatus?" · Closed / stopped":""}</span></div>
     <div class="v101-progress" aria-label="Target milestone progress">${progressStages}</div>
     <div class="target-path" aria-label="Signal target progress">
       <div class="target-step done">Entry</div>
@@ -1370,7 +1406,7 @@ function renderSignal(s){
     </div>
     <div class="signal-card-actions">
       <div class="signal-card-subline">${s.final_outcome?`<span>Outcome: ${esc(s.final_outcome)}</span>`:""}</div>
-      <button class="card-open" type="button" onclick="openSignalDetail(${signalIndex})">View details ↗</button>
+      <button class="card-open" type="button" onclick="openSignalDetail(${signalIndex})">View Signal <span aria-hidden="true">↗</span></button>
     </div>
   </article>`;
 }
