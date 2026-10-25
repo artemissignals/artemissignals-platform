@@ -1166,7 +1166,7 @@ function displaySymbol(symbol){return String(symbol||"").toUpperCase()==="USTEC"
 function assetClass(symbol){
   const s=(symbol||"").toUpperCase();
   if(s.includes("XAU")||s.includes("GOLD")||s.includes("XAG")) return "Gold / Metals";
-  if(s.includes("BTC")||s.includes("ETH")||s.includes("CRYPTO")) return "Crypto";
+  if(s.includes("BTC")||s.includes("ETH")||s.includes("CRYPTO")||/^XRP(?:USD|USDT|USDC|EUR|GBP|BTC)?(?:[._-].*)?$/.test(s)) return "Crypto";
   if(["USTEC","USTECH","US100","NAS100","NASDAQ","US500","SPX500","US30","DJ30","GER40","UK100","DE40"].some(x=>s.includes(x))) return "Indices";
   return "FX";
 }
