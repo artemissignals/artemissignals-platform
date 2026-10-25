@@ -1683,10 +1683,13 @@ function renderVisualIntelligence(signals){
   const tickerSignals=ordered.filter(isTickerSignal).slice(0,5);
   document.getElementById("activityTicker").innerHTML=tickerSignals.length?tickerSignals.map(s=>{
     const raw=String(s.status||s.event_type||"ACTIVE").toUpperCase();
-    const kind=["ACTIVE","SIGNAL_OPEN","TP1_HIT"].includes(raw)?"ticker-active":
-      ["TP2_HIT","TP3_HIT","CLOSED_TP2"].includes(raw)?"ticker-target":
+    // Preserve the highest recorded TP milestone when a later stop closes the signal.
+    // Only documented milestones count; the stop remains in the underlying event history.
+    const achieved=reachedTarget(s,3)?"TP3 hit":reachedTarget(s,2)?"TP2 hit":reachedTarget(s,1)?"TP1 hit":null;
+    const kind=achieved?"ticker-target":
+      ["ACTIVE","SIGNAL_OPEN"].includes(raw)?"ticker-active":
       ["STOPPED","SL_HIT","CLOSED_SL"].includes(raw)?"ticker-stopped":"ticker-ended";
-    const label={ACTIVE:"Active",SIGNAL_OPEN:"Active",TP1_HIT:"TP1 hit",TP2_HIT:"TP2 hit",TP3_HIT:"TP3 hit",STOPPED:"Stopped",SL_HIT:"Stopped",CLOSED_SL:"Stopped",EXPIRED:"Expired",SUPERSEDED:"Superseded",TIMED_OUT:"Timed out"}[raw]||normaliseStatus(s).label;
+    const label=achieved||({ACTIVE:"Active",SIGNAL_OPEN:"Active",TP1_HIT:"TP1 hit",TP2_HIT:"TP2 hit",TP3_HIT:"TP3 hit",STOPPED:"Stopped",SL_HIT:"Stopped",CLOSED_SL:"Stopped",EXPIRED:"Expired",SUPERSEDED:"Superseded",TIMED_OUT:"Timed out"}[raw]||normaliseStatus(s).label);
     return `<span class="ticker-item ${kind}"><span class="ticker-sep">◆</span><strong>${esc(s.symbol||"Market")}</strong>${esc((s.direction||"").toUpperCase())} · ${esc(label)}</span>`;
   }).join(""):`<span>No recent active signals or TP/SL hits.</span>`;
 
