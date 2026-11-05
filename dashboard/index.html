@@ -563,6 +563,32 @@ html[data-density="compact"] #signalList .signal-card-v101 .card-open{min-height
 /* v0.10.11 — readable History event badges and timeframe */
 #historyTable .history-events{display:flex;flex-wrap:wrap;gap:4px}
 #historyTable .history-event{display:inline-flex;align-items:center;padding:3px 7px;border:1px solid var(--line);border-radius:999px;background:var(--card2);font-size:10px;white-space:nowrap}
+
+/* Performance visual refresh: authenticated analytics, quality 90–100 by default. */
+#strategyIntelligence{border:0;padding:0;background:transparent;margin-top:4px}
+#strategyIntelligence .si-head h3{font-size:clamp(23px,3vw,31px);letter-spacing:-.8px;line-height:1.3}
+#strategyIntelligence .si-head{align-items:flex-end;margin-bottom:14px}
+#siState{padding:12px 16px;border:1px solid var(--line);background:var(--card);border-radius:10px;font-size:12px}
+#strategyIntelligence .si-metrics{gap:13px;margin:20px 0}
+#strategyIntelligence .si-tile{padding:20px 17px;border-radius:14px;background:var(--card);box-shadow:0 8px 25px #0000000a}
+#strategyIntelligence .si-tile strong{font-size:clamp(26px,3vw,35px);letter-spacing:-.7px;margin:8px 0 3px}
+#strategyIntelligence .si-tile:nth-child(2) strong{color:var(--brand)}
+#strategyIntelligence .si-tile small,#strategyIntelligence .si-tile span{font-size:11px}
+.si-visual-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:17px}
+.si-chart-panel{padding:22px;border:1px solid var(--line);border-radius:15px;background:var(--card);min-width:0}
+.si-chart-panel h4{font-size:15px;margin:0 0 5px}.si-chart-panel summary,.si-legacy>summary{cursor:pointer;font-weight:750;font-size:13px}
+.si-extra{margin-top:17px}.si-extra[open]>summary{margin-bottom:18px}.si-legacy{margin-top:20px}
+.si-foot{font-size:11px;line-height:1.6;color:var(--muted);border-top:1px solid var(--line);padding-top:13px;margin:16px 0 0}
+.si-bar-row{display:grid;grid-template-columns:65px 1fr 52px;align-items:center;gap:13px;margin:22px 0;font-size:12px}
+.si-bar-row small{display:block;color:var(--muted);font-size:10px}.si-bar-track{height:12px;border-radius:20px;background:var(--card2);overflow:hidden}
+.si-bar-track i{display:block;height:100%;background:var(--brand);border-radius:20px}.si-bar-row strong{text-align:right}
+.si-band-row{display:grid;grid-template-columns:65px 1fr 48px 42px;align-items:center;gap:9px;margin:17px 0;font-size:12px}.si-band-row small{text-align:right;color:var(--muted)}.si-band-row strong{text-align:right}.si-band-row .si-bar-track{height:9px}
+.si-lifecycle-track{display:flex;height:14px;gap:3px;border-radius:20px;overflow:hidden;margin:24px 0}.si-lifecycle-track i{height:100%}
+.si-lifecycle-legend{display:grid;grid-template-columns:1fr 1fr;gap:17px;color:var(--muted);font-size:12px}.si-lifecycle-legend b{display:block;font-size:23px;color:var(--text)}.si-lifecycle-legend em{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px}
+.si-trend-svg{width:100%;height:185px;display:block;color:var(--muted)}.si-trend-svg text{fill:currentColor;font:11px system-ui}
+.si-trend-points{display:flex;gap:15px;overflow:auto;font-size:11px;color:var(--muted);padding:8px 0}.si-trend-points span{white-space:nowrap}
+@media(max-width:850px){.si-visual-grid{grid-template-columns:1fr}#strategyIntelligence .si-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.si-chart-panel{padding:18px}#strategyIntelligence .si-tile:last-child{grid-column:span 2}}
+
 </style>
 <link rel="icon" type="image/png" href="artemis-a-logo.png">
 </head>
@@ -745,6 +771,38 @@ html[data-density="compact"] #signalList .signal-card-v101 .card-open{min-height
 </section>
 
 <section id="performance" class="page">
+<section class="si-shell" aria-label="Strategy Intelligence" id="strategyIntelligence">
+ <div class="si-head"><h3>Your signals. A clearer picture.</h3><div class="si-actions"><label for="siCohort">Quality <select id="siCohort"><option value="">All quality bands</option><option value="90-100" selected>90–100</option><option value="80-89">80–89</option><option value="70-79">70–79</option><option value="0-69">Below 70</option><option value="unscored">Unscored</option></select></label><label for="siPeriod">Period <select id="siPeriod"><option value="30d">30 days</option><option value="3m">3 months</option><option value="6m">6 months</option><option value="all" selected>All time</option></select></label><button class="si-refresh" type="button" id="siRefresh">↻ Refresh</button></div></div>
+ <p class="si-note">Recorded outcomes, target progress, and the detail behind the numbers. Target achievement is not realized profit. Active signals remain in the denominator.</p>
+ <div id="siState" class="si-note" role="status" aria-live="polite">Loading recorded platform analytics…</div>
+ <div id="siContent" hidden>
+  <div class="si-metrics" id="siMetrics"></div>
+  <div class="si-visual-grid">
+   <article class="si-chart-panel"><h4>How far did signals go?</h4><p id="siTargetScope" class="si-note"></p><div id="siTargetBars"></div><p class="si-foot">Milestones overlap. Target achievement is not realized profit.</p></article>
+   <article class="si-chart-panel"><h4>Does quality make a difference?</h4><p class="si-note">TP1 achievement · all quality bands · selected period</p><div id="siQualityBars"></div><p class="si-foot">n = signals tracked. Small cohorts are descriptive, not rankings.</p></article>
+   <article class="si-chart-panel"><h4>Weekly TP1 achievement</h4><p class="si-note">All quality bands · selected period · weekly UTC cohorts</p><div id="siTrend"></div><p class="si-foot">Includes active signals. The latest week is still developing.</p></article>
+   <article class="si-chart-panel"><h4>Where signals stand</h4><p id="siLifecycleScope" class="si-note"></p><div id="siLifecycle"></div><p class="si-foot">Completed = stopped or TP3 reached. Superseded signals have been replaced.</p></article>
+  </div>
+  <details class="si-chart-panel si-extra"><summary>Explore by instrument and timeframe</summary><p id="siGroupScope" class="si-note"></p><div class="si-tables"><div><h4>By instrument</h4><div id="siInstruments"></div></div><div><h4>By timeframe</h4><div id="siTimeframes"></div></div></div></details>
+  <details class="si-chart-panel si-extra"><summary>Exact quality-band counts</summary><p class="si-note">All quality bands · selected period</p><div id="siBands"></div></details>
+  <details class="si-breakdown si-chart-panel si-extra"><summary>Explore instrument × timeframe × quality</summary>
+   <h4>Instrument × timeframe × quality</h4>
+   <div class="si-actions" id="siBreakdownFilters">
+    <label>Instrument <select id="siDetailInstrument"><option value="">All instruments</option></select></label>
+    <label>Timeframe <select id="siDetailTimeframe"><option value="">All timeframes</option></select></label>
+    <label>Quality <select id="siDetailBand"><option value="">All quality bands</option><option value="90-100" selected>90–100</option></select></label>
+    <label>Target rates <select id="siDetailBasis"><option value="all">All signals</option><option value="completed">Completed only</option></select></label>
+    <button type="button" class="si-refresh" id="siDetailReset">Reset filters</button>
+   </div>
+   <p class="si-note">Completed = stopped or TP3 reached. Active = ACTIVE, TP1_HIT, or TP2_HIT. Expired and superseded signals are counted separately. Completed-only rates exclude active, expired, and superseded signals and may favor signals that finish sooner. Target achievement is not realized profit.</p>
+   <div id="siDetailState" class="si-note" role="status" aria-live="polite"></div>
+   <div id="siDetailTable"></div>
+  </details>
+  <p id="siQuality" class="si-note"></p>
+  <p class="si-note">Small samples are not ranked. Data is based on recorded target events, not independently verified executions or returns.</p>
+ </div>
+</section>
+<details class="panel si-legacy"><summary>Additional feed-based analytics</summary><p class="si-note">These optional figures use the available signal feed and their own market/period controls. They do not use the quality filter above.</p>
 <div class="sectionhead"><h2>Signal performance</h2><div class="performance-toolbar"><label for="performanceMarket">Market</label><select id="performanceMarket"><option value="All">All markets</option><option value="FX">FX</option><option value="Indices">Indices</option><option value="Crypto">Crypto</option><option value="Gold / Metals">Metals</option></select><label for="performancePeriod">Period</label><select id="performancePeriod"><option value="24h">Last 24 hours</option><option value="7d">Last 7 days</option><option value="30d" selected>Last 30 days</option><option value="3m">Last 3 months</option><option value="6m">Last 6 months</option><option value="1y">Last year</option><option value="all">All time</option></select></div></div>
 <div class="performance-group-label">Overview · key metrics</div><section class="metrics performance-metrics performance-vitals">
   <div class="metric"><div class="k">All-time received</div><div class="v" id="pAllTime">–</div><div class="s">Records returned by API</div></div>
@@ -766,33 +824,10 @@ html[data-density="compact"] #signalList .signal-card-v101 .card-open{min-height
  <div class="panel"><h3>Signal outcomes over time</h3><div class="chart-subtitle">Wins, losses and unresolved signals by date</div><div id="performanceTrend" class="perf-chart" role="img" aria-label="Signal outcome trend chart">Waiting for data…</div></div>
  <div class="panel"><h3>Target progression</h3><div class="chart-subtitle">Percentage of signals that reached each target in the selected period</div><div id="performanceTargets" class="perf-target-chart">Waiting for data…</div></div>
 </section>
-<section class="si-shell" aria-label="Strategy Intelligence" id="strategyIntelligence">
- <div class="si-head"><h3>◈ Strategy Intelligence <span class="tiny asset">LIVE DATA</span></h3><div class="si-actions"><label for="siPeriod">Period <select id="siPeriod"><option value="30d">30 days</option><option value="3m">3 months</option><option value="6m">6 months</option><option value="all" selected>All time</option></select></label><button class="si-refresh" type="button" id="siRefresh">↻ Refresh</button></div></div>
- <p class="si-note">Production signal tracking · independent of the market filter above. Target achievement is not realized profit. Active signals remain in the denominator.</p>
- <div id="siState" class="si-note" role="status" aria-live="polite">Open Performance to load verified analytics.</div>
- <div id="siContent" hidden>
-  <div class="si-metrics" id="siMetrics"></div>
-  <div class="si-tables"><div><h4>By instrument</h4><div id="siInstruments"></div></div><div><h4>By timeframe</h4><div id="siTimeframes"></div></div></div>
-  <div class="si-tables"><div><h4>Weekly TP1 achievement trend</h4><div id="siTrend"></div></div><div><h4>Quality-score bands <span class="si-sort-hint">· click headings to sort</span></h4><div id="siBands"></div></div></div>
-  <div class="si-breakdown" style="margin-top:22px">
-   <h4>Instrument × timeframe × quality</h4>
-   <div class="si-actions" id="siBreakdownFilters">
-    <label>Instrument <select id="siDetailInstrument"><option value="">All instruments</option></select></label>
-    <label>Timeframe <select id="siDetailTimeframe"><option value="">All timeframes</option></select></label>
-    <label>Quality <select id="siDetailBand"><option value="">All quality bands</option></select></label>
-    <label>Target rates <select id="siDetailBasis"><option value="all">All signals</option><option value="completed">Completed only</option></select></label>
-    <button type="button" class="si-refresh" id="siDetailReset">Reset filters</button>
-   </div>
-   <p class="si-note">Completed = stopped or TP3 reached. Active = ACTIVE, TP1_HIT, or TP2_HIT. Expired and superseded signals are counted separately. Completed-only rates exclude active, expired, and superseded signals and may favor signals that finish sooner. Target achievement is not realized profit.</p>
-   <div id="siDetailState" class="si-note" role="status" aria-live="polite"></div>
-   <div id="siDetailTable"></div>
-  </div>
-  <p id="siQuality" class="si-note"></p>
-  <p class="si-note">Small samples are not ranked. Data is based on recorded target events, not independently verified executions or returns.</p>
- </div>
-</section>
+
 <div class="panel" id="performanceExplorer"><h3>Performance Explorer <span style="font-size:12px;color:var(--muted);font-weight:400">· v0.10.5</span></h3><div class="chart-subtitle">Compare outcomes across instruments and timeframes. Uses the selected market and period above.</div><div class="explorer-toolbar"><label>Instrument <select id="explorerInstrument"><option value="All">All instruments</option></select></label><label>Timeframe <select id="explorerTimeframe"><option value="All">All timeframes</option></select></label><label>Sort by <select id="explorerSort"><option value="count">Most signals</option><option value="rate">Highest win rate</option><option value="name">Name A–Z</option></select></label><button type="button" id="explorerReset" class="btn" style="padding:10px 14px">Reset Explorer</button></div><div id="explorerSummary" class="explorer-footnote" aria-live="polite"></div><div class="explorer-grid"><div class="panel"><h3>By instrument</h3><div id="explorerInstruments"></div></div><div class="panel"><h3>By timeframe</h3><div id="explorerTimeframes"></div></div></div><div class="explorer-footnote">Win rate = TP1 reached ÷ (TP1 reached + stopped before TP1). Unresolved signals are excluded from the win-rate denominator. Rates are descriptive, not forecasts or realised returns. Comparisons use only records returned by the API.</div></div>
 <div class="panel performance-explanation"><h3>How performance is calculated</h3><div class="notice" id="performanceExplanation">Waiting for data…</div></div>
+</details>
 </section>
 
 <section id="profile" class="page">
@@ -1765,7 +1800,7 @@ const siSafe=(v)=>String(v??"—").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 // v0.10.11 — sortable Strategy Intelligence tables; all three target milestones.
 const siTableData={};
 const siTableSort={};
-function siNumber(value){const n=Number(value);return Number.isFinite(n)?n:null;}
+function siNumber(value){if(value===null||value===undefined||value==='')return null;const n=Number(value);return Number.isFinite(n)?n:null;}
 function siBandStart(name){
  const text=String(name??'');
  const match=text.match(/-?\d+(?:\.\d+)?/);
@@ -1853,17 +1888,18 @@ function siDetailLoad(data){
  siDetailRows=Array.isArray(data.byInstrumentTimeframeQuality)?data.byInstrumentTimeframeQuality: null;
  for(const [key,id,label] of [['instrument','siDetailInstrument','All instruments'],['timeframe','siDetailTimeframe','All timeframes'],['qualityBand','siDetailBand','All quality bands']]){
   const select=document.getElementById(id),previous=select.value;
-  const values=[...new Set((siDetailRows||[]).map(r=>String(r[key]??'UNKNOWN')))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  const values=[...new Set([...(key==='qualityBand'?['90-100','80-89','70-79','0-69','unscored']:[]),...(siDetailRows||[]).map(r=>String(r[key]??'UNKNOWN'))])].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
   select.innerHTML='<option value="">'+label+'</option>'+values.map(v=>`<option value="${siSafe(v)}">${siSafe(v)}</option>`).join('');
   select.value=values.includes(previous)?previous:'';
  }
  siDetailRender();
 }
-document.getElementById('siBreakdownFilters').addEventListener('change',siDetailRender);
+document.getElementById('siBreakdownFilters').addEventListener('change',event=>{if(event.target.id==='siDetailBand'){document.getElementById('siCohort').value=event.target.value;siVisualRender();}siDetailRender();});
 document.getElementById('siDetailReset').addEventListener('click',()=>{
- for(const id of ['siDetailInstrument','siDetailTimeframe','siDetailBand'])document.getElementById(id).value='';
+ for(const id of ['siDetailInstrument','siDetailTimeframe'])document.getElementById(id).value='';
+ document.getElementById('siDetailBand').value='90-100';document.getElementById('siCohort').value='90-100';
  document.getElementById('siDetailBasis').value='all';
- siDetailSort={key:'signals',dir:'desc'};siDetailRender();
+ siDetailSort={key:'signals',dir:'desc'};siDetailRender();siVisualRender();
 });
 document.getElementById('siDetailTable').addEventListener('click',event=>{
  const button=event.target.closest('button[data-si-detail-sort]');
@@ -1874,29 +1910,72 @@ document.getElementById('siDetailTable').addEventListener('click',event=>{
  siDetailRender();
 });
 
+let siCurrentData=null;
+function siAggregate(rows){
+ const out={signals:0,targetsReached:{tp1:0,tp2:0,tp3:0},stateCounts:{active:0,completed:0,expired:0,superseded:0,other:0},targetAchievementPctOfAllSignals:{}};
+ let completeStates=true;
+ for(const row of rows){out.signals+=Number(row.signals)||0;for(const k of ['tp1','tp2','tp3'])out.targetsReached[k]+=Number(row.targetsReached?.[k])||0;for(const k of Object.keys(out.stateCounts)){if(row.stateCounts?.[k]==null)completeStates=false;out.stateCounts[k]+=Number(row.stateCounts?.[k])||0;}}
+ if(!completeStates)out.stateCounts=null;
+ for(const k of ['tp1','tp2','tp3'])out.targetAchievementPctOfAllSignals[k]=out.signals?Math.round(1000*out.targetsReached[k]/out.signals)/10:null;
+ return out;
+}
+function siVisualPct(value){const n=siNumber(value);return n===null?'—':siSafe(n)+'%';}
+function siVisualBar(label,p,count){const n=siNumber(p);return `<div class="si-bar-row"><div>${siSafe(label)}<small>${siSafe(count??'—')} signals</small></div><div class="si-bar-track" aria-hidden="true"><i style="width:${n===null?0:Math.max(0,Math.min(100,n))}%"></i></div><strong>${siVisualPct(p)}</strong></div>`;}
+function siWeeklyChart(weeks){
+ const dated=weeks.filter(w=>/^\d{4}-\d{2}-\d{2}$/.test(String(w.weekStart))&&Number(w.signals)>0&&siNumber(w.targetAchievementPctOfAllSignals?.tp1)!==null).sort((a,b)=>a.weekStart.localeCompare(b.weekStart));
+ if(!dated.length)return '<p class="si-note">No dated target data in this period.</p>';
+ const view=dated.slice(-12),x=i=>view.length===1?290:45+i*500/(view.length-1),y=p=>160-1.35*Number(p);
+ const points=view.map((w,i)=>`${x(i)},${y(w.targetAchievementPctOfAllSignals.tp1)}`).join(' ');
+ return `<svg class="si-trend-svg" viewBox="0 0 580 190" role="img" aria-label="Weekly TP1 achievement, all quality bands. Exact dates, rates and sample sizes follow.">${[0,25,50,75,100].map(p=>`<line x1="38" x2="560" y1="${y(p)}" y2="${y(p)}" stroke="var(--line)" stroke-dasharray="4 5"/><text x="0" y="${y(p)+4}">${p}%</text>`).join('')}<polyline points="${points}" fill="none" stroke="var(--brand)" stroke-width="3"/>${view.map((w,i)=>`<circle cx="${x(i)}" cy="${y(w.targetAchievementPctOfAllSignals.tp1)}" r="4" fill="var(--card)" stroke="var(--brand)" stroke-width="2"/>`).join('')}</svg><div class="si-trend-points">${view.map(w=>`<span>${siSafe(w.weekStart)}<br><b>${siVisualPct(w.targetAchievementPctOfAllSignals.tp1)}</b> · n=${siSafe(w.signals)}</span>`).join('')}</div>${dated.length>12?'<p class="si-note">Most recent 12 weekly cohorts in the selected period.</p>':''}`;
+}
+function siVisualRender(){
+ if(!siCurrentData)return;
+ const data=siCurrentData,band=document.getElementById('siCohort').value;
+ const groupRows=siDetailRows===null?null:siDetailRows.filter(r=>!band||String(r.qualityBand)===band);
+ let cohort=band?(Array.isArray(data.byQualityBand)?data.byQualityBand.find(r=>r.name===band):null):data.summary;
+ if(groupRows!==null)cohort=siAggregate(groupRows);
+ if(!cohort)cohort=siAggregate([]);
+ const n=Number(cohort.signals)||0,rates=cohort.targetAchievementPctOfAllSignals||{},counts=cohort.targetsReached||{},states=cohort.stateCounts;
+ const scope=(band?'Quality '+band:'All quality bands')+' · '+n+' signals · selected period';
+ const cards=[['Signals tracked',n,band?'Quality '+band:'All quality bands'],...['tp1','tp2','tp3'].map(k=>[k.toUpperCase()+' reached',siVisualPct(rates[k]),`${counts[k]??0} of ${n} signals`]),['Still active',states?.active??'—',states?'Including TP1/TP2-hit signals':'Lifecycle counts unavailable']];
+ document.getElementById('siMetrics').innerHTML=cards.map(([label,value,note])=>`<div class="si-tile"><small>${siSafe(label)}</small><strong>${siSafe(value)}</strong><span>${siSafe(note)}</span></div>`).join('');
+ document.getElementById('siTargetScope').textContent=scope+' · all records included';
+ document.getElementById('siTargetBars').innerHTML=['tp1','tp2','tp3'].map(k=>siVisualBar(k.toUpperCase(),rates[k],counts[k])).join('');
+ const bands=Array.isArray(data.byQualityBand)?data.byQualityBand:[];
+ const order=['90-100','80-89','70-79','0-69','unscored'];
+ document.getElementById('siQualityBars').innerHTML=order.map(name=>{const row=bands.find(r=>r.name===name);if(!row)return '';const rate=row.targetAchievementPctOfAllSignals?.tp1,p=siNumber(rate);return `<div class="si-band-row"><span>${siSafe(name==='unscored'?'Unscored':name)}</span><div class="si-bar-track" aria-hidden="true"><i style="width:${p===null?0:Math.max(0,Math.min(100,p))}%;${name===band?'background:var(--green)':''}"></i></div><strong>${siVisualPct(rate)}</strong><small>n=${siSafe(row.signals)}</small></div>`;}).join('')||'<p class="si-note">No scored signals in this period.</p>';
+ document.getElementById('siTrend').innerHTML=siWeeklyChart(Array.isArray(data.weeklyTrend)?data.weeklyTrend:[]);
+ document.getElementById('siLifecycleScope').textContent=scope;
+ const colors={completed:'var(--green)',superseded:'#899dc3',expired:'#dcb576',active:'var(--brand)',other:'#768292'};
+ document.getElementById('siLifecycle').innerHTML=states?`<div class="si-lifecycle-track" aria-hidden="true">${Object.keys(colors).map(k=>`<i style="width:${n?100*states[k]/n:0}%;background:${colors[k]}"></i>`).join('')}</div><div class="si-lifecycle-legend">${Object.keys(colors).filter(k=>k!=='other'||states[k]).map(k=>`<div><em style="background:${colors[k]}"></em>${siSafe(k==='active'?'Still active':k[0].toUpperCase()+k.slice(1))}<b>${siSafe(states[k])}</b></div>`).join('')}</div>`:'<p class="si-note">Lifecycle counts are unavailable for this cohort.</p>';
+ function grouped(field){const buckets=new Map();for(const row of groupRows||[]){const key=String(row[field]??'UNKNOWN');if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(row);}return [...buckets].map(([name,rows])=>({name,...siAggregate(rows)}));}
+ document.getElementById('siGroupScope').textContent=groupRows!==null?scope:'All quality bands · quality-filtered grouping unavailable';
+ document.getElementById('siInstruments').innerHTML=siTable(groupRows!==null?grouped('instrument'):data.byInstrument,'Instrument','siInstruments');
+ document.getElementById('siTimeframes').innerHTML=siTable(groupRows!==null?grouped('timeframe'):data.byTimeframe,'Timeframe','siTimeframes');
+ document.getElementById('siBands').innerHTML=siTable(bands,'Score band','siBands');
+ document.getElementById('siQuality').textContent=`Quality scores recorded for ${data.summary.scoredSignals??0} of ${data.summary.signals??0} signals in the selected period. Overview and lifecycle use the quality selector; weekly and quality-comparison charts show all quality bands. Explorer instrument/timeframe and rate-basis filters affect only the detailed table.`;
+}
+document.getElementById('siCohort').addEventListener('change',()=>{document.getElementById('siDetailBand').value=document.getElementById('siCohort').value;siVisualRender();siDetailRender();});
+
 async function siLoad(){
  if(siLoading)return;
  const state=document.getElementById('siState'),content=document.getElementById('siContent');
  const token=sessionStorage.getItem('artemis_id_token');
- if(!token){state.textContent='Sign in to view Strategy Intelligence.';content.hidden=true;return;}
+ if(!token){siCurrentData=null;siDetailRows=null;state.textContent='Sign in to view Strategy Intelligence.';content.hidden=true;return;}
  siLoading=true;state.textContent='Loading target analytics…';
  try{
   const period=document.getElementById('siPeriod').value;
+  content.hidden=true;
   const res=await fetch(STRATEGY_INTELLIGENCE_API+'?period='+encodeURIComponent(period),{headers:{'Accept':'application/json','Authorization':'Bearer '+token},cache:'no-store'});
   if(!res.ok)throw new Error(res.status===401?'Session expired. Please sign in again.':`Analytics unavailable (HTTP ${res.status}).`);
   const data=await res.json();
   if(data.methodology!=='target_tracking_only'||!data.summary)throw new Error('Unexpected analytics response.');
+  siCurrentData=data;
   siDetailLoad(data);
-  const x=data.summary,n=x.signals||0,counts=x.targetsReached||{},rates=x.targetAchievementPctOfAllSignals||{};
-  const cards=[['Signals tracked',n,period==='all'?'All-time records':'Selected-period records'],['TP1 achieved',`${rates.tp1??'—'}%`,`${counts.tp1??0} signals`],['TP2 achieved',`${rates.tp2??'—'}%`,`${counts.tp2??0} signals`],['TP3 achieved',`${rates.tp3??'—'}%`,`${counts.tp3??0} signals`],['SL before TP1',x.stoppedBeforeTP1??'—','Count, not loss rate']];
-  document.getElementById('siMetrics').innerHTML=cards.map(([label,value,note])=>`<div class="si-tile"><small>${siSafe(label)}</small><strong>${siSafe(value)}</strong><span>${siSafe(note)}</span></div>`).join('');
-  document.getElementById('siInstruments').innerHTML=siTable(data.byInstrument,'Instrument','siInstruments');
-  document.getElementById('siTimeframes').innerHTML=siTable(data.byTimeframe,'Timeframe','siTimeframes');
-  const trend=Array.isArray(data.weeklyTrend)?data.weeklyTrend:[];
-  document.getElementById('siTrend').innerHTML=trend.length?'<div class="si-trend">'+trend.map(w=>{const p=w.targetAchievementPctOfAllSignals?.tp1??0;return `<div class="si-trend-row"><span>${siSafe(w.weekStart)}</span><div class="si-trend-track"><i style="width:${Math.max(0,Math.min(100,Number(p)||0))}%"></i></div><strong>${siSafe(p)}%</strong><small>n=${siSafe(w.signals)}</small></div>`}).join('')+'</div>':'<p class="si-note">No dated signals in this period.</p>';
-  document.getElementById('siBands').innerHTML=siTable(data.byQualityBand,'Score band','siBands');
-  document.getElementById('siQuality').textContent=`Quality scores recorded for ${x.scoredSignals??0} of ${n} signals. ${Number(x.scoredSignals||0)<30?'Collecting data — no strong-signal performance conclusions yet.':'Quality bands are available in the analytics backend.'}`;
-  content.hidden=false;state.textContent=`${period==='all'?'All time':period} · ${n} signals · live DynamoDB scan${data.coverage?.excludedUndatedForPeriod?' · '+data.coverage.excludedUndatedForPeriod+' undated excluded':''}`;
+  document.getElementById('siDetailBand').value=document.getElementById('siCohort').value;
+  siDetailRender();siVisualRender();
+  content.hidden=false;state.textContent=`${period==='all'?'All time':period} · ${data.summary.signals||0} total tracked signals · updated ${data.asOfUtc?new Date(data.asOfUtc).toLocaleString('en-US'):'time unavailable'}${data.coverage?.excludedUndatedForPeriod?' · '+data.coverage.excludedUndatedForPeriod+' undated excluded':''}`;
+
  }catch(err){content.hidden=true;state.textContent=err.message||'Unable to load analytics.';}
  finally{siLoading=false;}
 }
