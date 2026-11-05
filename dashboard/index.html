@@ -607,6 +607,10 @@ html[data-density="compact"] #signalList .signal-card-refresh{padding:14px 16px}
 @media(max-width:700px){#signalList .signal-card-refresh{padding:17px}#signalList .signal-card-refresh .market{font-size:22px}#signalList .signal-card-refresh .levels{grid-template-columns:repeat(3,minmax(0,1fr))}.signal-card-context{flex-wrap:wrap}}
 @media(max-width:420px){#signalList .signal-card-refresh .levels{grid-template-columns:repeat(2,minmax(0,1fr))}#signalList .signal-card-refresh .signal-card-actions{align-items:stretch;flex-direction:column}.signal-complete-levels{grid-template-columns:repeat(2,minmax(0,1fr))}.signal-progress-node small{font-size:9px}}
 
+
+.notify-root{position:relative}.notify-bell{position:relative;display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--text);padding:9px;border-radius:10px;cursor:pointer}.notify-bell svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7}.notify-popover{position:absolute;right:0;top:48px;z-index:60;width:min(460px,90vw);max-height:70vh;overflow:auto;border:1px solid var(--line);border-radius:15px;background:var(--card);box-shadow:0 18px 60px #0006;padding:17px}.notify-popover-head{display:flex;justify-content:space-between;align-items:center;gap:14px}.notify-popover button,.notify-catchup button,.notify-event button{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 11px;font:inherit;font-size:11px;cursor:pointer}.notify-event{display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--line);padding:16px 4px}.notify-event.unread{border-left:2px solid var(--brand);padding-left:10px}.notify-event-icon{width:28px;height:28px;border-radius:9px;background:var(--amber-bg);color:var(--brand);display:grid;place-items:center;flex-shrink:0}.notify-event-copy{flex:1;min-width:0}.notify-event-copy strong{display:block;font-size:12px}.notify-event-copy small,.notify-event-copy time{display:block;font-size:10px;color:var(--muted);line-height:1.6}.notify-catchup{padding:21px;border:1px solid var(--line);border-radius:16px;background:var(--card);margin:0 0 22px}.notify-catchup-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px}.notify-catchup h2{font-size:17px;margin:0 0 6px}.notify-catchup p{font-size:11px;color:var(--muted);margin:0}.notify-catchup-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-top:19px}.notify-catchup-cards>div{border-left:2px solid var(--line);padding-left:15px}.notify-catchup-cards span{font-size:11px;color:var(--muted)}.notify-catchup-cards strong{display:block;font-size:27px;color:var(--text);margin-top:5px}.notify-catchup-cards>div:first-child{border-color:var(--brand)}#notifyQuality,#notifyTimeframe{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;font-size:11px}
+@media(max-width:620px){.notify-catchup{padding:16px}.notify-catchup-head{flex-direction:column}.notify-event{flex-wrap:wrap}.notify-event button{margin-left:40px}.notify-catchup-cards{gap:8px}.notify-catchup-cards>div{padding-left:10px}}
+
 </style>
 <link rel="icon" type="image/png" href="artemis-a-logo.png">
 </head>
@@ -618,7 +622,8 @@ html[data-density="compact"] #signalList .signal-card-refresh{padding:14px 16px}
   <div class="auth-actions">
     <button id="loginButton" class="cta" type="button">Log In</button>
     <button id="signupButton" class="navbtn" type="button">Create Account</button>
-    <button class="themebtn" type="button" aria-label="Switch color theme">☀ Light</button>
+    <div id="notifyRoot" class="notify-root"><button id="notifyBell" type="button" class="notify-bell" aria-label="Notifications, 0 unread" aria-expanded="false" aria-controls="notifyPopover"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span id="notifyBellCount" class="alert-unread" hidden>0</span></button><div id="notifyPopover" class="notify-popover" hidden><div class="notify-popover-head"><strong>Recent notifications</strong><button type="button" id="notifyShowAll">View all</button></div><div id="notifyPeekList"><p class="v105-empty">Waiting for your authenticated feed.</p></div></div></div>
+  <button class="themebtn" type="button" aria-label="Switch color theme">☀ Light</button>
   </div>
   <div id="authState" class="auth-state"></div>
 </section>
@@ -689,6 +694,8 @@ html[data-density="compact"] #signalList .signal-card-refresh{padding:14px 16px}
 </div></div><div class="hero-actions"><button type="button" id="heroSignals" class="hero-primary">Explore live signals →</button><button type="button" id="heroHistory" class="hero-secondary">Review history ↗</button></div></section>
 
 <section id="dashboard" class="page active">
+<section class="notify-catchup" aria-labelledby="notifyCatchupTitle"><div class="notify-catchup-head"><div><h2 id="notifyCatchupTitle">Since your last visit</h2><p id="notifyCatchupNote">Waiting for your authenticated feed.</p></div><button id="notifyCatchupOpen" type="button">Review activity →</button></div><div id="notifyCatchupCards" class="notify-catchup-cards"><div><span>New signals</span><strong>—</strong></div><div><span>Target events</span><strong>—</strong></div><div><span>Stops</span><strong>—</strong></div></div></section>
+
 <section class="metrics metrics-six">
   <div class="metric"><div class="k">Total signals</div><div class="v" id="mTotal">–</div><div class="s">Tracked in database</div></div>
   <div class="metric"><div class="k">Active signals</div><div class="v good" id="mActive">–</div><div class="s">Currently live</div></div>
@@ -873,8 +880,8 @@ html[data-density="compact"] #signalList .signal-card-refresh{padding:14px 16px}
  <div class="panel"><p class="v105-note">Star an instrument to follow its signals. Preferences are stored locally in this browser, not yet synced to your account.</p><div id="v105WatchChips" class="v105-chips"></div><div class="v105-toolbar v1053-controls"><label><input type="checkbox" id="v1053ShowHistory"> Show completed signal history</label><span id="v1053Count" class="v105-note" aria-live="polite"></span></div><div id="v105WatchResults" class="v105-results"></div></div>
 </section>
 <section id="notifications" class="page">
- <div class="sectionhead"><h2>Notification Centre</h2><div class="r">Signal activity from your available feed</div></div>
- <div class="panel"><div class="v105-toolbar"><label><input type="checkbox" id="v105OnlyWatch" checked> Watchlist instruments only</label><button type="button" id="v105MarkRead">Mark all as read</button></div><p class="v105-note">In-app activity only: no email, SMS, Telegram or push alerts are sent. Items appear when your authenticated feed loads; previously seen items are remembered on this device.</p><div id="v105AlertList" class="v105-results"></div></div>
+ <div class="sectionhead"><h2>Notifications</h2><div class="r">Signal activity from your available feed</div></div>
+ <div class="panel"><div class="v105-toolbar"><label><input type="checkbox" id="v105OnlyWatch"> Watchlist instruments only</label><label>Minimum quality <select id="notifyQuality"><option value="0">All, including unscored</option><option value="70">70+</option><option value="80">80+</option><option value="90" selected>90+</option></select></label><label>Timeframe <select id="notifyTimeframe"><option value="">All timeframes</option><option>M1</option><option>M5</option><option>M15</option><option>M30</option><option>H1</option><option>H4</option><option>D1</option></select></label><button type="button" id="notifyMarkAll">Mark matching events as read</button></div><p class="v105-note">Each new signal, target hit and stop is tracked separately after your first successful feed load. Read state, catch-up history and these notification filters are saved per account on this browser. Only loaded, eligible signals are included; missing event times are labeled as observed. Telegram delivery is a separate private test deployment and is not activated by this page.</p><div id="v105AlertList" class="v105-results"></div></div>
 </section>
 
 
@@ -1770,9 +1777,6 @@ function renderVisualIntelligence(signals){
 
 
 // v0.10.4 / v0.10.5 — client-side preferences and feed-based activity (no delivery backend).
-const V105_READ_KEY='artemis_v105_read_alerts';
-let v105ReadIds=new Set();
-try { const x=JSON.parse(localStorage.getItem(V105_READ_KEY)||'[]');if(Array.isArray(x))v105ReadIds=new Set(x.filter(v=>typeof v==='string')); }catch(_){}
 function v105Id(s){return String(s.signal_id||s.signalId||s.id||[s.symbol,s.timeframe,s.direction,s.timestamp_utc||s.createdAt||s.receivedAt,s.entry].join('|'));}
 function v105Entries(){
  const seen=new Set();return [...allSignals].filter(s=>{const id=v105Id(s);if(seen.has(id))return false;seen.add(id);return true;}).sort((a,b)=>signalTime(b)-signalTime(a)).slice(0,100);
@@ -1797,19 +1801,79 @@ function v105Render(){
  document.getElementById('v1053Count').textContent=`${activeWatched.length} actionable · ${completedWatched.length} historical`;
  const empty=!favouriteSymbols.size?'Select ★ instruments above to build your watchlist.':!watched.length?'No signals for your selected instruments in the loaded feed.':'No active signals for your watchlist right now. Enable “Show completed signal history” to review past signals.';
  document.getElementById('v105WatchResults').innerHTML=visible.length?visible.slice(0,30).map(s=>`<div class="v105-row ${actionable(s)?'v1053-live':'v1053-history'}"><div><strong>${esc(instrumentLabel(s.symbol))} · ${esc(s.direction||'—')}</strong><span class="v1053-pill">${actionable(s)?'OPEN':'HISTORY'}</span><small>${esc(s.timeframe||'—')} · ${esc(normaliseStatus(s).label||'—')}</small></div><button type="button" data-v105-open="${allSignals.indexOf(s)}">View details →</button></div>`).join(''):`<div class="v105-empty">${empty}</div>`;
- const filtered=v105Entries().filter(s=>!document.getElementById('v105OnlyWatch').checked||favouriteSymbols.has(String(s.symbol||'').toUpperCase()));
- const unread=filtered.filter(s=>!v105ReadIds.has(v105Id(s))).length;
- const badge=document.getElementById('alertUnreadBadge');badge.hidden=!unread;badge.textContent=String(unread>99?'99+':unread);
- document.getElementById('v105AlertList').innerHTML=filtered.length?filtered.slice(0,50).map(s=>`<div class="v105-row"><div><strong>${v105ReadIds.has(v105Id(s))?'':'● '}${esc(instrumentLabel(s.symbol))} · ${esc(s.direction||'Signal')}</strong><small>${esc(s.timeframe||'—')} · ${esc(normaliseStatus(s).label||'—')} · ${esc(s.timestamp_utc||s.createdAt||s.receivedAt||'Time unavailable')}</small></div><button type="button" data-v105-read="${allSignals.indexOf(s)}">${v105ReadIds.has(v105Id(s))?'View':'Read / view'}</button></div>`).join(''):'<div class="v105-empty">No matching activity in your loaded signal feed.</div>';
+ notifyRender();
 }
-function v105SaveRead(){try{localStorage.setItem(V105_READ_KEY,JSON.stringify([...v105ReadIds].slice(-500)));}catch(_){}}
 document.getElementById('v1053ShowHistory').addEventListener('change',v105Render);
-document.getElementById('v105OnlyWatch').addEventListener('change',v105Render);
-document.getElementById('v105MarkRead').addEventListener('click',()=>{v105Entries().forEach(s=>v105ReadIds.add(v105Id(s)));v105SaveRead();v105Render();});
 document.getElementById('v105WatchChips').addEventListener('click',e=>{const btn=e.target.closest('[data-v105-symbol]');if(!btn)return;const sym=btn.dataset.v105Symbol;if(favouriteSymbols.has(sym))favouriteSymbols.delete(sym);else favouriteSymbols.add(sym);try{localStorage.setItem('artemis_signal_favourites',JSON.stringify([...favouriteSymbols]));}catch(_){}renderDashboard();v105Render();});
 document.getElementById('v105WatchResults').addEventListener('click',e=>{const btn=e.target.closest('[data-v105-open]');if(btn)openSignalDetail(Number(btn.dataset.v105Open));});
-document.getElementById('v105AlertList').addEventListener('click',e=>{const btn=e.target.closest('[data-v105-read]');if(!btn)return;const index=Number(btn.dataset.v105Read);const s=allSignals[index];if(!s)return;v105ReadIds.add(v105Id(s));v105SaveRead();v105Render();openSignalDetail(index);});
 
+
+
+// Event notifications are scoped to the signed-in account on this browser.
+let notifyAccount='',notifyState=null,notifyBaseline=0,notifySessionStart=0;
+const notifyLabels={NEW:'New signal',TP1_HIT:'TP1 reached',TP2_HIT:'TP2 reached',TP3_HIT:'TP3 reached',STOPPED:'Stop recorded',SUPERSEDED:'Signal superseded',EXPIRED:'Signal expired',CANCELLED:'Signal canceled'};
+function notifyScope(){const claims=decodeJwt(sessionStorage.getItem('artemis_id_token')||'');return typeof claims?.sub==='string'?claims.sub:'';}
+function notifySave(){if(!notifyAccount||!notifyState)return;try{localStorage.setItem('artemis_notify_v1:'+notifyAccount,JSON.stringify(notifyState));}catch(_){}}
+function notifyPrepare(){
+ const account=notifyScope();if(!account){notifyAccount='';notifyState=null;return false;}
+ if(account===notifyAccount&&notifyState)return true;
+ notifyAccount=account;let state=null;try{state=JSON.parse(localStorage.getItem('artemis_notify_v1:'+account)||'null');}catch(_){}
+ notifyState=state&&state.version===1&&Array.isArray(state.events)&&Array.isArray(state.known)?state:{version:1,initialized:false,known:[],events:[],lastSeenAt:0,filters:{quality:'90',timeframe:'',watch:false}};
+ notifyState.filters={quality:'90',timeframe:'',watch:false,...notifyState.filters};
+ notifySessionStart=Date.now();const key='artemis_notify_baseline:'+account;
+ let baseline=null;try{baseline=Number(sessionStorage.getItem(key));if(!baseline)baseline=notifyState.lastSeenAt||notifySessionStart;sessionStorage.setItem(key,String(baseline));}catch(_){baseline=notifyState.lastSeenAt||notifySessionStart;}
+ notifyBaseline=baseline;return true;
+}
+function notifyEligible(s){if(USER_PLAN==='FREE')return false;const market=assetClass(s.symbol);return USER_PLAN==='ELITE'||USER_PLAN==='PRO'&&['FX','Gold / Metals'].includes(market);}
+function notifyQuality(s){for(const value of [s.quality_score,s.qualityScore,s.signal_score,s.signalScore,s.confidence_score,s.confidenceScore,s.score]){if(value===null||value===undefined||value==='')continue;const n=Number(value);if(Number.isFinite(n)&&n>=0&&n<=100)return n;}return null;}
+function notifyCandidates(signal){
+ const sid=v105Id(signal),out=[],stamp=v=>{if(!v||!['string','number'].includes(typeof v))return null;const t=new Date(v).getTime();return Number.isFinite(t)&&t<=Date.now()+300000?t:null;};
+ const history=Array.isArray(signal.lifecycleHistory)?signal.lifecycleHistory:[];
+ const add=(type,time)=>{if(!notifyLabels[type])return;const known=out.find(e=>e.type===type),ms=stamp(time);if(known){if(ms!==null&&known.eventAt===null)known.eventAt=ms;return;}out.push({id:JSON.stringify([sid,type]),signalId:sid,type,eventAt:ms,symbol:String(signal.symbol||''),timeframe:String(signal.timeframe||''),direction:String(signal.direction||''),quality:notifyQuality(signal)});};
+ add('NEW',signal.timestamp_utc||signal.createdAt||signal.created_at||signal.timestamp||signal.receivedAt);
+ for(const e of history){if(!e||typeof e!=='object')continue;let type=String(e.eventType||e.event_type||'').toUpperCase();if(['SL_HIT','CLOSED_SL'].includes(type))type='STOPPED';add(type,e.timestamp_utc||e.occurredAt||e.timestamp||e.createdAt||e.at);}
+ for(const n of [1,2,3])if(reachedTarget(signal,n))add(`TP${n}_HIT`,signal[`tp${n}HitAt`]||signal[`tp${n}_hit_at`]);
+ let status=signalLifecycleStatus(signal);if(['SL_HIT','CLOSED_SL'].includes(status))status='STOPPED';if(['STOPPED','SUPERSEDED','EXPIRED','CANCELLED'].includes(status))add(status,signal.stoppedAt||signal.slHitAt||signal.stopHitAt);
+ return out;
+}
+function notifyIngest(){
+ if(!notifyPrepare()){notifyRender();return;}
+ const known=new Set(notifyState.known),now=Date.now(),first=!notifyState.initialized;
+ for(const signal of allSignals.filter(notifyEligible))for(const event of notifyCandidates(signal)){
+  if(known.has(event.id))continue;known.add(event.id);
+  // First successful load establishes a baseline. Never replay historical events.
+  if(first||event.eventAt!==null&&event.eventAt<=notifyBaseline)continue;
+  notifyState.events.push({...event,observedAt:now,read:false});
+ }
+ notifyState.initialized=true;notifyState.lastSeenAt=now;notifyState.known=[...known].slice(-10000);notifyState.events=notifyState.events.slice(-500);notifySave();notifyRender();
+}
+function notifyFiltered(){
+ if(!notifyState)return [];const f=notifyState.filters,min=Number(f.quality)||0;
+ const permitted=new Set(allSignals.filter(notifyEligible).map(v105Id));
+ return notifyState.events.filter(e=>permitted.has(e.signalId)&&(!f.watch||favouriteSymbols.has(e.symbol.toUpperCase()))&&(!f.timeframe||e.timeframe.toUpperCase()===f.timeframe)&&(!min||e.quality!==null&&e.quality>=min)).sort((a,b)=>(b.eventAt??b.observedAt)-(a.eventAt??a.observedAt));
+}
+function notifyRow(e){const index=allSignals.findIndex(s=>v105Id(s)===e.signalId);const time=e.eventAt?new Date(e.eventAt).toLocaleString('en-US'):'Observed '+new Date(e.observedAt).toLocaleString('en-US')+' · event time unavailable';return `<div class="notify-event ${e.read?'':'unread'}"><div class="notify-event-icon" aria-hidden="true">${e.type==='NEW'?'↗':e.type==='STOPPED'?'○':'✓'}</div><div class="notify-event-copy"><strong>${esc(instrumentLabel(e.symbol))} · ${esc(notifyLabels[e.type]||e.type)}</strong><small>${esc(e.timeframe||'—')} · ${esc(e.direction||'—')} · ${e.quality===null?'Unscored':'Quality '+esc(e.quality)}</small><time>${esc(time)}</time></div><button type="button" data-notify-open="${esc(e.id)}" ${index<0?'disabled':''}>View setup</button></div>`;}
+function notifyRender(){
+ const ready=notifyPrepare(),events=ready?notifyFiltered():[],unread=events.filter(e=>!e.read).length;
+ for(const id of ['alertUnreadBadge','notifyBellCount']){const node=document.getElementById(id);node.hidden=!unread;node.textContent=unread>99?'99+':String(unread);}
+ document.getElementById('notifyBell').setAttribute('aria-label',`Notifications, ${unread} unread`);
+ const filters=notifyState?.filters||{quality:'90',timeframe:'',watch:false};
+ document.getElementById('notifyQuality').value=filters.quality;document.getElementById('notifyTimeframe').value=filters.timeframe;document.getElementById('v105OnlyWatch').checked=filters.watch;
+ document.getElementById('v105AlertList').innerHTML=events.length?events.slice(0,100).map(notifyRow).join(''):'<div class="v105-empty">No matching event notifications yet. New events appear after your first successful feed load.</div>';
+ document.getElementById('notifyPeekList').innerHTML=events.length?events.slice(0,6).map(notifyRow).join(''):'<p class="v105-empty">You’re up to date. No matching new events.</p>';
+ const since=events.filter(e=>e.observedAt>=notifySessionStart||e.eventAt!==null&&e.eventAt>notifyBaseline);
+ document.getElementById('notifyCatchupCards').innerHTML=[['New signals',since.filter(e=>e.type==='NEW').length],['Target events',since.filter(e=>/^TP[123]_HIT$/.test(e.type)).length],['Stops',since.filter(e=>e.type==='STOPPED').length]].map(([label,n])=>`<div><span>${label}</span><strong>${n}</strong></div>`).join('');
+ document.getElementById('notifyCatchupNote').textContent=!ready?'Sign in to see account-specific activity.':notifyState.events.length?'Since '+new Date(notifyBaseline).toLocaleString('en-US')+' · loaded feed only · quality '+(filters.quality==='0'?'all':filters.quality+'+')+(filters.timeframe?' · '+filters.timeframe:'')+(filters.watch?' · watchlist only':''):'Tracking starts with your first successful feed load. No historical notifications are replayed.';
+}
+function notifyOpen(event){const button=event.target.closest('[data-notify-open]');if(!button||!notifyPrepare())return;const item=notifyState.events.find(e=>e.id===button.dataset.notifyOpen);if(!item)return;const index=allSignals.findIndex(s=>v105Id(s)===item.signalId&&notifyEligible(s));if(index<0)return;item.read=true;notifySave();document.getElementById('notifyPopover').hidden=true;document.getElementById('notifyBell').setAttribute('aria-expanded','false');notifyRender();openSignalDetail(index);}
+for(const id of ['v105AlertList','notifyPeekList'])document.getElementById(id).addEventListener('click',notifyOpen);
+document.getElementById('notifyBell').addEventListener('click',()=>{const box=document.getElementById('notifyPopover');box.hidden=!box.hidden;document.getElementById('notifyBell').setAttribute('aria-expanded',String(!box.hidden));notifyRender();});
+document.getElementById('notifyShowAll').addEventListener('click',()=>{document.getElementById('notifyPopover').hidden=true;document.getElementById('notifyBell').setAttribute('aria-expanded','false');switchPage('notifications');});
+document.getElementById('notifyCatchupOpen').addEventListener('click',()=>switchPage('notifications'));
+document.getElementById('notifyMarkAll').addEventListener('click',()=>{if(!notifyPrepare())return;for(const e of notifyFiltered())e.read=true;notifySave();notifyRender();});
+for(const id of ['notifyQuality','notifyTimeframe','v105OnlyWatch'])document.getElementById(id).addEventListener('change',()=>{if(!notifyPrepare())return;notifyState.filters={quality:document.getElementById('notifyQuality').value,timeframe:document.getElementById('notifyTimeframe').value,watch:document.getElementById('v105OnlyWatch').checked};notifySave();notifyRender();});
+document.addEventListener('pointerdown',e=>{const root=document.getElementById('notifyRoot');if(!root.contains(e.target)){document.getElementById('notifyPopover').hidden=true;document.getElementById('notifyBell').setAttribute('aria-expanded','false');}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('notifyPopover').hidden=true;document.getElementById('notifyBell').setAttribute('aria-expanded','false');}});
 
 // Isolated Strategy Intelligence API client; does not alter existing signal feed.
 const STRATEGY_INTELLIGENCE_API="https://jrein60sph.execute-api.eu-west-2.amazonaws.com/analytics";
@@ -2190,6 +2254,7 @@ async function loadSignals(){
 
     renderDashboard();
     if(document.getElementById("historyTable"))renderHistory(historySignals);
+    notifyIngest();
     v105Render();
     renderVisualIntelligence(allSignals);
     // Scanner telemetry is intentionally disabled in the customer UI until launch.
@@ -2372,6 +2437,7 @@ function clearLocalAuth(){
   ["artemis_id_token","artemis_access_token","artemis_refresh_token","artemis_pkce_verifier","artemis_oauth_state"].forEach(k=>sessionStorage.removeItem(k));
 }
 function logout(){
+  notifyAccount="";notifyState=null;document.getElementById("notifyPopover").hidden=true;
   clearLocalAuth();
   const params=new URLSearchParams({
     client_id:COGNITO_CLIENT_ID,
