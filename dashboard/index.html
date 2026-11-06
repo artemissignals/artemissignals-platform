@@ -631,6 +631,11 @@ html[data-density="compact"] #signalList .signal-card-refresh .signal-level-slot
 html[data-density="compact"] .signal-level-slot>.signal-progress-node{margin-top:15px}
 @media(max-width:700px){#signalList .signal-card-refresh .signal-aligned-levels{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}.signal-level-slot:nth-child(3)>.signal-progress-node:before{display:none}}
 @media(max-width:420px){#signalList .signal-card-refresh .signal-aligned-levels{grid-template-columns:repeat(2,minmax(0,1fr))}.signal-level-slot:nth-child(3)>.signal-progress-node:before{display:block}.signal-level-slot:nth-child(4)>.signal-progress-node:before{display:none}.signal-level-slot>.signal-progress-node{margin-top:15px}.signal-progress-track{gap:4px}.signal-progress-track strong{font-size:10px}}
+
+/* Compact calendar notice: one slim strip, full event detail in Market News. */
+.calendar-warning.calendar-compact{display:flex;align-items:center;gap:10px;margin:18px 0 0;padding:10px 13px;border:1px solid var(--line);border-left:3px solid var(--brand);border-radius:9px;background:var(--amber-bg)}
+.calendar-compact-icon{color:var(--brand);font-size:15px;flex-shrink:0}.calendar-compact-message{display:flex;align-items:center;gap:12px;flex:1;min-width:0}.calendar-compact-message strong{font-size:12px;white-space:nowrap}.calendar-compact-message>span{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.calendar-compact-tier{font-size:9px;letter-spacing:.7px;color:var(--brand);font-weight:800}.calendar-compact button{flex-shrink:0;padding:6px 8px;font-size:11px;background:transparent;border-color:transparent;white-space:nowrap}.calendar-compact #calendarWarningView{color:var(--text)}.calendar-compact #calendarWarningRefresh{font-size:16px;padding:3px 5px}.calendar-warning.calendar-compact.calendar-imminent{border-left-color:var(--red);background:var(--red-bg)}.calendar-imminent .calendar-compact-icon{color:var(--red)}
+@media(max-width:1000px){.calendar-compact-message{align-items:flex-start;flex-direction:column;gap:3px}.calendar-compact-message>span{max-width:100%;white-space:normal}.calendar-compact-message strong{white-space:normal}}@media(max-width:500px){.calendar-warning.calendar-compact{gap:7px;padding:10px}.calendar-compact-tier{display:none}.calendar-compact #calendarWarningRefresh{display:none}.calendar-compact #calendarWarningView{max-width:82px;white-space:normal;line-height:1.5}.calendar-compact-message strong{font-size:11px}}
 </style>
 <link rel="icon" type="image/png" href="artemis-a-logo.png">
 </head>
@@ -711,7 +716,7 @@ html[data-density="compact"] .signal-level-slot>.signal-progress-node{margin-top
   <div class="box"><div class="k">Feed</div><div class="v" id="heroFeed">Live</div></div>
   <div class="box"><div class="k">Included markets</div><div class="v" id="includedMarketsCount">—</div></div>
   <div class="box"><div class="k">Refresh</div><div class="v">15 sec</div></div>
-</div></div><aside id="eliteCalendarWarning" class="calendar-warning" aria-labelledby="calendarWarningTitle" hidden><div class="calendar-warning-head"><span class="calendar-label">⚠ ECONOMIC EVENT WATCH <span>ELITE</span></span><label class="calendar-scope">Show <select id="calendarWarningScope"><option value="all">All events</option><option value="watchlist">My watchlist markets</option></select></label></div><h3 id="calendarWarningTitle">Checking today’s economic calendar</h3><p id="calendarWarningCopy" role="status" aria-live="polite"></p><ul id="calendarWarningEvents"></ul><div class="calendar-warning-foot"><span id="calendarWarningChecked"></span><div><button type="button" id="calendarWarningRefresh">Refresh</button><button type="button" id="calendarWarningView">Open calendar →</button></div></div></aside><div class="hero-actions"><button type="button" id="heroSignals" class="hero-primary">Explore live signals →</button><button type="button" id="heroHistory" class="hero-secondary">Review history ↗</button></div></section>
+</div></div><aside id="eliteCalendarWarning" class="calendar-warning calendar-compact" aria-labelledby="calendarWarningTitle" hidden><span class="calendar-compact-icon" aria-hidden="true">⚠</span><div class="calendar-compact-message"><strong id="calendarWarningTitle">Checking economic calendar</strong><span id="calendarWarningCopy" role="status" aria-live="polite"></span></div><span class="calendar-compact-tier">ELITE</span><button type="button" id="calendarWarningRefresh" aria-label="Refresh economic calendar" title="Refresh economic calendar">↻</button><button type="button" id="calendarWarningView">View calendar →</button></aside><div class="hero-actions"><button type="button" id="heroSignals" class="hero-primary">Explore live signals →</button><button type="button" id="heroHistory" class="hero-secondary">Review history ↗</button></div></section>
 
 <section id="dashboard" class="page active">
 <section class="notify-catchup" aria-labelledby="notifyCatchupTitle"><div class="notify-catchup-head"><div><h2 id="notifyCatchupTitle">Since your last visit</h2><p id="notifyCatchupNote">Waiting for your authenticated feed.</p></div><button id="notifyCatchupOpen" type="button">Review activity →</button></div><div id="notifyCatchupCards" class="notify-catchup-cards"><div><span>New signals</span><strong>—</strong></div><div><span>Target events</span><strong>—</strong></div><div><span>Stops</span><strong>—</strong></div></div></section>
@@ -2752,31 +2757,25 @@ function calendarWarningModel(events,now,scope,symbols){
 }
 function renderCalendarWarning(){
  const host=document.getElementById('eliteCalendarWarning');if(!host)return;
- if(USER_PLAN!=='ELITE'||!sessionStorage.getItem('artemis_access_token')){host.hidden=true;return;}
- if(marketNewsLoaded&&marketNewsTier!=='ELITE'){host.hidden=true;return;}
- host.hidden=false;
- const title=document.getElementById('calendarWarningTitle'),copy=document.getElementById('calendarWarningCopy'),list=document.getElementById('calendarWarningEvents'),checked=document.getElementById('calendarWarningChecked');
- host.classList.remove('calendar-imminent');list.replaceChildren();checked.textContent=calendarCheckedAt?'Feed checked '+new Date(calendarCheckedAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})+' · '+Intl.DateTimeFormat().resolvedOptions().timeZone:'';
- const refresh=document.getElementById('calendarWarningRefresh');refresh.disabled=marketNewsBusy;
- if(calendarWarningState==='idle'||calendarWarningState==='loading'){title.textContent='Checking today’s economic calendar';copy.textContent='Checking scheduled high-impact releases for your local day.';return;}
- if(calendarWarningState==='error'){title.textContent='Economic calendar unavailable';copy.textContent='Today’s event coverage could not be checked. Refresh or open Market News; your signal feed is separate.';return;}
- if(Date.now()-calendarCheckedAt>CALENDAR_MAX_AGE){title.textContent='Economic calendar needs refreshing';copy.textContent='The last feed check is over 15 minutes old. Refresh before relying on this event list.';return;}
- if(!marketNewsEvents.length){title.textContent='Calendar coverage unavailable';copy.textContent='The calendar feed returned no events. High-impact releases for today cannot be confirmed.';return;}
- const scope=document.getElementById('calendarWarningScope').value;
- const model=calendarWarningModel(marketNewsEvents,Date.now(),scope,[...watchedSymbols]);
+ if(USER_PLAN!=='ELITE'||!sessionStorage.getItem('artemis_access_token')||(marketNewsLoaded&&marketNewsTier!=='ELITE')){host.hidden=true;return;}
+ host.hidden=false;host.classList.remove('calendar-imminent');
+ const title=document.getElementById('calendarWarningTitle'),copy=document.getElementById('calendarWarningCopy');
+ document.getElementById('calendarWarningRefresh').disabled=marketNewsBusy;
+ host.title=calendarCheckedAt?'Feed checked '+new Date(calendarCheckedAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})+' · '+Intl.DateTimeFormat().resolvedOptions().timeZone:'';
+ if(calendarWarningState==='idle'||calendarWarningState==='loading'){title.textContent='Checking economic calendar';copy.textContent='Today’s high-impact releases';return;}
+ if(calendarWarningState==='error'){title.textContent='Economic calendar unavailable';copy.textContent='Today’s release risks could not be checked';return;}
+ if(Date.now()-calendarCheckedAt>CALENDAR_MAX_AGE){title.textContent='Economic calendar needs refreshing';copy.textContent='Event information may be out of date';return;}
+ if(!marketNewsEvents.length){title.textContent='Calendar coverage unavailable';copy.textContent='Today’s high-impact releases cannot be confirmed';return;}
+ const now=Date.now(),model=calendarWarningModel(marketNewsEvents,now,'all',[]),next=model.events.find(x=>x.time>now),recent=model.events.find(x=>x.time<=now&&now-x.time<=30*60000);
  host.classList.toggle('calendar-imminent',model.urgent);
- title.textContent=model.urgent?'High-impact release window':model.events.length?'Today’s high-impact events':'No high-impact events listed'+(scope==='watchlist'?' for your watchlist':' for today');
- copy.textContent=model.scopeEmpty?'Your watchlist is empty, so all listed events are shown.':model.urgent?'A listed release is within 30 minutes before or after its scheduled time. Volatility and spreads may increase.':model.events.length?'Scheduled releases may increase volatility and widen spreads. Times follow your device’s time zone.':'This reflects the available calendar entries, not a guarantee that no market-moving news will occur.';
- if(model.invalid)copy.textContent+=' Some high-impact entries have no valid release time; check Market News.';
- for(const x of model.events.slice(0,3)){
-  const row=document.createElement('li'),time=document.createElement('time'),body=document.createElement('div'),name=document.createElement('strong'),meta=document.createElement('span');
-  time.dateTime=new Date(x.time).toISOString();time.textContent=new Date(x.time).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
-  name.textContent=String(x.event.title||'Economic release');const delta=x.time-Date.now();const status=delta>0?(delta<=30*60000?'Due in '+Math.ceil(delta/60000)+' min':'Upcoming'):(delta>=-30*60000?'Recently scheduled':'Earlier today');
-  meta.textContent=calendarAffected(x.event)+' · '+status;body.append(name,meta);row.append(time,body);list.append(row);
- }
- if(model.events.length>3){const rest=document.createElement('li');rest.className='calendar-more';rest.textContent='+'+(model.events.length-3)+' more listed today · Open calendar for details';list.append(rest);}
+ title.textContent=model.events.length?'High-impact news today · '+model.events.length+' event'+(model.events.length===1?'':'s'):'No high-impact events listed today';
+ const release=next||recent;
+ if(release){const time=new Date(release.time).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false,timeZoneName:'short'});copy.textContent=(next?'Next: ':'Recent: ')+time+' · '+String(release.event.title||'Economic release')+' · '+String(release.event.currency||'');}
+ else copy.textContent=model.events.length?'Today’s listed release times have passed':'Check the calendar for available coverage';
+ if(model.urgent)copy.textContent+=' · Volatility may increase';
+ if(model.invalid)copy.textContent+=' · Some release times are unavailable';
+ copy.title=copy.textContent;
 }
-document.getElementById('calendarWarningScope').addEventListener('change',renderCalendarWarning);
 document.getElementById('calendarWarningRefresh').addEventListener('click',loadMarketNews);
 document.getElementById('calendarWarningView').addEventListener('click',()=>{document.getElementById('newsImpact').value='HIGH';document.getElementById('newsCurrency').value='ALL';switchPage('news');renderMarketNews();});
 setInterval(()=>{if(USER_PLAN!=='ELITE'||document.hidden||!sessionStorage.getItem('artemis_access_token'))return;renderCalendarWarning();if(!marketNewsBusy&&Date.now()-calendarCheckedAt>=5*60000)loadMarketNews();},60000);
