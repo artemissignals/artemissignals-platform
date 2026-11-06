@@ -637,6 +637,9 @@ html[data-density="compact"] .signal-level-slot>.signal-progress-node{margin-top
 .calendar-compact-icon{color:var(--brand);font-size:15px;flex-shrink:0}.calendar-compact-message{display:flex;align-items:center;gap:12px;flex:1;min-width:0}.calendar-compact-message strong{font-size:12px;white-space:nowrap}.calendar-compact-message>span{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.calendar-compact-tier{font-size:9px;letter-spacing:.7px;color:var(--brand);font-weight:800}.calendar-compact button{flex-shrink:0;padding:6px 8px;font-size:11px;background:transparent;border-color:transparent;white-space:nowrap}.calendar-compact #calendarWarningView{color:var(--text)}.calendar-compact #calendarWarningRefresh{font-size:16px;padding:3px 5px}.calendar-warning.calendar-compact.calendar-imminent{border-left-color:var(--red);background:var(--red-bg)}.calendar-imminent .calendar-compact-icon{color:var(--red)}
 @media(max-width:1000px){.calendar-compact-message{align-items:flex-start;flex-direction:column;gap:3px}.calendar-compact-message>span{max-width:100%;white-space:normal}.calendar-compact-message strong{white-space:normal}}@media(max-width:500px){.calendar-warning.calendar-compact{gap:7px;padding:10px}.calendar-compact-tier{display:none}.calendar-compact #calendarWarningRefresh{display:none}.calendar-compact #calendarWarningView{max-width:82px;white-space:normal;line-height:1.5}.calendar-compact-message strong{font-size:11px}}
 #historyTable .history-quality{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700}
+
+.telegram-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:20px}.telegram-check{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:13px;background:var(--card2);color:var(--muted)}.telegram-check strong{display:block;font-size:13px;color:var(--text)}.telegram-check small{display:block;font-size:11px;line-height:1.5;margin-top:4px}.telegram-check-icon{width:23px;height:23px;flex:0 0 23px;border:1px solid currentColor;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}.telegram-check.good{color:var(--green);background:var(--green-bg);border-color:var(--green)}.telegram-check.bad{color:var(--red);background:var(--red-bg);border-color:var(--red)}.telegram-check.pending{color:var(--brand);background:var(--amber-bg)}.telegram-check-caption{font-size:10px;color:var(--muted);line-height:1.5;margin:9px 0 0}@media(max-width:650px){.telegram-checks{grid-template-columns:1fr}}
+.session-timeout-select{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px 13px;font:inherit;max-width:100%}
 </style>
 <link rel="icon" type="image/png" href="artemis-a-logo.png">
 </head>
@@ -935,12 +938,12 @@ html[data-density="compact"] .signal-level-slot>.signal-progress-node{margin-top
 
  <div class="panel telegram-link-panel" aria-labelledby="telegramLinkHeading"><div class="telegram-link-heading"><div><h3 id="telegramLinkHeading">Connect Telegram</h3><p>Private alerts, linked to your Artemis account.</p></div><span class="tiny plan">ELITE · LINKING PILOT</span></div>
  <ol class="telegram-link-steps"><li><strong>1 · Create your link</strong><span>Available only to the selected ELITE test account.</span></li><li><strong>2 · Start the bot</strong><span>Open Telegram and press Start using the single-use link.</span></li><li><strong>3 · Confirm here</strong><span>Check the Telegram name shown before activating the account link.</span></li></ol>
- <div class="telegram-link-status" role="status" aria-live="polite"><strong id="telegramConnectionStatus">Check your Telegram connection</strong><p id="telegramConnectionDetail">Create a secure link to your private Telegram chat.</p></div>
+ <div class="telegram-checks" aria-label="Telegram and account checks" role="status" aria-live="polite"><div class="telegram-check unknown" id="telegramTransportCheck"><span class="telegram-check-icon" aria-hidden="true">○</span><div><strong id="telegramTransportLabel">Telegram Not Checked</strong><small id="telegramTransportDetail">Check your saved private-chat link.</small></div></div><div class="telegram-check unknown" id="telegramAccountCheck"><span class="telegram-check-icon" aria-hidden="true">○</span><div><strong id="telegramAccountLabel">Account Not Checked</strong><small id="telegramAccountDetail">Current ELITE eligibility has not been checked.</small></div></div></div><p class="telegram-check-caption"><span id="telegramChecksUpdated"></span>Telegram status confirms the saved chat link; message delivery is not verified in this pilot.</p><div class="telegram-link-status" role="status" aria-live="polite"><strong id="telegramConnectionStatus">Check your Telegram connection</strong><p id="telegramConnectionDetail">Create a secure link to your private Telegram chat.</p></div>
  <div class="telegram-link-actions"><button id="telegramConnect" type="button" disabled>Connect Telegram</button><a id="telegramOpenBot" class="cta" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" hidden>Open Telegram →</a><button id="telegramCheck" type="button">Check connection</button><button id="telegramConfirm" type="button" hidden>Confirm connection</button><button id="telegramDisconnect" type="button" disabled>Disconnect / cancel request</button></div>
  <p class="alerts106-hint">This pilot links your account only. It does not enable subscriber signal delivery or change your existing private test alerts. You can disconnect the account link here or send /stop to the bot.</p></div>
 </section>
 <section id="settings" class="page">
-<div class="sectionhead"><h2>Account Settings</h2><div class="r">Manage your account</div></div>
+<div class="sectionhead"><h2>Account Settings</h2><div class="r">Manage your account</div></div><div class="panel"><h3>Dashboard session</h3><p class="v105-note">Choose when this dashboard signs out after inactivity. The default is 8 hours. Mouse clicks, typing, scrolling, and touch activity keep the session active; automatic feed updates do not.</p><label class="alerts106-label" for="sessionIdleTimeout">Sign out after inactivity</label><select id="sessionIdleTimeout" class="session-timeout-select"><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option><option value="240">4 hours</option><option value="480" selected>8 hours (default)</option><option value="720">12 hours</option></select><p id="sessionSettingsStatus" class="v105-note" role="status" aria-live="polite">Saved separately for each account on this browser.</p><p class="alerts106-hint">You may still need to sign in again if your sign-in service expires or revokes the session. Closing this browser tab ends the stored dashboard session.</p></div>
 <div class="panel"><h3>Signal preferences</h3><p class="v105-note">Use My Alerts to choose the markets, instruments, directions and timeframes you want to follow. Your choices are saved to your account, but automatic email and Telegram delivery are not available yet.</p><button type="button" class="cta" id="openMyAlerts">Open My Alerts →</button></div>
 </section>
 
@@ -1056,9 +1059,9 @@ async function loadMarketNews(){
  summary.textContent="Checking secure market news feed…";
  try{
   const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),20000);
- let res;try{res=await fetch(MARKET_NEWS_API_URL,{headers:{"Accept":"application/json","Authorization":"Bearer "+token},cache:"no-store",signal:controller.signal});}finally{clearTimeout(timeout);}
+ let res;try{res=await artemisFetch(MARKET_NEWS_API_URL,{headers:{"Accept":"application/json","Authorization":"Bearer "+token},cache:"no-store",signal:controller.signal});}finally{clearTimeout(timeout);}
   const payload=await res.json().catch(()=>({}));
-  if(sessionStorage.getItem("artemis_access_token")!==token)return;
+  if(decodeJwt(sessionStorage.getItem("artemis_access_token")||"").sub!==decodeJwt(token).sub)return;
   if(!res.ok)throw new Error(res.status===401?'Login expired or not accepted by Market News ('+res.status+')':res.status===403?'News access is not authorised ('+res.status+')':(payload.error||'News API returned HTTP '+res.status));
   setServiceHealth("newsApi",true,"Authenticated API request succeeded");
   setServiceHealth("newsFeed",payload.locked?null:(Array.isArray(payload.events)&&payload.events.length?true:null),payload.locked?"Subscription locked · no feed access": "Connection established · event availability checked below");
@@ -1070,7 +1073,7 @@ async function loadMarketNews(){
   headline.textContent=payload.locked?"Upgrade to unlock Market News":marketNewsEvents.length?marketNewsEvents.length+" calendar events available":"Market News feed connected";
   summary.textContent=payload.locked?"Sign in with a PRO or ELITE subscription to unlock market intelligence.":marketNewsEvents.length?"Default view is USD with all impacts. Use the weekly map to see how events land through the current week.":"Connected securely. No calendar events have been published yet; news collection remains disabled pending licensing.";
   renderMarketNews();
- }catch(error){if(sessionStorage.getItem("artemis_access_token")!==token)return;calendarWarningState="error";setServiceHealth("newsApi",false,error.message);setServiceHealth("newsFeed",null,"Feed status unavailable");headline.textContent="Market News unavailable";summary.textContent=error.message;document.getElementById("newsContent").innerHTML='<div class="news-empty">Unable to retrieve Market News. Your live signal dashboard is unaffected.</div>';if(week)week.innerHTML='<div class="news-empty">Weekly market map unavailable until the news feed can be loaded.</div>'}
+ }catch(error){if(decodeJwt(sessionStorage.getItem("artemis_access_token")||"").sub!==decodeJwt(token).sub)return;calendarWarningState="error";setServiceHealth("newsApi",false,error.message);setServiceHealth("newsFeed",null,"Feed status unavailable");headline.textContent="Market News unavailable";summary.textContent=error.message;document.getElementById("newsContent").innerHTML='<div class="news-empty">Unable to retrieve Market News. Your live signal dashboard is unaffected.</div>';if(week)week.innerHTML='<div class="news-empty">Weekly market map unavailable until the news feed can be loaded.</div>'}
  finally{marketNewsBusy=false;renderCalendarWarning()}
 }
 document.getElementById("newsImpact").addEventListener("change",renderMarketNews);
@@ -1114,7 +1117,7 @@ async function refreshStatus(){
  const idToken=sessionStorage.getItem('artemis_id_token');
  if(!idToken){setServiceHealth('signalApi',false,'Please sign in');setServiceHealth('signalDatabase',null,'Cannot verify without authentication');return}
  try{
-  const r=await fetch(API_URL,{headers:{Accept:'application/json',Authorization:idToken},cache:'no-store'});
+  const r=await artemisFetch(API_URL,{headers:{Accept:'application/json',Authorization:idToken},cache:'no-store'});
   if(!r.ok)throw Error('HTTP '+r.status);
   const p=await r.json();
   if(!Array.isArray(p.signals))throw Error('Unexpected data format');
@@ -1175,7 +1178,7 @@ async function loadHistory(){
   renderHistory(historySignals);
   updateHistoryControls();
   try{
-    const res=await fetch(historyApiUrl(),{headers:{Accept:'application/json',Authorization:auth},cache:'no-store'});
+    const res=await artemisFetch(historyApiUrl(),{headers:{Accept:'application/json',Authorization:auth},cache:'no-store'});
     if(!res.ok)throw Error('History API HTTP '+res.status);
     const payload=await res.json();
     if(request!==historyRequestSequence)return;
@@ -1202,7 +1205,7 @@ async function loadAdditionalHistory(){
   try{
     const auth=sessionStorage.getItem('artemis_id_token');
     if(!auth)throw Error('Please sign in again');
-    const res=await fetch(historyApiUrl(token),{headers:{Accept:'application/json',Authorization:auth},cache:'no-store'});
+    const res=await artemisFetch(historyApiUrl(token),{headers:{Accept:'application/json',Authorization:auth},cache:'no-store'});
     if(!res.ok)throw Error('History API HTTP '+res.status);
     const payload=await res.json();
     if(request!==historyRequestSequence)return;
@@ -2092,7 +2095,7 @@ async function siLoad(){
  try{
   const period=document.getElementById('siPeriod').value;
   content.hidden=true;
-  const res=await fetch(STRATEGY_INTELLIGENCE_API+'?period='+encodeURIComponent(period),{headers:{'Accept':'application/json','Authorization':'Bearer '+token},cache:'no-store'});
+  const res=await artemisFetch(STRATEGY_INTELLIGENCE_API+'?period='+encodeURIComponent(period),{headers:{'Accept':'application/json','Authorization':'Bearer '+token},cache:'no-store'});
   if(!res.ok)throw new Error(res.status===401?'Session expired. Please sign in again.':`Analytics unavailable (HTTP ${res.status}).`);
   const data=await res.json();
   if(data.methodology!=='target_tracking_only'||!data.summary)throw new Error('Unexpected analytics response.');
@@ -2238,10 +2241,10 @@ async function fetchDashboardSignals(idToken){
     url.searchParams.set('period','all');
     url.searchParams.set('limit','100');
     if(cursor)url.searchParams.set('cursor',cursor);
-    let response=await fetch(url.toString(),{headers,cache:'no-store'});
+    let response=await artemisFetch(url.toString(),{headers,cache:'no-store'});
     // Preserve compatibility with older endpoints that don't accept filters.
     if(!response.ok && page===0 && [400,404,422].includes(response.status)){
-      response=await fetch(API_URL,{headers,cache:'no-store'});
+      response=await artemisFetch(API_URL,{headers,cache:'no-store'});
     }
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
     const payload=await response.json();
@@ -2317,7 +2320,7 @@ async function loadSignals(){
 
 async function loadScannerStates(idToken){
   try{
-    const res=await fetch(SCANNER_API_URL,{headers:{"Accept":"application/json","Authorization":idToken}});
+    const res=await artemisFetch(SCANNER_API_URL,{headers:{"Accept":"application/json","Authorization":idToken}});
     if(!res.ok)throw new Error(`HTTP ${res.status}`);
     const data=await res.json();
     scannerStates=Array.isArray(data.scanners)?data.scanners:[];
@@ -2445,7 +2448,7 @@ async function exchangeCode(code){
     redirect_uri:COGNITO_REDIRECT_URI,
     code_verifier:verifier
   });
-  const res=await fetch(COGNITO_DOMAIN+"/oauth2/token",{
+  const res=await artemisFetch(COGNITO_DOMAIN+"/oauth2/token",{
     method:"POST",
     headers:{"Content-Type":"application/x-www-form-urlencoded"},
     body:body.toString()
@@ -2455,6 +2458,7 @@ async function exchangeCode(code){
   sessionStorage.setItem("artemis_id_token",tokens.id_token||"");
   sessionStorage.setItem("artemis_access_token",tokens.access_token||"");
   if(tokens.refresh_token) sessionStorage.setItem("artemis_refresh_token",tokens.refresh_token);
+  sessionStorage.setItem("artemis_activity_"+(decodeJwt(tokens.id_token||"").sub||""),String(Date.now()));
   sessionStorage.removeItem("artemis_pkce_verifier");
   sessionStorage.removeItem("artemis_oauth_state");
   return tokens;
@@ -2466,7 +2470,6 @@ function showDashboard(){
   const claims=decodeJwt(idToken);
   const now=Math.floor(Date.now()/1000);
   if(claims.exp && claims.exp<now){
-    clearLocalAuth();
     return false;
   }
   document.getElementById("authGate").classList.add("hidden");
@@ -2525,7 +2528,9 @@ async function initAuth(){
     }
   }
 
+  try{if(!await artemisEnsureSession()){setAuthState("Sign in to view your dashboard.");return;}}catch(error){setAuthState("Could not renew your session. Check your connection and reload, or sign in again.");return;}
   if(showDashboard()){
+    artemisSessionSettingRender();
     loadSignals();
     loadHistory();
     renderCalendarWarning();if(USER_PLAN==="ELITE")loadMarketNews();
@@ -2580,7 +2585,7 @@ async function alerts106Request(method,payload){
  if(!token)throw new Error('Please sign in again to manage your preferences.');
  const headers={'Authorization':'Bearer '+token,'Accept':'application/json'};
  if(payload)headers['Content-Type']='application/json';
- const response=await fetch(ALERTS106_API,{method,headers,...(payload?{body:JSON.stringify(payload)}:{})});
+ const response=await artemisFetch(ALERTS106_API,{method,headers,...(payload?{body:JSON.stringify(payload)}:{})});
  const body=await response.json().catch(()=>({}));
  if(!response.ok){
   if(response.status===401)throw new Error('Session not authorised. Please sign out and sign in again.');
@@ -2632,7 +2637,27 @@ document.getElementById('openMyAlerts').addEventListener('click',()=>switchPage(
 // ELITE linking pilot. Bot credentials and webhook secret never enter browser code.
 let telegramLinkBusy=false,telegramLinkStatus=null;
 const telegramLinkNode=id=>document.getElementById(id);
-function telegramLinkReset(){telegramLinkStatus=null;const link=telegramLinkNode('telegramOpenBot');link.hidden=true;link.removeAttribute('href');telegramLinkNode('telegramConfirm').hidden=true;}
+function telegramCheckSet(id,state,title,detail){
+ const node=telegramLinkNode(id+'Check');node.className='telegram-check '+state;node.querySelector('.telegram-check-icon').textContent=state==='good'?'✓':state==='bad'?'!':state==='pending'?'…':'○';telegramLinkNode(id+'Label').textContent=title;telegramLinkNode(id+'Detail').textContent=detail;
+}
+function telegramChecksUnknown(checking=false){
+ telegramCheckSet('telegramTransport','unknown',checking?'Checking Telegram…':'Telegram Unable to Verify',checking?'Checking your saved chat link.':'Use Check connection to verify your saved chat link.');
+ telegramCheckSet('telegramAccount','unknown',checking?'Validating Account…':'Account Unable to Verify',checking?'Checking current ELITE eligibility.':'Current account eligibility could not be verified.');
+ telegramLinkNode('telegramChecksUpdated').textContent='';
+}
+function telegramChecksRender(status){
+ if(status.connected===true)telegramCheckSet('telegramTransport','good','Telegram Connected',(status.telegramUsername?'@'+status.telegramUsername:status.telegramDisplayName||'Private chat')+' · confirmed account link');
+ else if(status.pendingConfirmation)telegramCheckSet('telegramTransport','pending','Telegram Confirmation Required','Telegram responded. Confirm the chat identity below.');
+ else if(status.pending)telegramCheckSet('telegramTransport','pending','Telegram Awaiting Connection','Open the bot with your link and press Start.');
+ else if(status.connected===false)telegramCheckSet('telegramTransport','bad','Telegram Not Connected','No confirmed private-chat link. Connect Telegram below.');
+ else telegramCheckSet('telegramTransport','unknown','Telegram Unable to Verify','Check connection to verify your saved chat link.');
+ if(status.eligible===true)telegramCheckSet('telegramAccount','good','Account Validated','Current ELITE membership verified.');
+ else if(status.eligible===false)telegramCheckSet('telegramAccount','bad','Account Not Validated','Current ELITE eligibility check failed. Check your subscription or contact support.');
+ else telegramCheckSet('telegramAccount','unknown','Account Unable to Verify','Current account eligibility could not be verified.');
+ telegramLinkNode('telegramChecksUpdated').textContent='Checked '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})+'. ';
+}
+
+function telegramLinkReset(){telegramChecksUnknown();telegramLinkStatus=null;const link=telegramLinkNode('telegramOpenBot');link.hidden=true;link.removeAttribute('href');telegramLinkNode('telegramConfirm').hidden=true;}
 function telegramLinkButtons(){
  const s=telegramLinkStatus;
  telegramLinkNode('telegramConnect').disabled=telegramLinkBusy||!s?.eligible||s?.connected;
@@ -2646,15 +2671,15 @@ async function telegramLinkRequest(method,path,payload){
  const token=sessionStorage.getItem('artemis_id_token');if(!token)throw Error('Sign in again to manage Telegram.');
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
  try{
-  const response=await fetch(base+path,{method,headers:{Authorization:'Bearer '+token,Accept:'application/json',...(payload?{'Content-Type':'application/json'}:{})},...(payload?{body:JSON.stringify(payload)}:{}),cache:'no-store',signal:controller.signal});
+  const response=await artemisFetch(base+path,{method,headers:{Authorization:'Bearer '+token,Accept:'application/json',...(payload?{'Content-Type':'application/json'}:{})},...(payload?{body:JSON.stringify(payload)}:{}),cache:'no-store',signal:controller.signal});
   const body=await response.json().catch(()=>({}));
-  if(sessionStorage.getItem('artemis_id_token')!==token)throw Error('Your session changed. Check the connection again.');
+  if(decodeJwt(sessionStorage.getItem('artemis_id_token')||'').sub!==decodeJwt(token).sub)throw Error('Your session changed. Check the connection again.');
   if(!response.ok)throw Error(body.error||('Telegram connection unavailable ('+response.status+').'));
   return body;
  }finally{clearTimeout(timer);}
 }
 function telegramLinkRender(status){
- telegramLinkStatus=status;const label=telegramLinkNode('telegramConnectionStatus'),detail=telegramLinkNode('telegramConnectionDetail');
+ telegramLinkStatus=status;telegramChecksRender(status);const label=telegramLinkNode('telegramConnectionStatus'),detail=telegramLinkNode('telegramConnectionDetail');
  telegramLinkNode('telegramConfirm').hidden=!status.pendingConfirmation;
  if(!status.pending){telegramLinkNode('telegramOpenBot').hidden=true;telegramLinkNode('telegramOpenBot').removeAttribute('href');}
  if(status.connected){label.textContent='Telegram account linked';detail.textContent=(status.telegramUsername?'@'+status.telegramUsername:status.telegramDisplayName||'Private Telegram chat')+' · chat ending '+status.chatIdLast4+'. Subscriber signal delivery is not enabled in this linking pilot.';}
@@ -2662,11 +2687,12 @@ function telegramLinkRender(status){
  else if(status.pending){label.textContent='Waiting for Telegram';detail.textContent='Open the bot using the connection link, press Start, then return here and select Check connection. Link expires '+new Date(status.expiresAt*1000).toLocaleTimeString('en-US')+'.';}
  else if(!status.eligible){label.textContent='ELITE membership required';detail.textContent='Telegram linking is available with current ELITE membership. You can disconnect an existing link at any time.';}
  else{label.textContent='Telegram not connected';detail.textContent='Connect your Artemis account to a private Telegram chat. No bot token or chat ID is needed.';}
+ if(status.connected&&status.eligible===false)detail.textContent+=' Current ELITE eligibility was not validated. Check your subscription or contact support.';
  telegramLinkButtons();
 }
 async function telegramLinkLoad(){
  if(telegramLinkBusy)return;telegramLinkBusy=true;telegramLinkButtons();
- telegramLinkNode('telegramConnectionStatus').textContent='Checking Telegram connection…';
+ telegramChecksUnknown(true);telegramLinkNode('telegramConnectionStatus').textContent='Checking Telegram connection…';
  try{telegramLinkRender(await telegramLinkRequest('GET','/telegram/status'));}
  catch(e){telegramLinkReset();telegramLinkNode('telegramConnectionStatus').textContent='Telegram connection unavailable';telegramLinkNode('telegramConnectionDetail').textContent=e.name==='AbortError'?'The request timed out. Try Check connection again.':e.message;}
  finally{telegramLinkBusy=false;telegramLinkButtons();}
@@ -2678,19 +2704,19 @@ telegramLinkNode('telegramConnect').addEventListener('click',async()=>{
   if(url.origin!=='https://t.me'||url.pathname!=='/ArtemisSignalsTestBot'||!/^link_[A-Za-z0-9_-]{43}$/.test(url.searchParams.get('start')||''))throw Error('Unexpected bot connection link.');
   telegramLinkRender({eligible:true,pending:true,pendingConfirmation:false,connected:false,expiresAt:result.expiresAt});
   const link=telegramLinkNode('telegramOpenBot');link.href=url.href;link.hidden=false;link.focus();
- }catch(e){telegramLinkNode('telegramConnectionDetail').textContent=e.message;}
+ }catch(e){telegramChecksUnknown();telegramLinkNode('telegramConnectionDetail').textContent=e.message;}
  finally{telegramLinkBusy=false;telegramLinkButtons();}
 });
 telegramLinkNode('telegramConfirm').addEventListener('click',async()=>{
  if(telegramLinkBusy)return;telegramLinkBusy=true;telegramLinkButtons();
  try{telegramLinkRender(await telegramLinkRequest('POST','/telegram/confirm'));}
- catch(e){telegramLinkNode('telegramConnectionDetail').textContent=e.message;}
+ catch(e){telegramChecksUnknown();telegramLinkNode('telegramConnectionDetail').textContent=e.message;}
  finally{telegramLinkBusy=false;telegramLinkButtons();}
 });
 telegramLinkNode('telegramDisconnect').addEventListener('click',async()=>{
  if(telegramLinkBusy)return;telegramLinkBusy=true;telegramLinkButtons();
- try{await telegramLinkRequest('DELETE','/telegram/link');telegramLinkReset();telegramLinkNode('telegramConnectionStatus').textContent='Account link disconnected';telegramLinkNode('telegramConnectionDetail').textContent='The account link and pending request were removed. The separate private test alerts, if running, are unchanged.';}
- catch(e){telegramLinkNode('telegramConnectionDetail').textContent=e.message;}
+ try{await telegramLinkRequest('DELETE','/telegram/link');telegramLinkReset();telegramChecksRender({connected:false});telegramLinkNode('telegramConnectionStatus').textContent='Account link disconnected';telegramLinkNode('telegramConnectionDetail').textContent='The account link and pending request were removed. The separate private test alerts, if running, are unchanged.';}
+ catch(e){telegramChecksUnknown();telegramLinkNode('telegramConnectionDetail').textContent=e.message;}
  finally{telegramLinkBusy=false;telegramLinkButtons();}
 });
 telegramLinkNode('telegramCheck').addEventListener('click',telegramLinkLoad);
@@ -2780,6 +2806,78 @@ function renderCalendarWarning(){
 document.getElementById('calendarWarningRefresh').addEventListener('click',loadMarketNews);
 document.getElementById('calendarWarningView').addEventListener('click',()=>{document.getElementById('newsImpact').value='HIGH';document.getElementById('newsCurrency').value='ALL';switchPage('news');renderMarketNews();});
 setInterval(()=>{if(USER_PLAN!=='ELITE'||document.hidden||!sessionStorage.getItem('artemis_access_token'))return;renderCalendarWarning();if(!marketNewsBusy&&Date.now()-calendarCheckedAt>=5*60000)loadMarketNews();},60000);
+
+// Dashboard idle limit is separate from Cognito's token and refresh-token lifetimes.
+const ARTEMIS_IDLE_CHOICES=[15,30,60,240,480,720],ARTEMIS_IDLE_DEFAULT=480;
+const artemisNativeFetch=window.fetch.bind(window);
+let artemisRefreshInFlight=null,artemisLastActivityWrite=0;
+function artemisSessionSub(){return decodeJwt(sessionStorage.getItem('artemis_id_token')||'').sub||'';}
+function artemisIdleMinutes(){const sub=artemisSessionSub();if(!sub)return ARTEMIS_IDLE_DEFAULT;try{const n=Number(localStorage.getItem('artemis_idle_minutes_'+sub));return ARTEMIS_IDLE_CHOICES.includes(n)?n:ARTEMIS_IDLE_DEFAULT;}catch{return ARTEMIS_IDLE_DEFAULT;}}
+function artemisActivityKey(){return 'artemis_activity_'+artemisSessionSub();}
+function artemisActivityTime(){const n=Number(sessionStorage.getItem(artemisActivityKey()));return Number.isFinite(n)&&n>0?n:0;}
+function artemisIdleExpired(now=Date.now()){const last=artemisActivityTime();return last>0&&now-last>=artemisIdleMinutes()*60000;}
+function artemisSessionEnd(message){
+ clearLocalAuth();telegramLinkReset();marketNewsEvents=[];marketNewsLoaded=false;document.getElementById('eliteCalendarWarning').hidden=true;
+ document.getElementById('notifyPopover').hidden=true;notifyAccount='';notifyState=null;
+ document.getElementById('appRoot').classList.add('hidden');document.getElementById('authGate').classList.remove('hidden');setAuthState(message);
+}
+function artemisSessionSettingRender(message){const choice=document.getElementById('sessionIdleTimeout'),status=document.getElementById('sessionSettingsStatus');if(choice)choice.value=String(artemisIdleMinutes());if(status)status.textContent=message||'Saved for this account on this browser. Active sessions renew automatically while permitted by your sign-in service.';}
+function artemisRecordActivity(event){
+ if(!event.isTrusted||!artemisSessionSub()||document.hidden)return;
+ if(artemisIdleExpired()){artemisSessionEnd('Your dashboard signed out after inactivity. Sign in to continue.');return;}
+ const now=Date.now();if(now-artemisLastActivityWrite<10000)return;artemisLastActivityWrite=now;sessionStorage.setItem(artemisActivityKey(),String(now));
+}
+async function artemisRefreshSession(){
+ if(artemisRefreshInFlight)return artemisRefreshInFlight;
+ const refresh=sessionStorage.getItem('artemis_refresh_token'),before=sessionStorage.getItem('artemis_id_token'),sub=artemisSessionSub();
+ if(!refresh)throw Error('Sign in again to renew your session.');
+ const task=(async()=>{
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);
+  try{
+   const response=await artemisNativeFetch(COGNITO_DOMAIN+'/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'refresh_token',client_id:COGNITO_CLIENT_ID,refresh_token:refresh}).toString(),signal:controller.signal,cache:'no-store'});
+   const result=await response.json().catch(()=>({}));
+   if(sessionStorage.getItem('artemis_refresh_token')!==refresh||sessionStorage.getItem('artemis_id_token')!==before)throw Error('Your sign-in session changed.');
+   if(!response.ok){if(response.status===400&&result.error==='invalid_grant'||response.status===401){artemisSessionEnd('Your sign-in session has expired. Sign in to continue.');}throw Error('Session renewal unavailable. Please retry or sign in again.');}
+   const id=decodeJwt(result.id_token||''),access=decodeJwt(result.access_token||'');
+   if(!result.id_token||!result.access_token||id.sub!==sub||access.sub!==sub||!(id.exp>Date.now()/1000)||!(access.exp>Date.now()/1000))throw Error('Session renewal returned an invalid response. Sign in again.');
+   if(artemisIdleExpired()){artemisSessionEnd('Your dashboard signed out after inactivity. Sign in to continue.');throw Error('Dashboard inactivity timeout.');}
+   sessionStorage.setItem('artemis_id_token',result.id_token);sessionStorage.setItem('artemis_access_token',result.access_token);if(result.refresh_token)sessionStorage.setItem('artemis_refresh_token',result.refresh_token);
+   updatePlanDisplay();renderCalendarWarning();artemisSessionSettingRender();return true;
+  }finally{clearTimeout(timeout);}
+ })();
+ artemisRefreshInFlight=task;try{return await task;}finally{if(artemisRefreshInFlight===task)artemisRefreshInFlight=null;}
+}
+async function artemisEnsureSession(){
+ const id=decodeJwt(sessionStorage.getItem('artemis_id_token')||''),access=decodeJwt(sessionStorage.getItem('artemis_access_token')||'');
+ if(!id.sub)return false;
+ if(!artemisActivityTime())sessionStorage.setItem(artemisActivityKey(),String(Date.now()));
+ if(artemisIdleExpired()){artemisSessionEnd('Your dashboard signed out after inactivity. Sign in to continue.');return false;}
+ const expiry=Math.min(Number(id.exp)||0,Number(access.exp)||0),now=Date.now()/1000;
+ if(expiry<=now+60){
+  if(sessionStorage.getItem('artemis_refresh_token'))return await artemisRefreshSession();
+  if(expiry<=now){artemisSessionEnd('Your sign-in session has expired. Sign in to continue.');return false;}
+ }
+ return true;
+}
+async function artemisFetch(input,init){
+ const headers=new Headers(init?.headers||{}),authorization=headers.get('Authorization');
+ if(!authorization)return artemisNativeFetch(input,init);
+ const beforeId=sessionStorage.getItem('artemis_id_token'),beforeAccess=sessionStorage.getItem('artemis_access_token');
+ const raw=authorization.replace(/^Bearer\s+/i,''),claims=decodeJwt(raw),current=decodeJwt(beforeId||'');
+ const kind=raw===beforeId?'id':raw===beforeAccess?'access':claims.sub===current.sub&&claims.iss===current.iss&&['id','access'].includes(claims.token_use)?claims.token_use:null;
+ if(!kind)throw Error('Your session changed. Please retry.');
+ if(!await artemisEnsureSession())throw Error('Sign in again to continue.');
+ if(artemisSessionSub()!==current.sub)throw Error('Your sign-in account changed. Please retry.');
+ headers.set('Authorization',(/^Bearer\s+/i.test(authorization)?'Bearer ':'')+sessionStorage.getItem(kind==='id'?'artemis_id_token':'artemis_access_token'));
+ return artemisNativeFetch(input,{...init,headers});
+}
+for(const type of ['pointerdown','keydown','scroll','touchstart'])document.addEventListener(type,artemisRecordActivity,{passive:true,capture:true});
+document.getElementById('sessionIdleTimeout').addEventListener('change',event=>{
+ if(!artemisSessionSub())return;const n=Number(event.target.value);if(!ARTEMIS_IDLE_CHOICES.includes(n))return;
+ try{localStorage.setItem('artemis_idle_minutes_'+artemisSessionSub(),String(n));sessionStorage.setItem(artemisActivityKey(),String(Date.now()));artemisSessionSettingRender('Saved. Automatic sign-out after '+(n<60?n+' minutes':n/60+' hour'+(n===60?'':'s'))+' without activity.');}catch{artemisSessionSettingRender('Could not save this browser setting. Check browser storage permissions.');}
+});
+setInterval(()=>{if(!artemisSessionSub())return;artemisEnsureSession().catch(()=>artemisSessionSettingRender('Session renewal temporarily unavailable. Check your connection or sign in again.'));},30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&artemisSessionSub())artemisEnsureSession().catch(()=>artemisSessionSettingRender('Session renewal temporarily unavailable. Please retry.'));});
 
 initAuth();
 </script>
