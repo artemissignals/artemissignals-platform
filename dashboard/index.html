@@ -614,7 +614,7 @@ html[data-density="compact"] #signalList .signal-card-refresh{padding:14px 16px}
 
 .telegram-link-panel{margin-top:20px}.telegram-link-heading{display:flex;justify-content:space-between;gap:15px;align-items:flex-start}.telegram-link-heading h3{font-size:20px;margin:0 0 6px}.telegram-link-heading p{font-size:12px;color:var(--muted);margin:0}.telegram-link-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;list-style:none;padding:0;margin:24px 0}.telegram-link-steps li{border-left:2px solid var(--line);padding-left:13px}.telegram-link-steps strong{display:block;font-size:12px}.telegram-link-steps span{display:block;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.6}.telegram-link-status{padding:16px;border:1px solid var(--line);background:var(--card2);border-radius:12px;margin:17px 0}.telegram-link-status strong{font-size:13px}.telegram-link-status p{font-size:12px;color:var(--muted);line-height:1.6;margin:7px 0 0}.telegram-link-actions{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:15px}.telegram-link-actions button{padding:11px 14px;border:1px solid var(--line);border-radius:9px;background:var(--card2);color:var(--text);font:inherit;font-size:12px;cursor:pointer}.telegram-link-actions button:disabled{opacity:.45;cursor:default}#telegramConnect,#telegramConfirm{background:var(--brand);color:#111b28;border-color:var(--brand);font-weight:750}#telegramOpenBot[hidden],#telegramConfirm[hidden]{display:none!important}@media(max-width:650px){.telegram-link-steps{grid-template-columns:1fr}.telegram-link-heading{flex-direction:column}.telegram-link-actions>*{min-height:44px}}
 
-</style>
+.alerts-all{margin-top:12px;font-weight:700}.alerts-all small{color:var(--muted);font-size:10px;font-weight:400}.alerts-instrument-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-height:340px;overflow:auto;padding:3px}.alerts-instrument-grid .alerts106-option{min-width:0;min-height:48px;padding:10px;align-items:center}.alerts-symbol-copy{display:flex;flex-direction:column;gap:4px;min-width:0}.alerts-symbol-copy strong{font-size:12px;letter-spacing:.3px}.alerts-symbol-copy small{font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.alerts-quality-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0}.alerts-quality-row input{width:84px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--card2);color:var(--text);font:inherit}.alerts-quality-row button{padding:11px 14px;border:1px solid var(--brand);border-radius:9px;background:var(--amber-bg);color:var(--text);font-weight:700;cursor:pointer}.alerts-quality-row button:disabled{opacity:.45;cursor:default}@media(max-width:650px){.alerts-instrument-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}</style>
 <link rel="icon" type="image/png" href="artemis-a-logo.png">
 </head>
 <body>
@@ -889,24 +889,24 @@ html[data-density="compact"] #signalList .signal-card-refresh{padding:14px 16px}
 
 
 <section id="myalerts" class="page" aria-labelledby="myAlertsHeading">
-  <div class="sectionhead"><h2 id="myAlertsHeading">♧ My Alerts</h2><div class="r">Your personal signal preferences · v0.10.6.1</div></div>
+  <div class="sectionhead"><h2 id="myAlertsHeading">♧ My Alerts</h2><div class="r">Your personal signal preferences</div></div>
   <div class="alerts106-intro"><img src="artemis-a-logo.png" alt="ArtemisSignals logo" width="52" height="52"><div><strong>Signals tailored to you</strong><p>Choose which eligible signals matter to you. Preferences are securely saved to your ArtemisSignals account.</p></div></div>
   <div class="alerts-guide" aria-label="How My Alerts works">
     <h3>How My Alerts works</h3>
     <p>Make ArtemisSignals more relevant to you by saving the types of trading signals you want to follow. Your choices are stored securely against your signed-in account, so you can retrieve them when you use another device.</p>
     <div class="alerts-steps">
       <div class="alerts-step"><strong><span class="alerts-step-num">1</span>Choose your markets</strong><p>Select the markets available with your subscription, such as FX or Metals. Locked markets require a different plan.</p></div>
-      <div class="alerts-step"><strong><span class="alerts-step-num">2</span>Refine your interests</strong><p>Choose specific instruments, BUY or SELL signals, and preferred chart timeframes. Leave instruments or timeframes empty where you want no restriction.</p></div>
+      <div class="alerts-step"><strong><span class="alerts-step-num">2</span>Refine your interests</strong><p>Choose specific instruments, BUY or SELL signals, and preferred chart timeframes. Choose All instruments or All timeframes to keep those choices unrestricted.</p></div>
       <div class="alerts-step"><strong><span class="alerts-step-num">3</span>Save your choices</strong><p>Click <b>Save preferences</b>. A confirmation will appear. Use <b>Reload saved settings</b> to retrieve the last saved version.</p></div>
     </div>
     <div class="alerts-guide-note"><strong>Important:</strong> This release saves your preferences only. It does not yet filter every dashboard view or send email, Telegram or push notifications. Those capabilities will be enabled separately once built and tested.</div>
   </div>
   <div id="alerts106Status" class="alerts106-status" role="status" aria-live="polite">Open My Alerts to load your saved preferences.</div>
   <form id="alerts106Form" class="alerts106-form" novalidate>
-    <div class="panel"><h3>Markets</h3><p class="alerts106-hint">Choose the market categories you want to follow. Available choices depend on your FREE, PRO or ELITE subscription. Unavailable markets cannot be selected.</p><div id="alerts106Markets" class="alerts106-choices"></div></div>
-    <div class="panel"><h3>Instruments</h3><p class="alerts106-hint">Choose individual symbols (for example XAUUSD or EURUSD) from your feed, or type a symbol and click Add. If none are selected, no instrument-specific restriction is saved. Adding a symbol does not subscribe you to a new market or upgrade your plan.</p><div id="alerts106Instruments" class="alerts106-choices"></div><label class="alerts106-label" for="alerts106Custom">Add instrument</label><div class="alerts106-add"><input id="alerts106Custom" type="text" maxlength="25" placeholder="e.g. XAUUSD" autocomplete="off"><button type="button" id="alerts106Add">Add</button></div></div>
-    <div class="panel"><h3>Signal direction</h3><p class="alerts106-hint">Choose BUY, SELL or both, depending on which trade directions you want to follow.</p><div id="alerts106Directions" class="alerts106-choices"></div><h3 style="margin-top:22px">Timeframes</h3><p class="alerts106-hint">Select the chart intervals that interest you, such as M15 (15 minutes), H1 (1 hour) or D1 (1 day). Leave all unchecked for no timeframe restriction.</p><div id="alerts106Timeframes" class="alerts106-choices"></div></div>
-    <div class="panel"><h3>Notification channels</h3><div class="alerts106-channel"><span>Email notifications <small>Coming soon — delivery is not active</small></span><input type="checkbox" disabled aria-label="Email notifications unavailable"></div><div class="alerts106-channel"><span>Telegram <small>ELITE account-linking pilot below · subscriber delivery not enabled yet</small></span><span class="tiny">ELITE</span></div><p class="alerts106-hint">Email and Telegram are shown here to explain upcoming functionality; the switches are intentionally unavailable. Saving preferences does not send messages, change your plan or alter live trades.</p></div>
+    <div class="panel"><h3>Markets</h3><p class="alerts106-hint">Choose the market categories you want to follow. Available choices depend on your FREE, PRO or ELITE subscription. Unavailable markets cannot be selected.</p><label class="alerts106-option alerts-all"><input type="checkbox" id="alertsAllMarkets"> All Markets <small>Included in your plan</small></label><div id="alerts106Markets" class="alerts106-choices"></div></div>
+    <div class="panel"><h3>Instruments</h3><p class="alerts106-hint">Choose All instruments, or select individual instruments below. Names help identify commodities and indexes. Your subscription still controls access.</p><label class="alerts106-option alerts-all"><input type="checkbox" id="alertsAllInstruments"> All instruments</label><div id="alerts106Instruments" class="alerts106-choices alerts-instrument-grid"></div><label class="alerts106-label" for="alerts106Custom">Add instrument</label><div class="alerts106-add"><input id="alerts106Custom" type="text" maxlength="25" placeholder="e.g. XAUUSD" autocomplete="off"><button type="button" id="alerts106Add">Add</button></div></div>
+    <div class="panel"><h3>Signal direction</h3><p class="alerts106-hint">Choose BUY, SELL or both, depending on which trade directions you want to follow.</p><div id="alerts106Directions" class="alerts106-choices"></div><h3 style="margin-top:22px">Timeframes</h3><p class="alerts106-hint">Select the chart intervals that interest you, such as M15 (15 minutes), H1 (1 hour) or D1 (1 day). Choose All Timeframes for no restriction.</p><label class="alerts106-option alerts-all"><input type="checkbox" id="alertsAllTimeframes"> All Timeframes</label><div id="alerts106Timeframes" class="alerts106-choices"></div></div>
+<div class="panel" aria-labelledby="alertsQualityHeading"><h3 id="alertsQualityHeading">Telegram quality threshold</h3><p class="alerts106-hint">Choose the minimum signal quality for future Telegram alerts. Default: 90+. A quality score describes signal criteria, not the probability of a profitable trade.</p><div class="alerts-quality-row"><label for="alertsMinimumQuality">Minimum quality</label><input id="alertsMinimumQuality" type="number" min="0" max="100" step="1" value="90" disabled aria-describedby="alertsQualityStatus"><span>out of 100</span><button id="alertsQualitySave" type="button" disabled>Save quality threshold</button></div><p id="alertsQualityStatus" class="alerts106-hint" role="status" aria-live="polite">Loading your saved quality threshold…</p><p class="alerts106-hint">Saved separately to your account during the ELITE pilot. Unscored signals are excluded. Subscriber delivery is not enabled yet; your existing private test alerts stay at 90+.</p></div>    <div class="panel"><h3>Notification channels</h3><div class="alerts106-channel"><span>Email notifications <small>Coming soon — delivery is not active</small></span><input type="checkbox" disabled aria-label="Email notifications unavailable"></div><div class="alerts106-channel"><span>Telegram <small>ELITE account-linking pilot below · subscriber delivery not enabled yet</small></span><span class="tiny">ELITE</span></div><p class="alerts106-hint">Email and Telegram are shown here to explain upcoming functionality; the switches are intentionally unavailable. Saving preferences does not send messages, change your plan or alter live trades.</p></div>
     <div class="alerts106-actions"><button id="alerts106Save" type="submit" disabled>Save preferences</button><button id="alerts106Reload" type="button">Reload saved settings</button><span id="alerts106Plan" class="alerts106-plan"></span><span class="alerts106-hint">Changes are not stored until you click Save preferences.</span></div>
   </form>
 
@@ -2080,7 +2080,7 @@ function switchPage(page){
   document.getElementById(page).classList.add("active");
   const activeNav=document.querySelector(`.navbtn[data-page="${page}"]`); if(activeNav)activeNav.classList.add("active");
   if(page==="performance")siLoad();
-  if(page==="myalerts"){alerts106Load();telegramLinkLoad();}
+  if(page==="myalerts"){alerts106Load();telegramLinkLoad();alertsQualityLoad();}
   if(page==="watchlists"||page==="notifications")v105Render();
   if(page==="news"&&!marketNewsLoaded)loadMarketNews();
   if(page==="status")refreshStatus();
@@ -2515,7 +2515,9 @@ function alerts106Checkboxes(id,items,selected,allowed=null){
   const label=document.createElement('label');label.className='alerts106-option';
   const input=document.createElement('input');input.type='checkbox';input.value=value;input.name=id;
   input.checked=selected.includes(value);input.disabled=allowed!==null&&!allowed.includes(value);
-  label.append(input,document.createTextNode(value));target.append(label);
+  if(id==='alerts106Instruments'){
+   const copy=document.createElement('span');copy.className='alerts-symbol-copy';const symbol=document.createElement('strong');symbol.textContent=value;const name=document.createElement('small');const full=instrumentLabel(value);name.textContent=full===value?assetClass(value):full.replace(value,'').replace(/^\s*\(|\)\s*$/g,'').trim();copy.append(symbol,name);label.append(input,copy);
+  }else label.append(input,document.createTextNode(value));target.append(label);
  }
 }
 function alerts106Checked(id){return [...document.querySelectorAll('#'+id+' input:checked:not(:disabled)')].map(x=>x.value);}
@@ -2532,6 +2534,7 @@ function alerts106Render(p){
  alerts106Checkboxes('alerts106Instruments',alerts106KnownSymbols(),p.instruments||[],alerts106Plan==='FREE'?[]:null);
  alerts106Checkboxes('alerts106Directions',['BUY','SELL'],p.directions||[]);
  alerts106Checkboxes('alerts106Timeframes',ALERTS106_TFS,p.timeframes||[]);
+ alertsAllSync();
  document.getElementById('alerts106Plan').textContent='Subscription: '+alerts106Plan+' · Markets: '+(alerts106Allowed.join(', ')||'None');
  document.getElementById('alerts106Save').disabled=false;
 }
@@ -2583,7 +2586,7 @@ function alerts106AddSymbol(){
  const selected=alerts106Checked('alerts106Instruments');
  if(!alerts106ExtraSymbols.includes(symbol))alerts106ExtraSymbols.push(symbol);
  alerts106Checkboxes('alerts106Instruments',alerts106KnownSymbols(),[...selected,symbol]);field.value='';
- alerts106Status('Instrument added. Select Save preferences to store it.');
+ alertsAllSync();alerts106Status('Instrument added. Select Save preferences to store it.');
 }
 document.getElementById('alerts106Form').addEventListener('submit',alerts106Save);
 document.getElementById('alerts106Reload').addEventListener('click',alerts106Load);
@@ -2601,13 +2604,13 @@ function telegramLinkButtons(){
  telegramLinkNode('telegramConfirm').disabled=telegramLinkBusy||!s?.eligible;
  telegramLinkNode('telegramDisconnect').disabled=telegramLinkBusy||!(s?.connected||s?.pending);
 }
-async function telegramLinkRequest(method,path){
+async function telegramLinkRequest(method,path,payload){
  const base=String(window.ARTEMIS_TELEGRAM_API||'').replace(/\/$/,'');
  if(!/^https:\/\/[a-z0-9]+\.execute-api\.eu-west-2\.amazonaws\.com$/.test(base))throw Error('Telegram account linking is being connected. Please check again shortly.');
  const token=sessionStorage.getItem('artemis_id_token');if(!token)throw Error('Sign in again to manage Telegram.');
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
  try{
-  const response=await fetch(base+path,{method,headers:{Authorization:'Bearer '+token,Accept:'application/json'},cache:'no-store',signal:controller.signal});
+  const response=await fetch(base+path,{method,headers:{Authorization:'Bearer '+token,Accept:'application/json',...(payload?{'Content-Type':'application/json'}:{})},...(payload?{body:JSON.stringify(payload)}:{}),cache:'no-store',signal:controller.signal});
   const body=await response.json().catch(()=>({}));
   if(sessionStorage.getItem('artemis_id_token')!==token)throw Error('Your session changed. Check the connection again.');
   if(!response.ok)throw Error(body.error||('Telegram connection unavailable ('+response.status+').'));
@@ -2655,6 +2658,34 @@ telegramLinkNode('telegramDisconnect').addEventListener('click',async()=>{
  finally{telegramLinkBusy=false;telegramLinkButtons();}
 });
 telegramLinkNode('telegramCheck').addEventListener('click',telegramLinkLoad);
+
+// Explicit all-selection controls preserve the existing account-preferences schema.
+function alertsAllSync(){
+ const markets=[...document.querySelectorAll('#alerts106Markets input:not(:disabled)')];const selected=markets.filter(x=>x.checked).length;const all=document.getElementById('alertsAllMarkets');all.disabled=!markets.length;all.checked=markets.length>0&&selected===markets.length;all.indeterminate=selected>0&&selected<markets.length;
+ for(const [id,container] of [['alertsAllInstruments','alerts106Instruments'],['alertsAllTimeframes','alerts106Timeframes']]){const control=document.getElementById(id);control.checked=alerts106Checked(container).length===0;control.disabled=container==='alerts106Instruments'&&alerts106Plan==='FREE';}
+}
+document.getElementById('alertsAllMarkets').addEventListener('change',event=>{for(const input of document.querySelectorAll('#alerts106Markets input:not(:disabled)'))input.checked=event.target.checked;alertsAllSync();});
+for(const [id,container] of [['alertsAllInstruments','alerts106Instruments'],['alertsAllTimeframes','alerts106Timeframes']]){
+ document.getElementById(id).addEventListener('change',()=>{for(const input of document.querySelectorAll('#'+container+' input'))input.checked=false;alertsAllSync();});
+ document.getElementById(container).addEventListener('change',alertsAllSync);
+}
+document.getElementById('alerts106Markets').addEventListener('change',alertsAllSync);
+let alertsQualityBusy=false,alertsQualityReady=false;
+function alertsQualityControls(){document.getElementById('alertsMinimumQuality').disabled=alertsQualityBusy||!alertsQualityReady;document.getElementById('alertsQualitySave').disabled=alertsQualityBusy||!alertsQualityReady;}
+async function alertsQualityLoad(){
+ if(alertsQualityBusy)return;alertsQualityBusy=true;alertsQualityReady=false;alertsQualityControls();const note=document.getElementById('alertsQualityStatus');note.textContent='Loading your saved quality threshold…';
+ try{const p=await telegramLinkRequest('GET','/telegram/preferences');document.getElementById('alertsMinimumQuality').value=p.minimumQuality;alertsQualityReady=true;note.textContent='Saved minimum: '+p.minimumQuality+'+. Changes take effect after Save quality threshold.';}
+ catch(e){note.textContent='Quality setting unavailable: '+e.message;}
+ finally{alertsQualityBusy=false;alertsQualityControls();}
+}
+document.getElementById('alertsQualitySave').addEventListener('click',async()=>{
+ if(alertsQualityBusy||!alertsQualityReady)return;const field=document.getElementById('alertsMinimumQuality');const q=Number(field.value);const note=document.getElementById('alertsQualityStatus');
+ if(field.value.trim()===''||!Number.isInteger(q)||q<0||q>100){note.textContent='Enter a whole number from 0 to 100.';field.focus();return;}
+ alertsQualityBusy=true;alertsQualityControls();note.textContent='Saving quality threshold…';
+ try{const result=await telegramLinkRequest('PUT','/telegram/preferences',{minimumQuality:q});note.textContent='Saved to your account: '+result.minimumQuality+'+. Subscriber delivery is not enabled yet.';}
+ catch(e){note.textContent='Could not save quality threshold: '+e.message;}
+ finally{alertsQualityBusy=false;alertsQualityControls();}
+});
 
 initAuth();
 </script>
