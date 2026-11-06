@@ -915,7 +915,7 @@ html[data-density="compact"] .signal-level-slot>.signal-progress-node{margin-top
 
 
 <section id="myalerts" class="page" aria-labelledby="myAlertsHeading">
-  <div class="sectionhead"><h2 id="myAlertsHeading">♧ My Alerts</h2><div class="r">Your personal signal preferences</div></div>
+  <div class="sectionhead"><h2 id="myAlertsHeading">♧ My Alerts</h2><div class="r">Your personal signal preferences · Build 2026.11.06-browser-test-1</div></div>
   <div class="alerts106-intro"><img src="artemis-a-logo.png" alt="ArtemisSignals logo" width="52" height="52"><div><strong>Signals tailored to you</strong><p>Choose which eligible signals matter to you. Preferences are securely saved to your ArtemisSignals account.</p></div></div>
   <div class="alerts-guide" aria-label="How My Alerts works">
     <h3>How My Alerts works</h3>
@@ -936,7 +936,7 @@ html[data-density="compact"] .signal-level-slot>.signal-progress-node{margin-top
     <div class="alerts106-actions"><button id="alerts106Save" type="submit" disabled>Save preferences</button><button id="alerts106Reload" type="button">Reload saved settings</button><span id="alerts106Plan" class="alerts106-plan"></span><span class="alerts106-hint">Changes are not stored until you click Save preferences.</span></div>
   </form>
 
- <div class="panel telegram-link-panel" aria-labelledby="telegramLinkHeading"><div class="telegram-link-heading"><div><h3 id="telegramLinkHeading">Connect Telegram</h3><p>Private alerts, linked to your Artemis account.</p></div><span class="tiny plan">ELITE · LINKING PILOT</span></div>
+<div class="panel browser-device-panel" aria-labelledby="browserDeviceHeading"><div class="telegram-link-heading"><div><h3 id="browserDeviceHeading">Browser notifications</h3><p>Manual device test · automatic signal push is not enabled</p></div><span class="tiny">DEVICE TEST</span></div><p class="alerts106-hint">Try a notification on this device before we connect automatic signal delivery. Permission is optional and specific to this browser. This test does not send trading signals or subscribe you to background push.</p><div class="telegram-link-status" role="status" aria-live="polite" id="browserDeviceStatus">Open My Alerts to check notification support.</div><div class="telegram-link-actions"><button type="button" id="browserDeviceEnable" disabled>Enable notifications</button><button type="button" id="browserDeviceSend" disabled>Send test notification</button><button type="button" id="browserDeviceDisable" disabled>Turn off device test</button><button type="button" id="browserDeviceCheck">Check permission</button></div></div> <div class="panel telegram-link-panel" aria-labelledby="telegramLinkHeading"><div class="telegram-link-heading"><div><h3 id="telegramLinkHeading">Connect Telegram</h3><p>Private alerts, linked to your Artemis account.</p></div><span class="tiny plan">ELITE · LINKING PILOT</span></div>
  <ol class="telegram-link-steps"><li><strong>1 · Create your link</strong><span>Available only to the selected ELITE test account.</span></li><li><strong>2 · Start the bot</strong><span>Open Telegram and press Start using the single-use link.</span></li><li><strong>3 · Confirm here</strong><span>Check the Telegram name shown before activating the account link.</span></li></ol>
  <div class="telegram-checks" aria-label="Telegram and account checks" role="status" aria-live="polite"><div class="telegram-check unknown" id="telegramTransportCheck"><span class="telegram-check-icon" aria-hidden="true">○</span><div><strong id="telegramTransportLabel">Telegram Not Checked</strong><small id="telegramTransportDetail">Check your saved private-chat link.</small></div></div><div class="telegram-check unknown" id="telegramAccountCheck"><span class="telegram-check-icon" aria-hidden="true">○</span><div><strong id="telegramAccountLabel">Account Not Checked</strong><small id="telegramAccountDetail">Current ELITE eligibility has not been checked.</small></div></div></div><p class="telegram-check-caption"><span id="telegramChecksUpdated"></span>Telegram status confirms the saved chat link; message delivery is not verified in this pilot.</p><div class="telegram-link-status" role="status" aria-live="polite"><strong id="telegramConnectionStatus">Check your Telegram connection</strong><p id="telegramConnectionDetail">Create a secure link to your private Telegram chat.</p></div>
  <div class="telegram-link-actions"><button id="telegramConnect" type="button" disabled>Connect Telegram</button><a id="telegramOpenBot" class="cta" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" hidden>Open Telegram →</a><button id="telegramCheck" type="button">Check connection</button><button id="telegramConfirm" type="button" hidden>Confirm connection</button><button id="telegramDisconnect" type="button" disabled>Disconnect / cancel request</button></div>
@@ -982,7 +982,7 @@ html[data-density="compact"] .signal-level-slot>.signal-progress-node{margin-top
 </div>
 </div>
 </section>
-<footer class="app-footer">
+<footer class="app-footer"><div class="app-build">Build 2026.11.06-browser-test-1</div>
   <div><strong>Artemis Signals</strong><br>Secure subscriber market intelligence.</div>
   <div>Educational market signals only. Not financial advice. Trading leveraged products involves substantial risk.</div>
 </footer>
@@ -2117,7 +2117,7 @@ function switchPage(page){
   document.getElementById(page).classList.add("active");
   const activeNav=document.querySelector(`.navbtn[data-page="${page}"]`); if(activeNav)activeNav.classList.add("active");
   if(page==="performance")siLoad();
-  if(page==="myalerts"){alerts106Load();telegramLinkLoad();alertsQualityLoad();}
+  if(page==="myalerts"){alerts106Load();telegramLinkLoad();alertsQualityLoad();browserDeviceRender();}
   if(page==="watchlists"||page==="notifications")v105Render();
   if(page==="news"&&!marketNewsLoaded)loadMarketNews();
   if(page==="status")refreshStatus();
@@ -2531,6 +2531,7 @@ async function initAuth(){
   try{if(!await artemisEnsureSession()){setAuthState("Sign in to view your dashboard.");return;}}catch(error){setAuthState("Could not renew your session. Check your connection and reload, or sign in again.");return;}
   if(showDashboard()){
     artemisSessionSettingRender();
+    if(window.location.hash==="#myalerts")switchPage("myalerts");
     loadSignals();
     loadHistory();
     renderCalendarWarning();if(USER_PLAN==="ELITE")loadMarketNews();
@@ -2878,6 +2879,60 @@ document.getElementById('sessionIdleTimeout').addEventListener('change',event=>{
 });
 setInterval(()=>{if(!artemisSessionSub())return;artemisEnsureSession().catch(()=>artemisSessionSettingRender('Session renewal temporarily unavailable. Check your connection or sign in again.'));},30000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&artemisSessionSub())artemisEnsureSession().catch(()=>artemisSessionSettingRender('Session renewal temporarily unavailable. Please retry.'));});
+
+let browserDeviceBusy=false;
+const browserDeviceNode=id=>document.getElementById(id);
+function browserDeviceKey(){const sub=artemisSessionSub();return sub?'artemis_browser_test_'+sub:'';}
+function browserDeviceSupported(){return window.isSecureContext&&'Notification' in window&&'serviceWorker' in navigator;}
+function browserDeviceEnabled(){try{return localStorage.getItem(browserDeviceKey())==='enabled';}catch{return false;}}
+function browserDeviceRender(message){
+ const supported=browserDeviceSupported(),permission=supported?Notification.permission:'unsupported',signedIn=Boolean(artemisSessionSub()),enabled=signedIn&&browserDeviceEnabled();
+ browserDeviceNode('browserDeviceEnable').disabled=browserDeviceBusy||!signedIn||!supported||permission==='denied'||(permission==='granted'&&enabled);
+ browserDeviceNode('browserDeviceSend').disabled=browserDeviceBusy||!signedIn||permission!=='granted'||!enabled;
+ browserDeviceNode('browserDeviceDisable').disabled=browserDeviceBusy||!enabled;
+ browserDeviceNode('browserDeviceStatus').textContent=message||(!supported?'Notifications unavailable in this browser context. Try a supported browser over HTTPS.':permission==='denied'?'Notifications blocked. Change this site’s notification permission in browser settings, then check again.':permission==='granted'&&enabled?'Permission allowed · ready for a manual device test. Automatic signal push is not enabled.':'Device test is off. Enable notifications to request permission for this browser.');
+}
+async function browserDeviceRegistration(){
+ const url=new URL('artemis-notifications-sw.js',window.location.href),scope=new URL('./',url);
+ const current=await navigator.serviceWorker.getRegistration(scope.href);
+ if(current){const worker=current.active||current.waiting||current.installing;if(worker&&new URL(worker.scriptURL).pathname!==url.pathname)throw Error('Another notification service is registered here. This test will not replace it.');}
+ const registration=await navigator.serviceWorker.register(url.href,{scope:scope.href,updateViaCache:'none'});
+ if(registration.active?.state==='activated')return registration;
+ const worker=registration.installing||registration.waiting||registration.active;
+ if(!worker)throw Error('Notification service could not start. Check that the service-worker file was deployed.');
+ await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{worker.removeEventListener('statechange',check);reject(Error('Notification service timed out. Check the deployment and retry.'));},15000);function check(){if(worker.state==='activated'){clearTimeout(timer);worker.removeEventListener('statechange',check);resolve();}else if(worker.state==='redundant'){clearTimeout(timer);worker.removeEventListener('statechange',check);reject(Error('Notification service could not activate.'));}}worker.addEventListener('statechange',check);check();});
+ return registration;
+}
+browserDeviceNode('browserDeviceEnable').addEventListener('click',async()=>{
+ if(browserDeviceBusy||!browserDeviceSupported()||!artemisSessionSub())return;
+ if(artemisIdleExpired()){artemisSessionEnd('Your dashboard signed out after inactivity. Sign in to continue.');return;}
+ const sub=artemisSessionSub();browserDeviceBusy=true;browserDeviceRender('Requesting browser notification permission…');
+ try{
+  // Ask directly from the user's click, before awaiting network or worker setup.
+  const permission=Notification.permission==='granted'?'granted':await Notification.requestPermission();
+  if(permission!=='granted')throw Error(permission==='denied'?'Notifications were blocked. You can allow them in browser site settings.':'Permission was not granted. You can try Enable notifications again.');
+  if(sub!==artemisSessionSub()||!await artemisEnsureSession())throw Error('Sign in again before enabling this account’s device test.');
+  await browserDeviceRegistration();if(sub!==artemisSessionSub())throw Error('Your account changed. Please retry.');
+  localStorage.setItem(browserDeviceKey(),'enabled');browserDeviceRender('Permission allowed · select Send test notification. Automatic signal push is not enabled.');
+ }catch(error){browserDeviceRender(error.message||'Could not enable this browser.');}
+ finally{browserDeviceBusy=false;browserDeviceRender(browserDeviceNode('browserDeviceStatus').textContent);}
+});
+browserDeviceNode('browserDeviceSend').addEventListener('click',async()=>{
+ if(browserDeviceBusy||!browserDeviceEnabled()||!browserDeviceSupported()||Notification.permission!=='granted')return;
+ const sub=artemisSessionSub();browserDeviceBusy=true;browserDeviceRender('Requesting a test notification…');
+ try{
+  if(!await artemisEnsureSession())throw Error('Sign in again to test notifications.');
+  const registration=await browserDeviceRegistration();
+  if(sub!==artemisSessionSub()||!browserDeviceEnabled())throw Error('Your account or device setting changed. Please retry.');
+  await registration.showNotification('Artemis Signals · device test',{body:'This is a manual browser notification test, not a trading signal. Tap to return to My Alerts.',tag:'artemis-device-test',icon:new URL('artemis-a-logo.png',window.location.href).href});
+  browserDeviceRender('Test requested · check your device’s notification center. Permission does not guarantee an on-screen banner; Focus or Do Not Disturb may hide it.');
+ }catch(error){browserDeviceRender(error.message||'The test notification could not be requested.');}
+ finally{browserDeviceBusy=false;browserDeviceRender(browserDeviceNode('browserDeviceStatus').textContent);}
+});
+browserDeviceNode('browserDeviceDisable').addEventListener('click',async()=>{
+ try{localStorage.removeItem(browserDeviceKey());const reg=await navigator.serviceWorker.getRegistration(new URL('./',window.location.href).href);const notes=await reg?.getNotifications({tag:'artemis-device-test'});for(const note of notes||[])note.close();browserDeviceRender('Device test turned off for this account. Browser permission remains controlled in browser settings.');}catch{browserDeviceRender('Device test turned off. Browser permission can be changed in site settings.');}
+});
+browserDeviceNode('browserDeviceCheck').addEventListener('click',()=>browserDeviceRender());
 
 initAuth();
 </script>
