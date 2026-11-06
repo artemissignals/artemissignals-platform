@@ -616,6 +616,21 @@ html[data-density="compact"] #signalList .signal-card-refresh{padding:14px 16px}
 
 .alerts-all{margin-top:12px;font-weight:700}.alerts-all small{color:var(--muted);font-size:10px;font-weight:400}.alerts-instrument-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-height:340px;overflow:auto;padding:3px}.alerts-instrument-grid .alerts106-option{min-width:0;min-height:48px;padding:10px;align-items:center}.alerts-symbol-copy{display:flex;flex-direction:column;gap:4px;min-width:0}.alerts-symbol-copy strong{font-size:12px;letter-spacing:.3px}.alerts-symbol-copy small{font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.alerts-quality-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0}.alerts-quality-row input{width:84px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--card2);color:var(--text);font:inherit}.alerts-quality-row button{padding:11px 14px;border:1px solid var(--brand);border-radius:9px;background:var(--amber-bg);color:var(--text);font-weight:700;cursor:pointer}.alerts-quality-row button:disabled{opacity:.45;cursor:default}@media(max-width:650px){.alerts-instrument-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .calendar-warning[hidden]{display:none!important}.calendar-warning{margin-top:20px;padding:17px 19px;border:1px solid var(--brand);border-left:4px solid var(--brand);border-radius:12px;background:var(--amber-bg)}.calendar-warning-head{display:flex;justify-content:space-between;gap:12px;align-items:center}.calendar-label{font-size:10px;letter-spacing:1px;font-weight:850;color:var(--brand)}.calendar-label span{margin-left:7px;padding:3px 6px;border:1px solid var(--line);border-radius:5px;font-size:9px}.calendar-warning h3{margin:12px 0 7px;font-size:16px}.calendar-warning p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}.calendar-scope{font-size:11px;color:var(--muted);display:flex;gap:7px;align-items:center}.calendar-warning select,.calendar-warning button{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:7px;font:inherit;font-size:11px;padding:8px;cursor:pointer}.calendar-warning button:disabled{opacity:.5;cursor:default}.calendar-warning ul{padding:0;margin:12px 0;list-style:none}.calendar-warning li{display:flex;gap:13px;border-top:1px solid var(--line);padding:10px 0}.calendar-warning time{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;padding-top:1px}.calendar-warning li strong{display:block;font-size:12px;overflow-wrap:anywhere}.calendar-warning li span{display:block;font-size:11px;color:var(--muted);margin-top:4px}.calendar-warning-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--muted);font-size:10px}.calendar-warning-foot>div{display:flex;gap:7px}.calendar-imminent{border-color:var(--red);background:var(--red-bg)}.calendar-imminent .calendar-label{color:var(--red)}.calendar-warning .calendar-more{font-size:11px;color:var(--muted)}@media(max-width:600px){.calendar-warning{padding:14px}.calendar-warning-head,.calendar-warning-foot{align-items:flex-start;flex-direction:column}.calendar-warning-foot button{min-height:40px}}
+
+/* Keep each observation in the same grid cell as its corresponding price card. */
+#signalList .signal-card-refresh .signal-aligned-levels{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.signal-level-slot{min-width:0;display:flex;flex-direction:column}
+#signalList .signal-card-refresh .signal-level-slot>.level{flex:1;background:var(--card2);padding:13px 11px}
+.signal-level-slot>.signal-progress-node{margin-top:23px;min-height:71px}
+.signal-level-slot>.signal-progress-node small{min-height:28px;padding:0 3px}
+.signal-level-slot:nth-child(3)>.signal-progress-node:before,.signal-level-slot:nth-child(4)>.signal-progress-node:before{content:'';position:absolute;top:11px;left:50%;width:calc(100% + 9px);height:2px;background:var(--line);z-index:0}
+.signal-level-slot .signal-progress-dot{position:relative;z-index:1}
+.signal-progress-node.stop-recorded{color:var(--red)}.signal-progress-node.stop-recorded .signal-progress-dot{border-color:var(--red);background:var(--red-bg)}
+.signal-progress-track{grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.signal-progress-track:before{left:calc(50% + 5px);right:10%;}
+html[data-density="compact"] #signalList .signal-card-refresh .signal-level-slot>.level{padding:9px 8px}
+html[data-density="compact"] .signal-level-slot>.signal-progress-node{margin-top:15px}
+@media(max-width:700px){#signalList .signal-card-refresh .signal-aligned-levels{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}.signal-level-slot:nth-child(3)>.signal-progress-node:before{display:none}}
+@media(max-width:420px){#signalList .signal-card-refresh .signal-aligned-levels{grid-template-columns:repeat(2,minmax(0,1fr))}.signal-level-slot:nth-child(3)>.signal-progress-node:before{display:block}.signal-level-slot:nth-child(4)>.signal-progress-node:before{display:none}.signal-level-slot>.signal-progress-node{margin-top:15px}.signal-progress-track{gap:4px}.signal-progress-track strong{font-size:10px}}
 </style>
 <link rel="icon" type="image/png" href="artemis-a-logo.png">
 </head>
@@ -1261,13 +1276,23 @@ function signalDisplayOutcome(s){
  if(['SUPERSEDED','SIGNAL_SUPERSEDED'].includes(raw))return hit?`TP${hit} reached · superseded`:'Superseded';
  return normaliseStatus(s).label;
 }
-function signalProgressHtml(s){
+function signalProgressNodes(s){
  const active=isActive(s),hits=[1,2,3].map(n=>reachedTarget(s,n)),next=hits.findIndex(v=>!v);
- return '<div class="signal-progress-track" aria-label="Published setup and recorded target milestones">'+['Entry', 'TP1', 'TP2', 'TP3'].map((label,i)=>{
-  const hit=i>0&&hits[i-1],pending=i>0&&active&&i-1===next;
-  return `<div class="signal-progress-node ${hit?'recorded':pending?'pending':''}"><span class="signal-progress-dot" aria-hidden="true">${hit?'✓':i===0?'•':i}</span><strong>${label}</strong><small>${i===0?'Published level':hit?'Reached':pending?'Next target':active?'Pending':'Not recorded'}</small></div>`;
- }).join('')+'</div>';
+ const stopTypes=['STOPPED','SL_HIT','CLOSED_SL'];
+ const stopped=stopTypes.includes(signalLifecycleStatus(s))||Boolean(s.slHitAt)||(Array.isArray(s.lifecycleHistory)&&s.lifecycleHistory.some(e=>e&&stopTypes.includes(e.eventType)));
+ return ['Entry','SL','TP1','TP2','TP3'].map((label,i)=>{
+  const target=i>=2,hit=target&&hits[i-2],pending=target&&active&&i-2===next,isStop=i===1;
+  const state=isStop&&stopped?'stop-recorded':hit?'recorded':pending?'pending':'';
+  const detail=i===0?'Published level':isStop?(stopped?'Stop recorded':'Protective level'):hit?'Reached':pending?'Next target':active?'Pending':'Not recorded';
+  return `<div class="signal-progress-node ${state} ${target?'target-node':''}"><span class="signal-progress-dot" aria-hidden="true">${isStop?(stopped?'!':'◇'):hit?'✓':i===0?'•':i-1}</span><strong>${label}</strong><small>${detail}</small></div>`;
+ });
 }
+function signalProgressHtml(s){return '<div class="signal-progress-track" aria-label="Published entry, stop level and target observations">'+signalProgressNodes(s).join('')+'</div>';}
+function signalAlignedLevelsHtml(s){
+ const hits=[1,2,3].map(n=>reachedTarget(s,n)),nodes=signalProgressNodes(s);
+ return '<div class="signal-aligned-levels" aria-label="Price levels and corresponding observations">'+[['Entry',s.entry,'entry-level'],['Stop loss',s.sl,'stop-level'],['TP1',s.tp1,hits[0]?'hit':''],['TP2',s.tp2,hits[1]?'hit':''],['TP3',s.tp3,hits[2]?'hit':'']].map(([label,value,kind],i)=>`<div class="signal-level-slot"><div class="level ${kind}"><div class="k">${label}</div><div class="v">${esc(value??'—')}${kind==='hit'?' ✓':''}</div></div>${nodes[i]}</div>`).join('')+'</div>';
+}
+
 function signalTimelineHtml(s){
  const labels={SIGNAL_OPEN:'Signal published',ACTIVE:'Signal published',TP1_HIT:'TP1 reached',TP2_HIT:'TP2 reached',TP3_HIT:'TP3 reached',STOPPED:'Stop recorded',SL_HIT:'Stop recorded',CLOSED_SL:'Stop recorded',SUPERSEDED:'Signal superseded',EXPIRED:'Signal expired',CANCELLED:'Signal canceled'};
  const rows=[],seen=new Set();
@@ -1486,8 +1511,7 @@ function renderSignal(s){
  return `<article class="card signal-card-v101 signal-card-refresh ${dir==='BUY'?'signal-buy':'signal-sell'}">
  <div class="signal-top"><div class="signal-identity"><div class="signal-card-eyebrow">${esc(asset)} · ${esc(s.timeframe||'—')}</div><div class="marketline"><span class="market">${esc(raw)}${name?` <span class="instrument-name">(${esc(name)})</span>`:''}</span><span class="badge ${dir==='BUY'?'buy':dir==='SELL'?'sell':'grade'}">${esc(dir)}</span></div><div class="signal-card-subtitle">${esc(s.setup||s.strategy_profile||'Artemis Signal Engine')}</div></div><button class="signal-favourite ${favorite?'is-favourite':''}" type="button" aria-label="${favorite?'Remove favorite':'Add favorite'} ${esc(instrumentLabel(s.symbol))}" aria-pressed="${favorite}" onclick="toggleSignalFavourite(${idx})">${favorite?'★':'☆'}</button></div>
  <div class="signal-state-line"><span class="status-badge ${status.cls}">${esc(label)}</span><span class="signal-quality-text">✦ Quality <strong>${esc(grade)}</strong></span></div>
- <div class="levels">${[['Entry',entry,'entry-level'],['Stop loss',sl,'stop-level'],['TP1',s.tp1,hits[0]?'hit':''],['TP2',s.tp2,hits[1]?'hit':''],['TP3',s.tp3,hits[2]?'hit':'']].map(([label,value,kind])=>`<div class="level ${kind}"><div class="k">${label}</div><div class="v">${esc(value??'—')}${kind==='hit'?' ✓':''}</div></div>`).join('')}</div>
- ${signalProgressHtml(s)}
+ ${signalAlignedLevelsHtml(s)}
  <div class="signal-card-context"><span>${highest?`${highest} reached · `:''}${hitCount} of 3 targets recorded</span><span>${active?'Tracking signal':esc(status.label)}</span></div>
  <div class="signal-card-actions"><div class="signal-card-subline"><time ${received.iso?`datetime="${esc(received.iso)}"`:''}>Received ${esc(received.label)}</time>${rr!==null&&rr>0?`<span>TP1 planned R:R 1:${rr.toFixed(2)}</span>`:''}</div><button class="card-open" type="button" onclick="openSignalDetail(${idx})">View setup <span aria-hidden="true">↗</span></button></div>
  </article>`;
