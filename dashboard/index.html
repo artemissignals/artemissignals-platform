@@ -611,6 +611,9 @@ html[data-density="compact"] #signalList .signal-card-refresh{padding:14px 16px}
 .notify-root{position:relative}.notify-bell{position:relative;display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--text);padding:9px;border-radius:10px;cursor:pointer}.notify-bell svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7}.notify-popover{position:absolute;right:0;top:48px;z-index:60;width:min(460px,90vw);max-height:70vh;overflow:auto;border:1px solid var(--line);border-radius:15px;background:var(--card);box-shadow:0 18px 60px #0006;padding:17px}.notify-popover-head{display:flex;justify-content:space-between;align-items:center;gap:14px}.notify-popover button,.notify-catchup button,.notify-event button{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 11px;font:inherit;font-size:11px;cursor:pointer}.notify-event{display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--line);padding:16px 4px}.notify-event.unread{border-left:2px solid var(--brand);padding-left:10px}.notify-event-icon{width:28px;height:28px;border-radius:9px;background:var(--amber-bg);color:var(--brand);display:grid;place-items:center;flex-shrink:0}.notify-event-copy{flex:1;min-width:0}.notify-event-copy strong{display:block;font-size:12px}.notify-event-copy small,.notify-event-copy time{display:block;font-size:10px;color:var(--muted);line-height:1.6}.notify-catchup{padding:21px;border:1px solid var(--line);border-radius:16px;background:var(--card);margin:0 0 22px}.notify-catchup-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px}.notify-catchup h2{font-size:17px;margin:0 0 6px}.notify-catchup p{font-size:11px;color:var(--muted);margin:0}.notify-catchup-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-top:19px}.notify-catchup-cards>div{border-left:2px solid var(--line);padding-left:15px}.notify-catchup-cards span{font-size:11px;color:var(--muted)}.notify-catchup-cards strong{display:block;font-size:27px;color:var(--text);margin-top:5px}.notify-catchup-cards>div:first-child{border-color:var(--brand)}#notifyQuality,#notifyTimeframe{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;font-size:11px}
 @media(max-width:620px){.notify-catchup{padding:16px}.notify-catchup-head{flex-direction:column}.notify-event{flex-wrap:wrap}.notify-event button{margin-left:40px}.notify-catchup-cards{gap:8px}.notify-catchup-cards>div{padding-left:10px}}
 
+
+.telegram-link-panel{margin-top:20px}.telegram-link-heading{display:flex;justify-content:space-between;gap:15px;align-items:flex-start}.telegram-link-heading h3{font-size:20px;margin:0 0 6px}.telegram-link-heading p{font-size:12px;color:var(--muted);margin:0}.telegram-link-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;list-style:none;padding:0;margin:24px 0}.telegram-link-steps li{border-left:2px solid var(--line);padding-left:13px}.telegram-link-steps strong{display:block;font-size:12px}.telegram-link-steps span{display:block;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.6}.telegram-link-status{padding:16px;border:1px solid var(--line);background:var(--card2);border-radius:12px;margin:17px 0}.telegram-link-status strong{font-size:13px}.telegram-link-status p{font-size:12px;color:var(--muted);line-height:1.6;margin:7px 0 0}.telegram-link-actions{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:15px}.telegram-link-actions button{padding:11px 14px;border:1px solid var(--line);border-radius:9px;background:var(--card2);color:var(--text);font:inherit;font-size:12px;cursor:pointer}.telegram-link-actions button:disabled{opacity:.45;cursor:default}#telegramConnect,#telegramConfirm{background:var(--brand);color:#111b28;border-color:var(--brand);font-weight:750}#telegramOpenBot[hidden],#telegramConfirm[hidden]{display:none!important}@media(max-width:650px){.telegram-link-steps{grid-template-columns:1fr}.telegram-link-heading{flex-direction:column}.telegram-link-actions>*{min-height:44px}}
+
 </style>
 <link rel="icon" type="image/png" href="artemis-a-logo.png">
 </head>
@@ -903,9 +906,15 @@ html[data-density="compact"] #signalList .signal-card-refresh{padding:14px 16px}
     <div class="panel"><h3>Markets</h3><p class="alerts106-hint">Choose the market categories you want to follow. Available choices depend on your FREE, PRO or ELITE subscription. Unavailable markets cannot be selected.</p><div id="alerts106Markets" class="alerts106-choices"></div></div>
     <div class="panel"><h3>Instruments</h3><p class="alerts106-hint">Choose individual symbols (for example XAUUSD or EURUSD) from your feed, or type a symbol and click Add. If none are selected, no instrument-specific restriction is saved. Adding a symbol does not subscribe you to a new market or upgrade your plan.</p><div id="alerts106Instruments" class="alerts106-choices"></div><label class="alerts106-label" for="alerts106Custom">Add instrument</label><div class="alerts106-add"><input id="alerts106Custom" type="text" maxlength="25" placeholder="e.g. XAUUSD" autocomplete="off"><button type="button" id="alerts106Add">Add</button></div></div>
     <div class="panel"><h3>Signal direction</h3><p class="alerts106-hint">Choose BUY, SELL or both, depending on which trade directions you want to follow.</p><div id="alerts106Directions" class="alerts106-choices"></div><h3 style="margin-top:22px">Timeframes</h3><p class="alerts106-hint">Select the chart intervals that interest you, such as M15 (15 minutes), H1 (1 hour) or D1 (1 day). Leave all unchecked for no timeframe restriction.</p><div id="alerts106Timeframes" class="alerts106-choices"></div></div>
-    <div class="panel"><h3>Notification channels</h3><div class="alerts106-channel"><span>Email notifications <small>Coming soon — delivery is not active</small></span><input type="checkbox" disabled aria-label="Email notifications unavailable"></div><div class="alerts106-channel"><span>Telegram notifications <small>Coming soon — delivery is not active</small></span><input type="checkbox" disabled aria-label="Telegram notifications unavailable"></div><p class="alerts106-hint">Email and Telegram are shown here to explain upcoming functionality; the switches are intentionally unavailable. Saving preferences does not send messages, change your plan or alter live trades.</p></div>
+    <div class="panel"><h3>Notification channels</h3><div class="alerts106-channel"><span>Email notifications <small>Coming soon — delivery is not active</small></span><input type="checkbox" disabled aria-label="Email notifications unavailable"></div><div class="alerts106-channel"><span>Telegram <small>ELITE account-linking pilot below · subscriber delivery not enabled yet</small></span><span class="tiny">ELITE</span></div><p class="alerts106-hint">Email and Telegram are shown here to explain upcoming functionality; the switches are intentionally unavailable. Saving preferences does not send messages, change your plan or alter live trades.</p></div>
     <div class="alerts106-actions"><button id="alerts106Save" type="submit" disabled>Save preferences</button><button id="alerts106Reload" type="button">Reload saved settings</button><span id="alerts106Plan" class="alerts106-plan"></span><span class="alerts106-hint">Changes are not stored until you click Save preferences.</span></div>
   </form>
+
+ <div class="panel telegram-link-panel" aria-labelledby="telegramLinkHeading"><div class="telegram-link-heading"><div><h3 id="telegramLinkHeading">Connect Telegram</h3><p>Private alerts, linked to your Artemis account.</p></div><span class="tiny plan">ELITE · LINKING PILOT</span></div>
+ <ol class="telegram-link-steps"><li><strong>1 · Create your link</strong><span>Available only to the selected ELITE test account.</span></li><li><strong>2 · Start the bot</strong><span>Open Telegram and press Start using the single-use link.</span></li><li><strong>3 · Confirm here</strong><span>Check the Telegram name shown before activating the account link.</span></li></ol>
+ <div class="telegram-link-status" role="status" aria-live="polite"><strong id="telegramConnectionStatus">Check your Telegram connection</strong><p id="telegramConnectionDetail">Create a secure link to your private Telegram chat.</p></div>
+ <div class="telegram-link-actions"><button id="telegramConnect" type="button" disabled>Connect Telegram</button><a id="telegramOpenBot" class="cta" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" hidden>Open Telegram →</a><button id="telegramCheck" type="button">Check connection</button><button id="telegramConfirm" type="button" hidden>Confirm connection</button><button id="telegramDisconnect" type="button" disabled>Disconnect / cancel request</button></div>
+ <p class="alerts106-hint">This pilot links your account only. It does not enable subscriber signal delivery or change your existing private test alerts. You can disconnect the account link here or send /stop to the bot.</p></div>
 </section>
 <section id="settings" class="page">
 <div class="sectionhead"><h2>Account Settings</h2><div class="r">Manage your account</div></div>
@@ -960,6 +969,7 @@ html[data-density="compact"] #signalList .signal-card-refresh{padding:14px 16px}
   </aside>
 </div>
 
+<script src="telegram-config.js"></script>
 <script>
 
 const API_URL="https://qbktk0du23.execute-api.eu-west-2.amazonaws.com/v1/signals";
@@ -2070,7 +2080,7 @@ function switchPage(page){
   document.getElementById(page).classList.add("active");
   const activeNav=document.querySelector(`.navbtn[data-page="${page}"]`); if(activeNav)activeNav.classList.add("active");
   if(page==="performance")siLoad();
-  if(page==="myalerts")alerts106Load();
+  if(page==="myalerts"){alerts106Load();telegramLinkLoad();}
   if(page==="watchlists"||page==="notifications")v105Render();
   if(page==="news"&&!marketNewsLoaded)loadMarketNews();
   if(page==="status")refreshStatus();
@@ -2437,6 +2447,7 @@ function clearLocalAuth(){
   ["artemis_id_token","artemis_access_token","artemis_refresh_token","artemis_pkce_verifier","artemis_oauth_state"].forEach(k=>sessionStorage.removeItem(k));
 }
 function logout(){
+  telegramLinkReset();
   notifyAccount="";notifyState=null;document.getElementById("notifyPopover").hidden=true;
   clearLocalAuth();
   const params=new URLSearchParams({
@@ -2578,6 +2589,72 @@ document.getElementById('alerts106Form').addEventListener('submit',alerts106Save
 document.getElementById('alerts106Reload').addEventListener('click',alerts106Load);
 document.getElementById('alerts106Add').addEventListener('click',alerts106AddSymbol);
 document.getElementById('openMyAlerts').addEventListener('click',()=>switchPage('myalerts'));
+
+// ELITE linking pilot. Bot credentials and webhook secret never enter browser code.
+let telegramLinkBusy=false,telegramLinkStatus=null;
+const telegramLinkNode=id=>document.getElementById(id);
+function telegramLinkReset(){telegramLinkStatus=null;const link=telegramLinkNode('telegramOpenBot');link.hidden=true;link.removeAttribute('href');telegramLinkNode('telegramConfirm').hidden=true;}
+function telegramLinkButtons(){
+ const s=telegramLinkStatus;
+ telegramLinkNode('telegramConnect').disabled=telegramLinkBusy||!s?.eligible||s?.connected;
+ telegramLinkNode('telegramCheck').disabled=telegramLinkBusy;
+ telegramLinkNode('telegramConfirm').disabled=telegramLinkBusy||!s?.eligible;
+ telegramLinkNode('telegramDisconnect').disabled=telegramLinkBusy||!(s?.connected||s?.pending);
+}
+async function telegramLinkRequest(method,path){
+ const base=String(window.ARTEMIS_TELEGRAM_API||'').replace(/\/$/,'');
+ if(!/^https:\/\/[a-z0-9]+\.execute-api\.eu-west-2\.amazonaws\.com$/.test(base))throw Error('Telegram account linking is being connected. Please check again shortly.');
+ const token=sessionStorage.getItem('artemis_id_token');if(!token)throw Error('Sign in again to manage Telegram.');
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+ try{
+  const response=await fetch(base+path,{method,headers:{Authorization:'Bearer '+token,Accept:'application/json'},cache:'no-store',signal:controller.signal});
+  const body=await response.json().catch(()=>({}));
+  if(sessionStorage.getItem('artemis_id_token')!==token)throw Error('Your session changed. Check the connection again.');
+  if(!response.ok)throw Error(body.error||('Telegram connection unavailable ('+response.status+').'));
+  return body;
+ }finally{clearTimeout(timer);}
+}
+function telegramLinkRender(status){
+ telegramLinkStatus=status;const label=telegramLinkNode('telegramConnectionStatus'),detail=telegramLinkNode('telegramConnectionDetail');
+ telegramLinkNode('telegramConfirm').hidden=!status.pendingConfirmation;
+ if(!status.pending){telegramLinkNode('telegramOpenBot').hidden=true;telegramLinkNode('telegramOpenBot').removeAttribute('href');}
+ if(status.connected){label.textContent='Telegram account linked';detail.textContent=(status.telegramUsername?'@'+status.telegramUsername:status.telegramDisplayName||'Private Telegram chat')+' · chat ending '+status.chatIdLast4+'. Subscriber signal delivery is not enabled in this linking pilot.';}
+ else if(status.pendingConfirmation){label.textContent='Confirm your private Telegram chat';const who=status.telegramUsername?'@'+status.telegramUsername:status.telegramDisplayName||'Private chat';detail.textContent='Check that '+who+' (chat ending '+status.chatIdLast4+') is yours, then confirm. If it is unfamiliar, cancel this request.';telegramLinkNode('telegramConfirm').textContent='Confirm '+who;}
+ else if(status.pending){label.textContent='Waiting for Telegram';detail.textContent='Open the bot using the connection link, press Start, then return here and select Check connection. Link expires '+new Date(status.expiresAt*1000).toLocaleTimeString('en-US')+'.';}
+ else if(!status.eligible){label.textContent='ELITE membership required';detail.textContent='Telegram linking is available with current ELITE membership. You can disconnect an existing link at any time.';}
+ else{label.textContent='Telegram not connected';detail.textContent='Connect your Artemis account to a private Telegram chat. No bot token or chat ID is needed.';}
+ telegramLinkButtons();
+}
+async function telegramLinkLoad(){
+ if(telegramLinkBusy)return;telegramLinkBusy=true;telegramLinkButtons();
+ telegramLinkNode('telegramConnectionStatus').textContent='Checking Telegram connection…';
+ try{telegramLinkRender(await telegramLinkRequest('GET','/telegram/status'));}
+ catch(e){telegramLinkReset();telegramLinkNode('telegramConnectionStatus').textContent='Telegram connection unavailable';telegramLinkNode('telegramConnectionDetail').textContent=e.name==='AbortError'?'The request timed out. Try Check connection again.':e.message;}
+ finally{telegramLinkBusy=false;telegramLinkButtons();}
+}
+telegramLinkNode('telegramConnect').addEventListener('click',async()=>{
+ if(telegramLinkBusy)return;telegramLinkBusy=true;telegramLinkButtons();telegramLinkNode('telegramOpenBot').hidden=true;
+ try{
+  const result=await telegramLinkRequest('POST','/telegram/link'),url=new URL(result.url);
+  if(url.origin!=='https://t.me'||url.pathname!=='/ArtemisSignalsTestBot'||!/^link_[A-Za-z0-9_-]{43}$/.test(url.searchParams.get('start')||''))throw Error('Unexpected bot connection link.');
+  telegramLinkRender({eligible:true,pending:true,pendingConfirmation:false,connected:false,expiresAt:result.expiresAt});
+  const link=telegramLinkNode('telegramOpenBot');link.href=url.href;link.hidden=false;link.focus();
+ }catch(e){telegramLinkNode('telegramConnectionDetail').textContent=e.message;}
+ finally{telegramLinkBusy=false;telegramLinkButtons();}
+});
+telegramLinkNode('telegramConfirm').addEventListener('click',async()=>{
+ if(telegramLinkBusy)return;telegramLinkBusy=true;telegramLinkButtons();
+ try{telegramLinkRender(await telegramLinkRequest('POST','/telegram/confirm'));}
+ catch(e){telegramLinkNode('telegramConnectionDetail').textContent=e.message;}
+ finally{telegramLinkBusy=false;telegramLinkButtons();}
+});
+telegramLinkNode('telegramDisconnect').addEventListener('click',async()=>{
+ if(telegramLinkBusy)return;telegramLinkBusy=true;telegramLinkButtons();
+ try{await telegramLinkRequest('DELETE','/telegram/link');telegramLinkReset();telegramLinkNode('telegramConnectionStatus').textContent='Account link disconnected';telegramLinkNode('telegramConnectionDetail').textContent='The account link and pending request were removed. The separate private test alerts, if running, are unchanged.';}
+ catch(e){telegramLinkNode('telegramConnectionDetail').textContent=e.message;}
+ finally{telegramLinkBusy=false;telegramLinkButtons();}
+});
+telegramLinkNode('telegramCheck').addEventListener('click',telegramLinkLoad);
 
 initAuth();
 </script>
