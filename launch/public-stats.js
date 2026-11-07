@@ -43,6 +43,7 @@ async function refresh(){
  catch(error){showStatus(true);}finally{clearTimeout(timer);busy=false;$('proofRefresh').disabled=false;}
 }
 $('proofBand').addEventListener('change',render);$('proofRefresh').addEventListener('click',refresh);
+$('proofRefresh').hidden=!(typeof window.ARTEMIS_PUBLIC_STATS_ENDPOINT==='string'&&/^https:\/\//i.test(window.ARTEMIS_PUBLIC_STATS_ENDPOINT));
 validate(snapshot);render();showStatus();
 // Only poll when the public results section is visible.
 if('IntersectionObserver' in window){let visible=false;const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible&&!document.hidden&&Date.now()-lastFetch>300000)refresh();});observer.observe($('performance-proof'));setInterval(()=>{if(visible&&!document.hidden){showStatus();if(Date.now()-lastFetch>300000)refresh();}},60000);}else refresh();
