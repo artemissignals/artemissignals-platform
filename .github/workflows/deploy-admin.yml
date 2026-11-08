@@ -60,6 +60,17 @@ jobs:
           role-session-name: ArtemisAdmin-${{ github.run_id }}
           allowed-account-ids: '078809709432'
           retry-max-attempts: 2
+      - name: Diagnose Amplify job listing
+        shell: bash
+        run: |
+          aws amplify list-jobs \
+            --app-id d1c39lv7sdpoz4 \
+            --branch-name main \
+            --region eu-west-2 \
+            --max-results 5 \
+            --no-paginate \
+            --query 'jobSummaries[].{Job:jobId,Status:status}' \
+            --output table
       - name: Validate, package and deploy admin folder
         shell: python
         run: |
@@ -74,7 +85,12 @@ jobs:
               command=['aws','amplify',operation,'--region',REGION,'--output','json']
               for key,value in params.items():command+=['--'+key.replace('_','-'),str(value)]
               result=subprocess.run(command,capture_output=True,text=True)
-              require(result.returncode==0,'AWS '+operation+' failed. Check the role permissions and target app; sensitive response details are withheld.')
+              if result.returncode != 0:
+                  message = result.stderr.strip()
+                  match = re.search(r'An error occurred \([^\n]+', message)
+                  detail = match.group(0) if match else 'AWS CLI failed; exit code '+str(result.returncode)
+                  detail = re.sub(r'https?://\S+', '[URL withheld]', detail)
+                  raise RuntimeError('AWS '+operation+' failed: '+detail[:2500])
               return json.loads(result.stdout)
 
           class Assets(HTMLParser):
