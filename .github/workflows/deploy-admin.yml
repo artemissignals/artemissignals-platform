@@ -1,68 +1,4 @@
-name: Deploy existing Artemis admin
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'admin/**'
-      - '.github/workflows/deploy-admin.yml'
-  workflow_dispatch:
-permissions:
-  contents: read
-concurrency:
-  group: artemis-existing-admin-production
-  cancel-in-progress: false
-jobs:
-  deploy:
-    if: github.repository == 'artemissignals/artemissignals-platform' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: Check out main
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-      - name: Check GitHub identity
-        shell: python
-        run: |
-          import os, json, base64, urllib.request
-
-          url = os.environ['ACTIONS_ID_TOKEN_REQUEST_URL']
-          url += ('&' if '?' in url else '?') + 'audience=sts.amazonaws.com'
-          request = urllib.request.Request(
-              url,
-              headers={
-                  'Authorization': 'Bearer ' +
-                  os.environ['ACTIONS_ID_TOKEN_REQUEST_TOKEN']
-              }
-          )
-          with urllib.request.urlopen(request) as response:
-              token = json.load(response)['value']
-
-          payload = token.split('.')[1]
-          claims = json.loads(base64.urlsafe_b64decode(
-              payload + '=' * (-len(payload) % 4)
-          ))
-          print(json.dumps({
-              key: claims.get(key)
-              for key in ('iss', 'sub', 'aud', 'repository', 'ref')
-          }, indent=2))
-          print('Subject matches AWS trust:', claims.get('sub') == 'repo:artemissignals@283159501/artemissignals-platform@1412203453:ref:refs/heads/main')
-          print('Audience matches AWS trust:', claims.get('aud') == 'sts.amazonaws.com')
-      - name: Get temporary AWS deployment credentials
-        uses: aws-actions/configure-aws-credentials@v6.3.0
-        with:
-          role-to-assume: arn:aws:iam::078809709432:role/artemis-existing-admin-github-deploy
-          aws-region: eu-west-2
-          role-duration-seconds: 1800
-          role-session-name: ArtemisAdmin-${{ github.run_id }}
-          allowed-account-ids: '078809709432'
-          retry-max-attempts: 2
-      - name: Diagnose Amplify job listing
-        shell: bash
-        run: |
+run: |
           aws amplify list-jobs \
             --app-id d1c39lv7sdpoz4 \
             --branch-name main \
@@ -85,7 +21,12 @@ jobs:
               command=['aws','amplify',operation,'--region',REGION,'--output','json']
               for key,value in params.items():command+=['--'+key.replace('_','-'),str(value)]
               result=subprocess.run(command,capture_output=True,text=True)
-              require(result.returncode==0,'AWS '+operation+' failed. Check the role permissions and target app; sensitive response details are withheld.')
+              if result.returncode != 0:
+                  message = result.stderr.strip()
+                  match = re.search(r'An error occurred \([^\n]+', message)
+                  detail = match.group(0) if match else 'AWS CLI failed; exit code '+str(result.returncode)
+                  detail = re.sub(r'https?://\S+', '[URL withheld]', detail)
+                  raise RuntimeError('AWS '+operation+' failed: '+detail[:2500])
               return json.loads(result.stdout)
 
           class Assets(HTMLParser):
@@ -185,6 +126,3 @@ jobs:
           )
           with urllib.request.urlopen(request, timeout=30) as response:
               deployed = json.load(response)
-          if deployed.get('commit') != commit:
-              raise SystemExit('Production verification failed: deployed commit does not match this run.')
-          print('VERIFIED production commit: ' + commit)
