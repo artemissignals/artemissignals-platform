@@ -982,9 +982,9 @@ html[data-density="compact"] .signal-level-slot>.signal-progress-node{margin-top
     <div class="status-tile"><div><div class="status-name">News Feed</div><div class="status-note" id="newsFeedNote">Checking premium news access</div></div><span id="newsFeedHealth" class="status-pill unknown">Checking</span></div>
     <div class="status-tile"><div><div class="status-name">News API</div><div class="status-note" id="newsApiNote">Checking authenticated news requests</div></div><span id="newsApiHealth" class="status-pill unknown">Checking</span></div>
   </div>
-  <div class="maint-card"><div class="maint-head"><div><h3 style="margin:0 0 4px">Planned Maintenance</h3><div class="sub">Upcoming service windows and notices</div></div><span class="status-pill unknown" id="maintenanceIndicator">No schedule</span></div>
-   <div class="maint-content" id="maintenanceContent" aria-live="polite"><strong>No maintenance scheduled</strong>There are no scheduled maintenance windows published at this time.</div>
-   <div class="status-footnote">Maintenance notices will be managed from the upcoming administration section. No administration controls are available here yet.</div>
+  <div class="maint-card"><div class="maint-head"><div><h3 style="margin:0 0 4px">Service notices &amp; maintenance</h3><div class="sub">Upcoming service windows and notices</div></div><span class="status-pill unknown" id="maintenanceIndicator">Not checked</span></div>
+   <div class="maint-content" id="maintenanceContent" aria-live="polite"><strong>Service notices not checked</strong>Sign in and select Check now to retrieve published notices.</div>
+   <div class="status-footnote">Published by Artemis administrators. Times follow your device time zone; notices disappear after their display window.</div>
   </div>
   <p class="status-footnote">Green indicates a successful check, red indicates an observed failure, and grey indicates that the service cannot currently be verified. Signal Bridge activity is inferred from received signals; direct publisher heartbeat monitoring requires a dedicated health endpoint. Database status is inferred from successful API data retrieval, not a direct database probe.</p>
 </section>
@@ -2144,7 +2144,7 @@ function switchPage(page){
   if(page==="myalerts"){alerts106Load();telegramLinkLoad();alertsQualityLoad();browserDeviceRender();}
   if(page==="watchlists"||page==="notifications")v105Render();
   if(page==="news"&&!marketNewsLoaded)loadMarketNews();
-  if(page==="status")refreshStatus();
+  if(page==="status"){refreshStatus();if(window.artemisLoadServiceNotices)window.artemisLoadServiceNotices();}
 }
 document.querySelectorAll(".navbtn").forEach(btn=>btn.addEventListener("click",()=>switchPage(btn.dataset.page)));
 
@@ -2977,5 +2977,5 @@ document.getElementById('telegramSetupToggle').addEventListener('click',()=>{con
 
 initAuth();
 </script>
-</body>
+<script src="communications-config.js"></script><script src="service-notices.js"></script></body>
 </html>
