@@ -25,9 +25,8 @@ jobs:
         with:
           persist-credentials: false
       - name: Check GitHub identity
-        shell: bash
+        shell: python
         run: |
-          python3 - <<'PY'
           import os, json, base64, urllib.request
 
           url = os.environ['ACTIONS_ID_TOKEN_REQUEST_URL']
@@ -50,9 +49,8 @@ jobs:
               key: claims.get(key)
               for key in ('iss', 'sub', 'aud', 'repository', 'ref')
           }, indent=2))
-          print('Subject matches AWS trust:', claims.get('sub') == 'repo:artemissignals/artemissignals-platform:ref:refs/heads/main')
+          print('Subject matches AWS trust:', claims.get('sub') == 'repo:artemissignals@283159501/artemissignals-platform@1412203453:ref:refs/heads/main')
           print('Audience matches AWS trust:', claims.get('aud') == 'sts.amazonaws.com')
-          PY
       - name: Get temporary AWS deployment credentials
         uses: aws-actions/configure-aws-credentials@v6.3.0
         with:
@@ -63,9 +61,8 @@ jobs:
           allowed-account-ids: '078809709432'
           retry-max-attempts: 2
       - name: Validate, package and deploy admin folder
-        shell: bash
+        shell: python
         run: |
-          python3 - <<'PY'
           import hashlib,io,json,os,re,subprocess,sys,time,urllib.parse,urllib.request,zipfile
           from html.parser import HTMLParser
           from pathlib import Path
@@ -94,3 +91,89 @@ jobs:
               for name in tracked:
                   p=Path(name)
                   require(p.parts and p.parts[0]=='admin' and '..' not in p.parts,'Unexpected tracked path.')
+                  relative=Path(*p.parts[1:])
+                  if not relative.parts or any(x.startswith('.') for x in relative.parts):continue
+                  if relative.suffix.lower() not in allowed:continue
+                  source=root/relative
+                  require(not source.is_symlink() and source.resolve().is_relative_to(root.resolve()),'Symlinks or paths outside admin/ are not permitted.')
+                  require(source.is_file(),'Tracked file is missing: '+str(relative))
+                  files[relative.as_posix()]=source.read_bytes()
+              for required in ('index.html','communications.js','communications-config.js'):require(required in files,'Missing admin/'+required+'. Copy the Communications admin files into the admin/ folder and commit them.')
+              page=files['index.html'].decode('utf-8')
+              require('id="communications"' in page and 'OFFLINE DESIGN PREVIEW' not in page,'admin/index.html is not the live Communications build. Commit the updated admin page first.')
+              require(re.search(r'window\.ARTEMIS_COMMUNICATIONS_API\s*=\s*[\"\']https://[a-z0-9]+\.execute-api\.eu-west-2\.amazonaws\.com[\"\']',files['communications-config.js'].decode()),'communications-config.js is empty or invalid. Run setup_communications.py --deploy and commit the generated config.')
+              assets=Assets();assets.feed(page)
+              for value in assets.refs:
+                  u=urllib.parse.urlsplit(value)
+                  if u.scheme or u.netloc or not u.path:continue
+                  rel=urllib.parse.unquote(u.path).lstrip('/')
+                  require(rel in files,'Referenced admin asset is missing from the deployment: '+rel)
+              require(sum(map(len,files.values()))<=20*1024*1024,'Admin assets exceed the 20 MiB review limit.')
+              require(re.fullmatch(r'[0-9a-f]{40,64}',commit),'Invalid Git commit identifier.')
+              require('</head>' in page,'Admin page closing head tag is missing.')
+              page=page.replace('</head>','<meta name="artemis-admin-commit" content="'+commit+'"></head>',1)
+              files['index.html']=page.encode()
+              files['deployment.json']=json.dumps({'commit':commit,'deployedAtUtc':__import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat(),'sourceFolder':'admin'}).encode()
+              output=io.BytesIO()
+              with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED) as z:
+                  for name,data in sorted(files.items()):z.writestr(name,data)
+              return output.getvalue(),len(files)
+
+          def main():
+              require(os.environ.get('GITHUB_REPOSITORY','').lower()==REPOSITORY,'Wrong GitHub repository.')
+              require(os.environ.get('GITHUB_REF')=='refs/heads/main','Only the main branch can deploy this app.')
+              commit=os.environ['GITHUB_SHA']
+              paths=subprocess.run(['git','ls-files','-z','--','admin'],capture_output=True,check=True).stdout.decode().split('\0')
+              archive,count=bundle(Path('admin'),[x for x in paths if x],commit)
+              app=aws('get-app',app_id=APP)['app'];require(app.get('name')=='artemissignals-admin' and not app.get('repository'),'Target app changed; review before deploying.')
+              latest=aws('list-jobs',app_id=APP,branch_name=BRANCH,max_results=5).get('jobSummaries',[])
+              require(not any(j.get('status') in ('PENDING','PROVISIONING','RUNNING','CANCELLING') for j in latest),'Another Amplify deployment is active. Wait before running this workflow again.')
+              print('Validated '+str(count)+' admin assets. Deploying commit '+commit+' to the EXISTING admin app.',flush=True)
+              created=aws('create-deployment',app_id=APP,branch_name=BRANCH)
+              url=created.get('zipUploadUrl','');require(url.startswith('https://'),'Amplify did not return an HTTPS upload URL.')
+              try:
+                  request=urllib.request.Request(url,data=archive,method='PUT',headers={'Content-Type':'application/zip'})
+                  with urllib.request.urlopen(request,timeout=90) as uploaded:require(200<=uploaded.status<300,'Upload failed.')
+              except Exception:raise RuntimeError('Upload failed. The signed upload URL has not been logged; the existing site was not replaced.') from None
+              job_id=created['jobId'];aws('start-deployment',app_id=APP,branch_name=BRANCH,job_id=job_id)
+              deadline=time.monotonic()+600;previous=None
+              while True:
+                  state=aws('get-job',app_id=APP,branch_name=BRANCH,job_id=job_id)['job']['summary']['status']
+                  if state!=previous:print('Amplify job '+str(job_id)+': '+state,flush=True);previous=state
+                  if state=='SUCCEED':break
+                  require(state not in ('FAILED','CANCELLED'),'Amplify deployment failed. Inspect the job in the existing Amplify app.')
+                  require(time.monotonic()<deadline,'Deployment is still pending. Check Amplify before rerunning; no rollback is claimed.')
+                  time.sleep(5)
+              # Verify actual public files, not just the Amplify job status.
+              verified=False;deadline=time.monotonic()+120
+              while time.monotonic()<deadline:
+                  try:
+                      with urllib.request.urlopen(urllib.request.Request('https://admin.artemissignals.ai/deployment.json?commit='+commit,headers={'Cache-Control':'no-cache'}),timeout=15) as r:stamp=json.load(r)
+                      with urllib.request.urlopen(urllib.request.Request('https://admin.artemissignals.ai/?commit='+commit,headers={'Cache-Control':'no-cache'}),timeout=15) as r:page=r.read(2*1024*1024).decode()
+                      if stamp.get('commit')==commit and 'name="artemis-admin-commit" content="'+commit+'"' in page:verified=True;break
+                  except Exception:pass
+                  time.sleep(5)
+              require(verified,'Amplify deployment succeeded, but the custom domain has not verified the new commit yet. Check domain mapping and CDN propagation; no rollback is claimed.')
+              print('VERIFIED: admin.artemissignals.ai serves Git commit '+commit)
+              summary=os.environ.get('GITHUB_STEP_SUMMARY')
+              if summary:Path(summary).write_text('## Admin deployment verified\n\n- Existing app: `'+APP+'`\n- Branch: `main`\n- Source: `admin/`\n- Commit: `'+commit+'`\n- URL: https://admin.artemissignals.ai/\n')
+
+          try:
+              if __name__=='__main__':main()
+          except Exception as e:
+              print('Deployment stopped: '+(str(e) if isinstance(e,RuntimeError) else type(e).__name__+'; sensitive details withheld.'),file=sys.stderr);sys.exit(1)
+
+      - name: Verify production commit
+        shell: python
+        run: |
+          import json, os, urllib.request
+          commit = os.environ['GITHUB_SHA']
+          request = urllib.request.Request(
+              'https://admin.artemissignals.ai/deployment.json?commit=' + commit,
+              headers={'Cache-Control': 'no-cache'}
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              deployed = json.load(response)
+          if deployed.get('commit') != commit:
+              raise SystemExit('Production verification failed: deployed commit does not match this run.')
+          print('VERIFIED production commit: ' + commit)
