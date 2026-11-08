@@ -1,1 +1,1 @@
-window.ARTEMIS_COMMUNICATIONS_API = ""; // Filled by setup_communications.py after deployment.
+window.ARTEMIS_COMMUNICATIONS_API = "https://2uzilcnufi.execute-api.eu-west-2.amazonaws.com";
