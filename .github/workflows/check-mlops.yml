@@ -1,0 +1,29 @@
+name: Check Artemis MLOps pipeline
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/mlops/**'
+      - '.github/workflows/check-mlops.yml'
+  pull_request:
+    paths:
+      - 'backend/mlops/**'
+      - '.github/workflows/check-mlops.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Validate Python syntax
+        run: python -m compileall -q backend/mlops
+      - name: Test research evidence handling
+        run: python -m unittest discover -s backend/mlops/tests -v
