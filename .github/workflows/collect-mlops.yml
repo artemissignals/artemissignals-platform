@@ -1,0 +1,41 @@
+name: Collect Artemis research data
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: artemis-mlops-research-collection
+  cancel-in-progress: false
+jobs:
+  collect:
+    if: github.repository == 'artemissignals/artemissignals-platform' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      ARTEMIS_ML_BUCKET: 'artemis-mlops-research-078809709432-eu-west-2'
+      AWS_DEFAULT_REGION: eu-west-2
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install AWS SDK
+        run: python -m pip install --disable-pip-version-check boto3
+      - name: Check research pipeline
+        run: python -m unittest discover -s backend/mlops/tests -v
+      - name: Get restricted research credentials
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: 'arn:aws:iam::078809709432:role/artemis-mlops-research-github'
+          aws-region: eu-west-2
+          allowed-account-ids: '078809709432'
+          role-duration-seconds: 1800
+          role-session-name: ArtemisResearch-${{ github.run_id }}
+          retry-max-attempts: 2
+      - name: Collect, build and archive research evidence
+        run: python backend/mlops/run_collection.py
