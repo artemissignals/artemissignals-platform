@@ -1,6 +1,8 @@
 name: Collect Artemis research data
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '37 6 * * *'
 permissions:
   contents: read
 concurrency:
