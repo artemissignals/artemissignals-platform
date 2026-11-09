@@ -1,0 +1,78 @@
+name: Watch Artemis research collection
+on:
+  workflow_run:
+    workflows: ['Collect Artemis research data']
+    types: [completed]
+    branches: [main]
+  schedule:
+    - cron: '7 9 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+  issues: write
+concurrency:
+  group: artemis-mlops-research-watchdog
+  cancel-in-progress: false
+jobs:
+  watch:
+    if: github.repository == 'artemissignals/artemissignals-platform'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check collection health and maintain alert issue
+        shell: python
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          import json,os,urllib.request
+          from datetime import datetime,timezone,timedelta
+          REPO='artemissignals/artemissignals-platform'
+          TITLE='MLOps research collection needs attention'
+          MARKER='<!-- artemis-mlops-watchdog-v1 -->'
+          def stamp(s):return datetime.fromisoformat(s.replace('Z','+00:00'))
+          def assess(runs,now):
+           completed=sorted((r for r in runs if r.get('status')=='completed'),key=lambda r:stamp(r['updated_at']),reverse=True)
+           successes=[r for r in completed if r.get('conclusion')=='success']
+           last=successes[0] if successes else None
+           problems=[]
+           if not last:problems.append('No successful collection run was found in the checked workflow history.')
+           elif now-stamp(last['updated_at'])>timedelta(hours=36):problems.append('The last successful collection finished more than 36 hours ago.')
+           if completed and completed[0].get('conclusion') not in ('success','skipped'):
+            problems.append('The latest completed collection run ended with '+str(completed[0].get('conclusion'))+'.')
+           return problems,last,completed[0] if completed else None
+
+          def main():
+           token=os.environ['GITHUB_TOKEN']
+           if os.environ.get('GITHUB_REPOSITORY')!=REPO:raise RuntimeError('Unexpected repository.')
+           def api(path,method='GET',data=None):
+            req=urllib.request.Request('https://api.github.com/repos/'+REPO+path,method=method,headers={'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'},data=json.dumps(data).encode() if data is not None else None)
+            with urllib.request.urlopen(req,timeout=25) as response:return json.load(response)
+           runs=[]
+           for page in range(1,6):
+            items=api('/actions/workflows/collect-mlops.yml/runs?branch=main&per_page=100&page='+str(page))['workflow_runs'];runs.extend(items)
+            if len(items)<100 or any(r.get('conclusion')=='success' for r in items):break
+           issues=[]
+           for page in range(1,11):
+            items=api('/issues?state=open&per_page=100&page='+str(page));issues.extend(x for x in items if 'pull_request' not in x and MARKER in (x.get('body') or ''))
+            if len(items)<100:break
+           else:raise RuntimeError('Open issue search incomplete; stopped to avoid duplicate alerts.')
+           problems,last,latest=assess(runs,datetime.now(timezone.utc))
+           if problems:
+            body=MARKER+'\n## Research collection needs attention\n\n'+'\n'.join('- '+x for x in problems)
+            if last:body+='\n\nLast successful run: '+last['html_url']+'\nFinished: '+last['updated_at']
+            if latest:body+='\n\nLatest completed run: '+latest['html_url']
+            body+='\n\nCheck the collection run logs before retrying. This watchdog checks GitHub run results; it does not independently inspect S3 objects. Collection success verifies archive upload in the collection workflow. Model training remains disabled.\n'
+            if issues:
+             if issues[0].get('body')!=body:api('/issues/'+str(issues[0]['number']),'PATCH',{'body':body})
+             print('Existing research alert remains open: '+issues[0]['html_url'])
+            else:
+             issue=api('/issues','POST',{'title':TITLE,'body':body});print('Opened research alert: '+issue['html_url'])
+           else:
+            for issue in issues:api('/issues/'+str(issue['number']),'PATCH',{'state':'closed','state_reason':'completed'})
+            print('Research collection healthy. Closed existing watchdog alerts, if any.')
+           summary=os.environ.get('GITHUB_STEP_SUMMARY')
+           if summary:
+            from pathlib import Path
+            Path(summary).write_text('## MLOps collection watchdog\n\n'+('\n'.join('- '+x for x in problems) if problems else 'Latest collection succeeded and is within the 36-hour freshness window.')+'\n\nChecks GitHub workflow results only. No AWS access or training.\n')
+          if __name__=='__main__':main()
