@@ -669,6 +669,9 @@ html[data-density="compact"] .signal-level-slot>.signal-progress-node{margin-top
 @media(max-width:760px){#myalerts .alerts106-form{grid-template-columns:1fr}.alerts-column{gap:10px}.telegram-heading-actions{justify-content:flex-start}}
 </style>
 <link rel="icon" type="image/png" href="artemis-a-logo.png">
+<style id="artemisSignalSoundStyles">
+.signal-sound-toggle{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line,#29465a);border-radius:10px;padding:8px 10px;background:transparent;color:inherit;cursor:pointer;font:inherit;font-size:11px;white-space:nowrap}.signal-sound-toggle svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.signal-sound-toggle[data-enabled="true"]{color:var(--brand,#ffa460)}.signal-sound-toggle[data-enabled="true"] .sound-slash{display:none}.signal-sound-toggle:focus-visible{outline:2px solid var(--brand,#ffa460);outline-offset:3px}.signal-sound-settings{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.signal-sound-settings label{display:flex;align-items:center;gap:8px}.signal-sound-settings select{padding:8px;border-radius:8px;background:var(--panel,#122438);color:inherit;border:1px solid var(--line,#29465a)}@media(max-width:600px){.signal-sound-toggle [data-sound-label]{display:none}}
+</style>
 </head>
 <body>
 <section id="authGate" class="auth-gate">
@@ -678,7 +681,7 @@ html[data-density="compact"] .signal-level-slot>.signal-progress-node{margin-top
   <div class="auth-actions">
     <button id="loginButton" class="cta" type="button">Log In</button>
     <button id="signupButton" class="navbtn" type="button">Create Account</button>
-    <div id="notifyRoot" class="notify-root"><button id="notifyBell" type="button" class="notify-bell" aria-label="Notifications, 0 unread" aria-expanded="false" aria-controls="notifyPopover"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span id="notifyBellCount" class="alert-unread" hidden>0</span></button><div id="notifyPopover" class="notify-popover" hidden><div class="notify-popover-head"><strong>Recent notifications</strong><button type="button" id="notifyShowAll">View all</button></div><div id="notifyPeekList"><p class="v105-empty">Waiting for your authenticated feed.</p></div></div></div>
+    <button id="signalSoundToggle" class="signal-sound-toggle" type="button" data-enabled="true" aria-pressed="true" aria-label="New-signal sound on; click to mute" title="Signal sounds on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/><path class="sound-slash" d="M3 3l18 18"/></svg><span data-sound-label>Sound on</span></button><div id="notifyRoot" class="notify-root"><button id="notifyBell" type="button" class="notify-bell" aria-label="Notifications, 0 unread" aria-expanded="false" aria-controls="notifyPopover"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span id="notifyBellCount" class="alert-unread" hidden>0</span></button><div id="notifyPopover" class="notify-popover" hidden><div class="notify-popover-head"><strong>Recent notifications</strong><button type="button" id="notifyShowAll">View all</button></div><div id="notifyPeekList"><p class="v105-empty">Waiting for your authenticated feed.</p></div></div></div>
   <button class="themebtn" type="button" aria-label="Switch color theme">☀ Light</button>
   </div>
   <div id="authState" class="auth-state"></div>
@@ -969,6 +972,7 @@ html[data-density="compact"] .signal-level-slot>.signal-progress-node{margin-top
 <section id="settings" class="page">
 <div class="sectionhead"><h2>Account Settings</h2><div class="r">Manage your account</div></div><div class="panel"><h3>Dashboard session</h3><p class="v105-note">Choose when this dashboard signs out after inactivity. The default is 8 hours. Mouse clicks, typing, scrolling, and touch activity keep the session active; automatic feed updates do not.</p><label class="alerts106-label" for="sessionIdleTimeout">Sign out after inactivity</label><select id="sessionIdleTimeout" class="session-timeout-select"><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option><option value="240">4 hours</option><option value="480" selected>8 hours (default)</option><option value="720">12 hours</option></select><p id="sessionSettingsStatus" class="v105-note" role="status" aria-live="polite">Saved separately for each account on this browser.</p><p class="alerts106-hint">You may still need to sign in again if your sign-in service expires or revokes the session. Closing this browser tab ends the stored dashboard session.</p></div>
 <div class="panel"><h3>Signal preferences</h3><p class="v105-note">Use My Alerts to choose the markets, instruments, directions and timeframes you want to follow. Your choices are saved to your account and control Telegram alerts when delivery is enabled. Email delivery is not available yet.</p><button type="button" class="cta" id="openMyAlerts">Open My Alerts →</button></div>
+<div class="panel" id="signalSoundPanel"><h3>New-signal sounds</h3><p class="v105-note">Play a sound when a newly detected signal matches your Notification Center filters. On by default. Target hits, stops, historical signals and initial page loading do not ring.</p><div class="signal-sound-settings"><label><input id="signalSoundEnabled" type="checkbox" checked> Sound on</label><label for="signalSoundChoice">Sound <select id="signalSoundChoice"><option value="bell">Bell</option><option value="chime">Chime</option><option value="ping">Double ping</option><option value="soft">Soft tone</option></select></label><label for="signalSoundVolume">Volume <input id="signalSoundVolume" type="range" min="0.1" max="1" step="0.1" value="0.5"></label><button id="signalSoundTest" type="button">Preview sound</button></div><p id="signalSoundStatus" class="v105-note" role="status" aria-live="polite">On by default. Click the dashboard once to allow browser audio.</p><p class="alerts106-hint">Saved separately for each account on this browser. Keep the dashboard tab open and sign in. Background tabs can ring while running, but browser suspension, tab mute, sleep or closing the tab can delay or prevent alerts. This is dashboard audio, separate from Telegram and browser push. Multiple tabs use best-effort duplicate suppression.</p></div>
 </section>
 
 
@@ -1917,6 +1921,7 @@ function notifyIngest(){
   notifyState.events.push({...event,observedAt:now,read:false});
  }
  notifyState.initialized=true;notifyState.lastSeenAt=now;notifyState.known=[...known].slice(-10000);notifyState.events=notifyState.events.slice(-500);notifySave();notifyRender();
+ try{window.artemisSignalSound?.ingest({account:notifyAccount,events:notifyState.events,matching:notifyFiltered(),complete:typeof signalMetricsComplete==='boolean'&&signalMetricsComplete});}catch(_){}
 }
 function notifyFiltered(){
  if(!notifyState)return [];const f=notifyState.filters,min=Number(f.quality)||0;
@@ -2977,5 +2982,6 @@ document.getElementById('telegramSetupToggle').addEventListener('click',()=>{con
 
 initAuth();
 </script>
-<script src="communications-config.js"></script><script src="service-notices.js"></script></body>
+<script src="communications-config.js"></script><script src="service-notices.js"></script><script src="signal-sounds.js"></script>
+</body>
 </html>
