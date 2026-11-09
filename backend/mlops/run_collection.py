@@ -39,7 +39,24 @@ def main():
     s3.put_object(Bucket=bucket,Key=prefix+'archive-manifest.json',Body=data,ServerSideEncryption='AES256',ContentType='application/json',Metadata={'sha256':digest},IfNoneMatch='*')
     check=s3.head_object(Bucket=bucket,Key=prefix+'archive-manifest.json')
     if check['ContentLength']!=len(data) or check.get('Metadata',{}).get('sha256')!=digest:raise RuntimeError('Archive manifest verification failed.')
+    mp,merged=invoke('merge_research_archives.py','--collector',str(ROOT/'collect_forward_dataset.py'),'--builder',str(ROOT/'build_receipt_cohorts.py'))
+    if merged.get('coverageContinuous') is not True or merged.get('cohortProduced') is not True or merged.get('labelsAssigned')!=0 or merged.get('trainingReady') is not False:
+        raise RuntimeError('Merged research guard failed. Snapshot remains archived; no merged CSV uploaded.')
+    merged_entries=[]
+    merged_names=('private-audit-evidence.json','private-forward-signals.json','forward-dataset-report.json','private-merged-receipt-milestones.csv','receipt-cohort-report.json','private-archive-provenance.json','merge-report.json')
+    for name in merged_names:
+        data=(mp.parent/name).read_bytes();digest=hashlib.sha256(data).hexdigest();key=prefix+'merged/'+name
+        s3.put_object(Bucket=bucket,Key=key,Body=data,ServerSideEncryption='AES256',ContentType='text/csv' if name.endswith('.csv') else 'application/json',Metadata={'sha256':digest,'git-commit':commit},IfNoneMatch='*')
+        head=s3.head_object(Bucket=bucket,Key=key)
+        if head['ContentLength']!=len(data) or head.get('Metadata',{}).get('sha256')!=digest:raise RuntimeError('Merged upload verification failed.')
+        merged_entries.append({'name':name,'sha256':digest,'bytes':len(data),'versionId':head.get('VersionId')})
+    data=json.dumps({'schemaVersion':1,'complete':True,'trainingReady':False,'labelsAssigned':0,'commit':commit,'files':merged_entries,'prefix':prefix+'merged/'},indent=2).encode()
+    digest=hashlib.sha256(data).hexdigest()
+    s3.put_object(Bucket=bucket,Key=prefix+'merged/merge-manifest.json',Body=data,ServerSideEncryption='AES256',ContentType='application/json',Metadata={'sha256':digest},IfNoneMatch='*')
+    head=s3.head_object(Bucket=bucket,Key=prefix+'merged/merge-manifest.json')
+    if head['ContentLength']!=len(data) or head.get('Metadata',{}).get('sha256')!=digest:raise RuntimeError('Merged manifest verification failed.')
     summary='## Research archive verified\n\n- Signals collected: '+str(collection['distinctSignals'])+'\n- Included in research CSV: '+str(cohort['includedSignals'])+'\n- Observation windows: '+json.dumps(cohort['observationWindowCounts'])+'\n- Private archive: `s3://'+bucket+'/'+prefix+'`\n- Collection pagination: complete\n- Training labels: none\n- Model training: disabled\n\nThis is a rolling 72-hour snapshot, not incremental or complete long-term event capture.\n'
+    summary+='\n## Merged research verified\n\n- Archives verified: '+str(merged['archivesVerified'])+'\n- Repeated audit records removed: '+str(merged['repeatedAuditRecordsRemoved'])+'\n- Included signals: '+str(merged['includedSignals'])+'\n- Merged archive: `s3://'+bucket+'/'+prefix+'merged/`\n- Training: disabled\n'
     if os.environ.get('GITHUB_STEP_SUMMARY'):Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(summary)
     print(summary)
 if __name__=='__main__':main()
