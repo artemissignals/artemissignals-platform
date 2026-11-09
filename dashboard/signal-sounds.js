@@ -3,6 +3,13 @@
  'use strict';
  if(window.artemisSignalSound)return;
  const byId=id=>document.getElementById(id);
+const toolbar = document.querySelector('#appRoot .topbar .user-menu');
+if (toolbar) {
+  for (const id of ['notifyRoot', 'signalSoundToggle']) {
+    const control = byId(id);
+    if (control) toolbar.prepend(control);
+  }
+} 
  const choices={bell:[[1046.5,0,.52,'sine'],[2093,.015,.38,'sine']],chime:[[783.99,0,.3,'sine'],[1046.5,.19,.45,'sine']],ping:[[1318.5,0,.16,'sine'],[1318.5,.25,.18,'sine']],soft:[[659.25,0,.45,'triangle']]};
  let account='',prefs={enabled:true,sound:'bell',volume:.5},ctx=null,initialized=false,baseline=0,seen=new Set(),active=[],status='',queue=Promise.resolve(),lastLocalPlay=0;
  const scope=()=>{try{return typeof notifyScope==='function'?notifyScope():'';}catch{return '';}};
