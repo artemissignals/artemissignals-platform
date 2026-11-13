@@ -1,7 +1,13 @@
-ArtemisSignals public waitlist page update
+ARTEMIS SIGNALS PUBLIC GUIDES
 
-Upload index.html and the assets/ folder to the public artemissignals.ai web root. Keep your existing config.js, favicon.svg, privacy.html and social-card.png in place. Do not deploy this to app.artemissignals.ai.
+Copy these four files into the PUBLIC LAUNCH SITE folder in your existing Git checkout:
+index.html
+how-it-works.html
+telegram-alerts.html
+sitemap.xml
 
-Changed: marketing copy, feature cards, tiers, Market News screenshot preview. Preserved: waitlist form, endpoint in /config.js, consent checkbox, honeypot, referral code, existing signal preview JS.
+Use the same folder as your public homepage and privacy.html, not /admin or /dashboard. Keep all other assets and configuration files. Compare index.html against your current local copy before replacing it, preserving any changes made since the homepage clarity update.
 
-All market news shown in screenshot is illustrative, not live. Subscription prices not specified.
+Commit and push using your existing public-site deployment. Once deployed, check https://artemissignals.ai/how-it-works.html and https://artemissignals.ai/telegram-alerts.html and the homepage links. Your existing submitted sitemap URL is unchanged. You can request indexing for the two new pages through Search Console.
+
+No AWS configuration, account permissions, delivery logic, or live site was changed by preparing this package.
